@@ -1,0 +1,401 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma/client"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ─── Enums ────────────────────────────────────────────────────────────────────
+
+enum AuthProvider {
+  LOCAL
+  GOOGLE
+  GITHUB
+  DISCORD
+  FACEBOOK
+  APPLE
+}
+
+enum UserRole {
+  USER
+  ADMIN
+}
+
+enum Platform {
+  YOUTUBE
+  TELEGRAM
+  DISCORD
+  BLUESKY
+  INSTAGRAM
+  FACEBOOK
+  THREADS
+  PINTEREST
+  REDDIT
+  TWITTER
+  LINKEDIN
+  TIKTOK
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  TRIALING
+  CANCELED
+  EXPIRED
+}
+
+enum AlertMetric {
+  TRAFFIC_SPIKE      // Traffic suddenly increases
+  TRAFFIC_DROP       // Traffic suddenly drops
+  FOLLOWER_SPIKE
+  FOLLOWER_DROP
+  SITE_DOWN          // No traffic for X minutes
+  NEW_REFERRER       // New traffic source detected
+}
+
+enum AlertChannel {
+  EMAIL
+  IN_APP
+}
+
+enum AiProvider {
+  GROQ
+  OPENAI
+}
+
+enum AiInsightType {
+  WEEKLY
+  DAILY
+  WEBSITE
+  POST
+  CUSTOM
+}
+
+// ─── Models ───────────────────────────────────────────────────────────────────
+
+model User {
+  id                    String               @id @default(uuid()) @db.Uuid
+  email                 String               @unique
+  password              String?
+  name                  String?
+  avatar                String?
+  role                  UserRole             @default(USER)
+  provider              AuthProvider         @default(LOCAL)
+  providerId            String?
+  deletedAt             DateTime?
+  deleteReason          String?
+  restoreToken          String?              @unique
+  restoreTokenExpiresAt DateTime?
+  createdAt             DateTime             @default(now())
+  updatedAt             DateTime             @updatedAt
+  connections           Connection[]
+  websites              Website[]
+  passwordResetTokens   PasswordResetToken[]
+  subscription          UserSubscription?
+  aiInsights            AiInsight[]
+  magicLinkTokens       MagicLinkToken[]
+  alerts                Alert[]
+  notifications         Notification[]
+  apiKeys               ApiKey[]
+
+  @@map("users")
+}
+
+model PasswordResetToken {
+  id        String    @id @default(uuid()) @db.Uuid
+  userId    String    @db.Uuid
+  token     String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("password_reset_tokens")
+}
+
+model MagicLinkToken {
+  id        String    @id @default(uuid()) @db.Uuid
+  userId    String    @db.Uuid
+  token     String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("magic_link_tokens")
+}
+
+model Plan {
+  id                String             @id @default(uuid()) @db.Uuid
+  name              String
+  slug              String             @unique
+  price             Decimal            @db.Decimal(10, 2)
+  currency          String             @default("USD")
+  maxWebsites       Int
+  maxPlatforms      Int
+  maxMonthlyViews   Int
+  hasAiInsights     Boolean            @default(false)
+  hasWeeklyReport   Boolean            @default(false)
+  hasCustomAlerts   Boolean            @default(false)
+  isActive          Boolean            @default(true)
+  sortOrder         Int                @default(0)
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  subscriptions     UserSubscription[]
+
+  @@map("plans")
+}
+
+model UserSubscription {
+  id                 String             @id @default(uuid()) @db.Uuid
+  userId             String             @unique @db.Uuid
+  planId             String             @db.Uuid
+  status             SubscriptionStatus @default(ACTIVE)
+  currentPeriodStart DateTime           @default(now())
+  currentPeriodEnd   DateTime?
+  canceledAt         DateTime?
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
+  user               User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  plan               Plan               @relation(fields: [planId], references: [id])
+
+  @@map("user_subscriptions")
+}
+
+model PlatformConfig {
+  id          String   @id @default(uuid()) @db.Uuid
+  slug        Platform @unique
+  displayName String
+  description String?
+  iconUrl     String?
+  enabled     Boolean  @default(false)
+  comingSoon  Boolean  @default(true)
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("platform_configs")
+}
+
+model Connection {
+  id               String         @id @default(uuid()) @db.Uuid
+  userId           String         @db.Uuid
+  platform         Platform
+  accessToken      String?
+  refreshToken     String?
+  tokenExpiresAt   DateTime?
+  platformUserId   String?
+  platformUsername String?
+  isActive         Boolean        @default(true)
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+  user             User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  stats            PlatformStat[]
+  postStats        PostStat[]
+
+  @@unique([userId, platform])
+  @@map("connections")
+}
+
+model Website {
+  id          String    @id @default(uuid()) @db.Uuid
+  userId      String    @db.Uuid
+  name        String
+  domain      String?
+  trackingKey String    @unique @default(cuid())
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  sessions      Session[]
+  pageViews     PageView[]
+  customEvents  CustomEvent[]
+
+  @@map("websites")
+}
+
+// Bir tashrif = bir session (brauzer yopilgunga qadar)
+model Session {
+  id            String     @id @default(uuid()) @db.Uuid
+  websiteId     String     @db.Uuid
+  fingerprint   String                        // browser fingerprint (localStorage key)
+  startedAt     DateTime   @default(now())
+  lastSeenAt    DateTime   @default(now())
+  duration      Int        @default(0)        // soniya
+  pageCount     Int        @default(1)
+  bounced       Boolean    @default(true)     // bitta sahifa ko'rib ketsa true
+  entryPage     String
+  exitPage      String?
+  referrer      String?
+  utmSource     String?
+  utmMedium     String?
+  utmCampaign   String?
+  utmTerm       String?
+  utmContent    String?
+  device        String?
+  browser       String?
+  country       String?
+  ip            String?
+  website       Website    @relation(fields: [websiteId], references: [id], onDelete: Cascade)
+  pageViews     PageView[]
+
+  @@index([websiteId, startedAt])
+  @@index([websiteId, fingerprint])
+  @@map("sessions")
+}
+
+model PageView {
+  id          String   @id @default(uuid()) @db.Uuid
+  websiteId   String   @db.Uuid
+  sessionId   String?  @db.Uuid              // session bilan bog'liq
+  path        String
+  referrer    String?
+  device      String?
+  browser     String?
+  country     String?
+  ip          String?
+  duration    Int?                           // bu sahifada qancha soniya
+  scrollDepth Int?                           // 0-100 %
+  isEntry     Boolean  @default(false)
+  isExit      Boolean  @default(false)
+  utmSource   String?
+  utmMedium   String?
+  utmCampaign String?
+  createdAt   DateTime @default(now())
+  website     Website  @relation(fields: [websiteId], references: [id], onDelete: Cascade)
+  session     Session? @relation(fields: [sessionId], references: [id])
+
+  @@index([websiteId, createdAt])
+  @@index([sessionId])
+  @@map("page_views")
+}
+
+// Ijtimoiy tarmoq postlari statistikasi
+model PostStat {
+  id              String     @id @default(uuid()) @db.Uuid
+  connectionId    String     @db.Uuid
+  platform        Platform
+  postId          String                        // platformdagi post ID
+  title           String?
+  caption         String?
+  thumbnailUrl    String?
+  url             String?
+  publishedAt     DateTime?
+  views           Int?
+  likes           Int?
+  dislikes        Int?
+  comments        Int?
+  shares          Int?
+  reach           Int?
+  impressions     Int?
+  engagementRate  Float?
+  raw             Json?
+  syncedAt        DateTime   @default(now())
+  connection      Connection @relation(fields: [connectionId], references: [id], onDelete: Cascade)
+
+  @@unique([connectionId, postId])
+  @@index([connectionId, publishedAt])
+  @@map("post_stats")
+}
+
+// Custom events (button clicks, purchases, signups, etc.)
+model CustomEvent {
+  id         String   @id @default(uuid()) @db.Uuid
+  websiteId  String   @db.Uuid
+  sessionId  String?  @db.Uuid
+  name       String                     // "Purchase", "Signup", "Video Play"
+  properties Json?                      // { price: 49, currency: "USD" }
+  path       String?
+  device     String?
+  country    String?
+  ip         String?
+  createdAt  DateTime @default(now())
+  website    Website  @relation(fields: [websiteId], references: [id], onDelete: Cascade)
+
+  @@index([websiteId, name, createdAt])
+  @@map("custom_events")
+}
+
+model PlatformStat {
+  id           String     @id @default(uuid()) @db.Uuid
+  connectionId String     @db.Uuid
+  date         DateTime   @db.Date
+  followers    Int?
+  views        Int?
+  likes        Int?
+  comments     Int?
+  engagement   Float?
+  growth       Float?
+  raw          Json?
+  createdAt    DateTime   @default(now())
+  connection   Connection @relation(fields: [connectionId], references: [id], onDelete: Cascade)
+
+  @@unique([connectionId, date])
+  @@index([connectionId, date])
+  @@map("platform_stats")
+}
+
+// Public API keys for programmatic access
+model ApiKey {
+  id          String    @id @default(uuid()) @db.Uuid
+  userId      String    @db.Uuid
+  name        String
+  key         String    @unique          // mk_live_xxxxx
+  lastUsedAt  DateTime?
+  expiresAt   DateTime?
+  isActive    Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("api_keys")
+}
+
+// Alert rules configured by user
+model Alert {
+  id            String        @id @default(uuid()) @db.Uuid
+  userId        String        @db.Uuid
+  name          String
+  metric        AlertMetric
+  threshold     Float         // e.g. 2.0 = 2x spike, 0.5 = 50% drop
+  websiteId     String?       @db.Uuid
+  connectionId  String?       @db.Uuid
+  channel       AlertChannel  @default(EMAIL)
+  isActive      Boolean       @default(true)
+  lastTriggered DateTime?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("alerts")
+}
+
+// In-app notifications
+model Notification {
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String   @db.Uuid
+  title     String
+  body      String
+  type      String   @default("info")   // info | warning | success | error
+  readAt    DateTime?
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, readAt, createdAt])
+  @@map("notifications")
+}
+
+// AI insights cache
+model AiInsight {
+  id            String        @id @default(uuid()) @db.Uuid
+  userId        String        @db.Uuid
+  type          AiInsightType
+  title         String?
+  content       String        @db.Text
+  provider      AiProvider
+  tokensUsed    Int?
+  generatedAt   DateTime      @default(now())
+  user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, type, generatedAt])
+  @@map("ai_insights")
+}
