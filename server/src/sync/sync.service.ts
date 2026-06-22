@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, Optional } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { PrismaService } from '../prisma/prisma.service';
 import { YoutubeService } from '../youtube/youtube.service';
@@ -7,6 +7,7 @@ import { DiscordService } from '../discord/discord.service';
 import { BlueskyService } from '../bluesky/bluesky.service';
 import { InstagramService } from '../instagram/instagram.service';
 import { PostsService } from '../posts/posts.service';
+import { QueueService } from '../queue/queue.service';
 import { Platform } from '@metrix/prisma-client';
 
 @Injectable()
@@ -21,6 +22,7 @@ export class SyncService {
     private readonly blueskyService: BlueskyService,
     private readonly instagramService: InstagramService,
     private readonly postsService: PostsService,
+    @Optional() private readonly queue: QueueService,
   ) {}
 
   @Cron(CronExpression.EVERY_6_HOURS)
@@ -32,15 +34,23 @@ export class SyncService {
       select: { id: true, platform: true },
     });
 
-    for (const conn of connections) {
-      try {
-        await this.syncOne(conn.id, conn.platform);
-      } catch (err) {
-        this.logger.error(`Sync xatosi id=${conn.id}: ${err.message}`);
+    if (this.queue) {
+      // Queue available → add each connection as a separate job
+      for (const conn of connections) {
+        await this.queue.addConnectionSync(conn.id, conn.platform);
       }
+      this.logger.log(`Sync: ${connections.length} jobs queued`);
+    } else {
+      // Fallback: direct sync
+      for (const conn of connections) {
+        try {
+          await this.syncOne(conn.id, conn.platform);
+        } catch (err) {
+          this.logger.error(`Sync error id=${conn.id}: ${err.message}`);
+        }
+      }
+      this.logger.log(`Sync completed. ${connections.length} connections updated.`);
     }
-
-    this.logger.log(`Sync completed. ${connections.length} connections updated.`);
   }
 
   async syncOne(connectionId: string, platform: Platform) {
@@ -62,6 +72,7 @@ export class SyncService {
         break;
       case Platform.INSTAGRAM:
       case Platform.FACEBOOK:
+      case Platform.THREADS:
         await this.instagramService.fetchAndSaveStats(connectionId);
         break;
     }
@@ -80,6 +91,11 @@ export class SyncService {
   }
 
   async syncUser(userId: string) {
+    if (this.queue) {
+      await this.queue.addUserSync(userId);
+      return { queued: true, message: 'Sync job added to queue' };
+    }
+
     const connections = await this.prisma.connection.findMany({
       where: { userId, isActive: true },
       select: { id: true, platform: true },

@@ -5,19 +5,30 @@ import {
 import { AdminService } from './admin.service';
 import { JwtGuard } from '../auth/guards/jwt.guard';
 import { AdminGuard } from '../common/guards/admin.guard';
+import { QueueService } from '../queue/queue.service';
 import { TogglePlatformDto } from './dto/toggle-platform.dto';
 import { CreatePlanDto } from '../plans/dto/create-plan.dto';
 import { Platform } from '@metrix/prisma-client';
+import { Optional } from '@nestjs/common';
 
 @UseGuards(JwtGuard, AdminGuard)
 @Controller('admin')
 export class AdminController {
-  constructor(private readonly adminService: AdminService) {}
+  constructor(
+    private readonly adminService: AdminService,
+    @Optional() private readonly queue: QueueService,
+  ) {}
 
   // ─── Stats ──────────────────────────────────────────────────────────────
   @Get('stats')
   getStats() {
     return this.adminService.getStats();
+  }
+
+  @Get('queue')
+  getQueueStats() {
+    if (!this.queue) return { available: false };
+    return this.queue.getStats();
   }
 
   // ─── Users ──────────────────────────────────────────────────────────────

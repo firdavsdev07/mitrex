@@ -7,13 +7,15 @@ import { AppModule } from './app.module';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  app.useGlobalPipes(
-    new ValidationPipe({ whitelist: true, transform: true }),
-  );
+  app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
 
   app.enableCors({
     origin: process.env.FRONTEND_URL
-      ? [process.env.FRONTEND_URL, 'http://localhost:5173', 'http://localhost:3001']
+      ? [
+          process.env.FRONTEND_URL,
+          'http://localhost:5173',
+          'http://localhost:3001',
+        ]
       : ['http://localhost:5173', 'http://localhost:3001'],
     credentials: true,
   });
@@ -43,12 +45,14 @@ async function bootstrap() {
     SwaggerModule.setup('docs', app, document, {
       swaggerOptions: { persistAuthorization: true },
     });
-    console.log(`📚 Swagger docs: http://localhost:${process.env.PORT || 3000}/docs`);
   }
 
   const port = process.env.PORT || 3000;
   await app.listen(port);
   console.log(`🚀 Metrix server running at http://localhost:${port}`);
+  console.log(
+    `📚 Swagger docs: http://localhost:${process.env.PORT || 3000}/docs`,
+  );
 }
 
 bootstrap();

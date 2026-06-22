@@ -10,8 +10,8 @@ export class WebsitesService {
 
   async create(userId: string, dto: CreateWebsiteDto) {
     return this.prisma.website.create({
-      data: { userId, name: dto.name, domain: dto.domain },
-      select: { id: true, name: true, domain: true, trackingKey: true, createdAt: true },
+      data: { userId, name: dto.name, domain: dto.domain, workspaceId: dto.workspaceId || null },
+      select: { id: true, name: true, domain: true, trackingKey: true, workspaceId: true, createdAt: true },
     });
   }
 

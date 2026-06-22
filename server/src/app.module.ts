@@ -28,10 +28,13 @@ import { CommonModule } from './common/common.module';
 import { AlertsModule } from './alerts/alerts.module';
 import { ApiKeysModule } from './api-keys/api-keys.module';
 import { ExportModule } from './export/export.module';
+import { QueueModule } from './queue/queue.module';
+import { WorkspacesModule } from './workspaces/workspaces.module';
 
 @Module({
   imports: [
     ScheduleModule.forRoot(),
+    QueueModule,
     ThrottlerModule.forRoot([
       { name: 'short',  ttl: 1000,  limit: 10  },  // 1 sek da 10 ta
       { name: 'medium', ttl: 10000, limit: 50  },  // 10 sek da 50 ta
@@ -62,6 +65,7 @@ import { ExportModule } from './export/export.module';
     AlertsModule,
     ApiKeysModule,
     ExportModule,
+    WorkspacesModule,
   ],
   providers: [
     { provide: APP_GUARD, useClass: ThrottlerGuard },

@@ -1,4 +1,4 @@
-import { IsString, IsOptional, IsUrl } from 'class-validator';
+import { IsString, IsOptional, IsUrl, IsUUID } from 'class-validator';
 
 export class CreateWebsiteDto {
   @IsString()
@@ -7,4 +7,8 @@ export class CreateWebsiteDto {
   @IsOptional()
   @IsUrl({ require_tld: false })
   domain?: string;
+
+  @IsOptional()
+  @IsUUID()
+  workspaceId?: string;
 }

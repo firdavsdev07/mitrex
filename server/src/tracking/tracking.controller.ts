@@ -1,12 +1,12 @@
 import { Controller, Post, Body, Req, Res, Get } from '@nestjs/common';
-import { SkipThrottle } from '@nestjs/throttler';
+import { SkipThrottle, Throttle } from '@nestjs/throttler';
 import { Request, Response } from 'express';
 import { TrackingService } from './tracking.service';
 import { TrackEventDto } from './dto/track-event.dto';
 import { CustomEventDto } from './dto/custom-event.dto';
 
 @Controller()
-@SkipThrottle()
+@SkipThrottle({ short: true, medium: true, long: true })
 export class TrackingController {
   constructor(private readonly trackingService: TrackingService) {}
 

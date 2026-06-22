@@ -150,4 +150,33 @@ export class EmailService {
       this.logger.error(`Alert email error: ${err.message}`);
     }
   }
+
+  async sendWorkspaceInvite(to: string, workspaceName: string, inviteUrl: string) {
+    const client = this.resend;
+    if (!client) return;
+    try {
+      await client.emails.send({
+        from: this.from,
+        to,
+        subject: `You've been invited to ${workspaceName} on Metrix`,
+        html: `
+          <div style="font-family:sans-serif;max-width:480px;margin:0 auto">
+            <h2 style="color:#08060d">You've been invited!</h2>
+            <p>You have been invited to join the <strong>${workspaceName}</strong> workspace on Metrix.</p>
+            <a href="${inviteUrl}"
+               style="display:inline-block;padding:12px 24px;background:#aa3bff;
+                      color:#fff;border-radius:6px;text-decoration:none;margin:16px 0">
+              Accept Invitation
+            </a>
+            <p style="color:#6b6375;font-size:13px">
+              This invitation expires in 7 days. If you don't have a Metrix account,
+              you'll be able to create one after clicking the link.
+            </p>
+          </div>
+        `,
+      });
+    } catch (err) {
+      this.logger.error(`Workspace invite email error: ${err.message}`);
+    }
+  }
 }
