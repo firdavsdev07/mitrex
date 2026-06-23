@@ -7,7 +7,7 @@ import { Platform } from '@metrix/prisma-client';
 export class YoutubeService {
   private readonly clientId = process.env.GOOGLE_CLIENT_ID;
   private readonly clientSecret = process.env.GOOGLE_CLIENT_SECRET;
-  private readonly redirectUri = process.env.GOOGLE_REDIRECT_URI;
+  private readonly redirectUri = process.env.YOUTUBE_REDIRECT_URI || 'http://localhost:3000/youtube/callback';
 
   constructor(private readonly prisma: PrismaService) {}
 
@@ -62,7 +62,7 @@ export class YoutubeService {
     return { connected: true, channel: channelInfo.title };
   }
 
-  async refreshAccessToken(connectionId: number, refreshToken: string) {
+  async refreshAccessToken(connectionId: string, refreshToken: string) {
     const res = await axios.post('https://oauth2.googleapis.com/token', {
       client_id: this.clientId,
       client_secret: this.clientSecret,
@@ -81,7 +81,7 @@ export class YoutubeService {
     return access_token;
   }
 
-  async fetchAndSaveStats(connectionId: number) {
+  async fetchAndSaveStats(connectionId: string) {
     const conn = await this.prisma.connection.findUnique({ where: { id: connectionId } });
     if (!conn || !conn.accessToken) return;
 

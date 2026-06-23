@@ -41,8 +41,8 @@ export class TelegramService {
       const param = parts[1] || '';
 
       if (param.startsWith('metrix_')) {
-        const userId = parseInt(param.replace('metrix_', ''));
-        if (!isNaN(userId)) {
+        const userId = param.replace('metrix_', '');
+        if (userId) {
           await this.connectUser(userId, chatId, message.from);
           await this.sendMessage(chatId, '✅ Successfully connected to Metrix!\n\nAdd me as admin to your channel, then send /channel command.');
         }
@@ -62,7 +62,7 @@ export class TelegramService {
     }
   }
 
-  async fetchAndSaveStats(connectionId: number) {
+  async fetchAndSaveStats(connectionId: string) {
     const conn = await this.prisma.connection.findUnique({ where: { id: connectionId } });
     if (!conn || !conn.platformUserId) return;
 

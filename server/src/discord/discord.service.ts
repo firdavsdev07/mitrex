@@ -69,7 +69,7 @@ export class DiscordService {
     return { connected: true, guild: guildInfo?.name };
   }
 
-  async fetchAndSaveStats(connectionId: number) {
+  async fetchAndSaveStats(connectionId: string) {
     const conn = await this.prisma.connection.findUnique({ where: { id: connectionId } });
     if (!conn || !conn.platformUserId || !conn.accessToken) return;
 

@@ -2,7 +2,7 @@ import { Global, Module } from '@nestjs/common';
 import { BullModule } from '@nestjs/bullmq';
 import { QUEUE_TRACKING, QUEUE_SYNC } from './queue.constants';
 import { QueueService } from './queue.service';
-import { TrackingProcessor } from './tracking.processor';
+import { TrackingProcessor } from './processors/tracking.processor';
 
 const redisConnection = {
   connection: {

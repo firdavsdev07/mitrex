@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { BullModule } from '@nestjs/bullmq';
 import { SyncService } from './sync.service';
 import { YoutubeModule } from '../youtube/youtube.module';
 import { TelegramModule } from '../telegram/telegram.module';
@@ -6,10 +7,19 @@ import { DiscordModule } from '../discord/discord.module';
 import { BlueskyModule } from '../bluesky/bluesky.module';
 import { InstagramModule } from '../instagram/instagram.module';
 import { PostsModule } from '../posts/posts.module';
-import { SyncProcessor } from '../queue/sync.processor';
+import { SyncProcessor } from '../queue/processors/sync.processor';
+import { QUEUE_SYNC } from '../queue/queue.constants';
 
 @Module({
-  imports: [YoutubeModule, TelegramModule, DiscordModule, BlueskyModule, InstagramModule, PostsModule],
+  imports: [
+    BullModule.registerQueue({ name: QUEUE_SYNC }),
+    YoutubeModule,
+    TelegramModule,
+    DiscordModule,
+    BlueskyModule,
+    InstagramModule,
+    PostsModule,
+  ],
   providers: [SyncService, SyncProcessor],
   exports: [SyncService],
 })

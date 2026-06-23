@@ -42,6 +42,7 @@ async function seedPlans() {
       maxWebsites: 1,
       maxPlatforms: 2,
       maxMonthlyViews: 5000,
+      dataRetentionDays: 30,   // 1 oy
       hasAiInsights: false,
       hasWeeklyReport: false,
       hasCustomAlerts: false,
@@ -56,6 +57,7 @@ async function seedPlans() {
       maxWebsites: 3,
       maxPlatforms: 10,
       maxMonthlyViews: 50000,
+      dataRetentionDays: 365,  // 1 yil
       hasAiInsights: true,
       hasWeeklyReport: true,
       hasCustomAlerts: false,
@@ -67,9 +69,10 @@ async function seedPlans() {
       slug: 'pro',
       price: 19,
       currency: 'USD',
-      maxWebsites: -1,       // cheksiz = -1
+      maxWebsites: -1,
       maxPlatforms: -1,
       maxMonthlyViews: -1,
+      dataRetentionDays: -1,   // cheksiz
       hasAiInsights: true,
       hasWeeklyReport: true,
       hasCustomAlerts: true,
@@ -82,16 +85,39 @@ async function seedPlans() {
     await prisma.plan.upsert({
       where: { slug: p.slug },
       create: p as any,
-      update: { name: p.name, price: p.price, maxWebsites: p.maxWebsites, maxPlatforms: p.maxPlatforms, maxMonthlyViews: p.maxMonthlyViews, hasAiInsights: p.hasAiInsights, hasWeeklyReport: p.hasWeeklyReport, hasCustomAlerts: p.hasCustomAlerts },
+      update: { name: p.name, price: p.price, maxWebsites: p.maxWebsites, maxPlatforms: p.maxPlatforms, maxMonthlyViews: p.maxMonthlyViews, dataRetentionDays: p.dataRetentionDays, hasAiInsights: p.hasAiInsights, hasWeeklyReport: p.hasWeeklyReport, hasCustomAlerts: p.hasCustomAlerts } as any,
     });
   }
   console.log(`✅ ${plans.length} ta plan seeded`);
+}
+
+async function seedAdmin() {
+  const email = process.env.ADMIN_EMAIL;
+  const password = process.env.ADMIN_PASSWORD;
+
+  if (!email || !password) {
+    console.log('⚠️  ADMIN_EMAIL yoki ADMIN_PASSWORD yo\'q — admin yaratilmadi');
+    return;
+  }
+
+  const bcrypt = await import('bcrypt');
+  const hashed = await bcrypt.hash(password, 10);
+
+  const admin = await prisma.user.upsert({
+    where: { email },
+    create: { email, password: hashed, name: 'Admin', role: 'ADMIN' },
+    update: { role: 'ADMIN' },
+    select: { id: true, email: true, role: true },
+  });
+
+  console.log(`✅ Admin: ${admin.email} (${admin.role})`);
 }
 
 async function main() {
   console.log('🌱 Seeding...');
   await seedPlatforms();
   await seedPlans();
+  await seedAdmin();
   console.log('✅ Seed tugadi');
 }
 

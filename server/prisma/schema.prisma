@@ -144,6 +144,7 @@ model Plan {
   maxWebsites       Int
   maxPlatforms      Int
   maxMonthlyViews   Int
+  dataRetentionDays Int                @default(30)  // -1 = unlimited
   hasAiInsights     Boolean            @default(false)
   hasWeeklyReport   Boolean            @default(false)
   hasCustomAlerts   Boolean            @default(false)

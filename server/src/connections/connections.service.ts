@@ -1,10 +1,14 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, Optional } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { QueueService } from '../queue/queue.service';
 import { Platform } from '@metrix/prisma-client';
 
 @Injectable()
 export class ConnectionsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    @Optional() private readonly queue: QueueService,
+  ) {}
 
   async findAll(userId: string) {
     return this.prisma.connection.findMany({
@@ -31,7 +35,13 @@ export class ConnectionsService {
       select: { id: true },
     });
     if (!conn) throw new NotFoundException('Connected platform not found');
-    return { message: 'Sync navbatga qo\'yildi', connectionId: conn.id };
+
+    if (this.queue) {
+      await this.queue.addConnectionSync(conn.id, platform);
+      return { queued: true, message: 'Sync started', platform };
+    }
+
+    return { queued: false, message: 'Queue unavailable — sync will run on next scheduled cycle', platform };
   }
 
   async disconnect(userId: string, platform: Platform) {

@@ -1,27 +1,39 @@
 import { Controller, Post, Body, Req, Res, Get } from '@nestjs/common';
-import { SkipThrottle, Throttle } from '@nestjs/throttler';
+import { SkipThrottle } from '@nestjs/throttler';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiExcludeEndpoint,
+} from '@nestjs/swagger';
 import { Request, Response } from 'express';
 import { TrackingService } from './tracking.service';
 import { TrackEventDto } from './dto/track-event.dto';
 import { CustomEventDto } from './dto/custom-event.dto';
 
+@ApiTags('tracking')
 @Controller()
 @SkipThrottle({ short: true, medium: true, long: true })
 export class TrackingController {
   constructor(private readonly trackingService: TrackingService) {}
 
   @Post('track')
+  @ApiOperation({ summary: 'Record a page view (called by track.js)' })
+  @ApiResponse({ status: 201, description: 'Page view recorded' })
   async track(@Body() dto: TrackEventDto, @Req() req: Request) {
     const ip = (req.headers['x-forwarded-for'] as string)?.split(',')[0] || req.ip || '';
     return this.trackingService.track(dto, ip);
   }
 
   @Post('track/event')
+  @ApiOperation({ summary: 'Record a custom event (called via metrix() JS function)' })
+  @ApiResponse({ status: 201, description: 'Custom event recorded' })
   async trackEvent(@Body() dto: CustomEventDto, @Req() req: Request) {
     const ip = (req.headers['x-forwarded-for'] as string)?.split(',')[0] || req.ip || '';
     return this.trackingService.trackEvent(dto, ip);
   }
 
+  @ApiExcludeEndpoint()
   @Get('track.js')
   serveScript(@Res() res: Response) {
     const appUrl = process.env.APP_URL || 'http://localhost:3000';

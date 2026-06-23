@@ -1,15 +1,28 @@
-import { Controller, Get, Post, Query, Param, UseGuards, BadRequestException } from '@nestjs/common';
+import { Controller, Get, Post, Query, Param, UseGuards } from '@nestjs/common';
+import {
+  ApiTags,
+  ApiBearerAuth,
+  ApiOperation,
+  ApiResponse,
+  ApiQuery,
+  ApiParam,
+} from '@nestjs/swagger';
 import { AiService } from './ai.service';
 import { JwtGuard } from '../auth/guards/jwt.guard';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 
+@ApiTags('ai')
+@ApiBearerAuth('jwt')
 @UseGuards(JwtGuard)
 @Controller('ai')
 export class AiController {
   constructor(private readonly aiService: AiService) {}
 
-  // Saqlangan insightlar ro'yxati
   @Get('insights')
+  @ApiOperation({ summary: 'List saved AI insights' })
+  @ApiQuery({ name: 'type', required: false, description: 'Filter by type: WEEKLY, DAILY, WEBSITE, POST, CUSTOM' })
+  @ApiQuery({ name: 'limit', required: false, type: 'number', description: 'Max results (default 10)' })
+  @ApiResponse({ status: 200, description: 'Array of AI insights' })
   getInsights(
     @CurrentUser('id') userId: string,
     @Query('type') type?: string,
@@ -18,14 +31,17 @@ export class AiController {
     return this.aiService.getInsights(userId, type, limit ? parseInt(limit) : 10);
   }
 
-  // Haftalik insight qo'lda yaratish
   @Post('insights/weekly')
+  @ApiOperation({ summary: 'Generate a weekly AI insight on demand' })
+  @ApiResponse({ status: 201, description: 'AI-generated weekly summary' })
   generateWeekly(@CurrentUser('id') userId: string) {
     return this.aiService.generateWeeklyInsight(userId).then((content) => ({ content }));
   }
 
-  // Sayt uchun insight
   @Post('insights/website/:websiteId')
+  @ApiOperation({ summary: 'Generate an AI insight for a specific website' })
+  @ApiParam({ name: 'websiteId', description: 'Website ID' })
+  @ApiResponse({ status: 201, description: 'AI-generated website insight' })
   generateWebsiteInsight(
     @CurrentUser('id') userId: string,
     @Param('websiteId') websiteId: string,

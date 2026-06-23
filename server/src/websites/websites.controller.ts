@@ -1,10 +1,21 @@
 import { Controller, Get, Post, Delete, Body, Param, Query, UseGuards } from '@nestjs/common';
+import {
+  ApiTags,
+  ApiBearerAuth,
+  ApiOperation,
+  ApiResponse,
+  ApiParam,
+  ApiQuery,
+} from '@nestjs/swagger';
+import { PlanGuard, PlanLimit } from '../common/guards/plan.guard';
 import { WebsitesService } from './websites.service';
 import { TrackingService } from '../tracking/tracking.service';
 import { CreateWebsiteDto } from './dto/create-website.dto';
 import { JwtGuard } from '../auth/guards/jwt.guard';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 
+@ApiTags('websites')
+@ApiBearerAuth('jwt')
 @UseGuards(JwtGuard)
 @Controller('websites')
 export class WebsitesController {
@@ -14,23 +25,35 @@ export class WebsitesController {
   ) {}
 
   @Post()
+  @UseGuards(PlanGuard)
+  @PlanLimit('websites')
+  @ApiOperation({ summary: 'Add a new website' })
+  @ApiResponse({ status: 201, description: 'Website created with a unique tracking key' })
+  @ApiResponse({ status: 403, description: 'Plan website limit reached' })
   create(@CurrentUser('id') userId: string, @Body() dto: CreateWebsiteDto) {
     return this.websitesService.create(userId, dto);
   }
 
   @Get()
+  @ApiOperation({ summary: 'List all websites for current user' })
+  @ApiResponse({ status: 200, description: 'Array of websites' })
   findAll(@CurrentUser('id') userId: string) {
     return this.websitesService.findAll(userId);
   }
 
   @Get(':id/script')
+  @ApiOperation({ summary: 'Get the embed script tag for a website' })
+  @ApiParam({ name: 'id', description: 'Website ID' })
+  @ApiResponse({ status: 200, description: 'HTML script tag to embed on the site' })
   getScript(@CurrentUser('id') userId: string, @Param('id') id: string) {
     return this.websitesService.getScript(userId, id);
   }
 
-  // ─── Analytics ─────────────────────────────────────────────────────────────
-
   @Get(':id/analytics')
+  @ApiOperation({ summary: 'Get overview analytics (visitors, views, bounce rate)' })
+  @ApiParam({ name: 'id', description: 'Website ID' })
+  @ApiQuery({ name: 'period', enum: ['today', 'week', 'month'], required: false })
+  @ApiResponse({ status: 200, description: 'Analytics overview' })
   getAnalytics(
     @CurrentUser('id') userId: string,
     @Param('id') id: string,
@@ -40,6 +63,10 @@ export class WebsitesController {
   }
 
   @Get(':id/analytics/pages')
+  @ApiOperation({ summary: 'Get top pages breakdown' })
+  @ApiParam({ name: 'id', description: 'Website ID' })
+  @ApiQuery({ name: 'period', enum: ['today', 'week', 'month'], required: false })
+  @ApiResponse({ status: 200, description: 'Page view counts per path' })
   getPages(
     @CurrentUser('id') userId: string,
     @Param('id') id: string,
@@ -49,6 +76,10 @@ export class WebsitesController {
   }
 
   @Get(':id/analytics/sessions')
+  @ApiOperation({ summary: 'Get session list with device/browser/country' })
+  @ApiParam({ name: 'id', description: 'Website ID' })
+  @ApiQuery({ name: 'period', enum: ['today', 'week', 'month'], required: false })
+  @ApiResponse({ status: 200, description: 'Session breakdown' })
   getSessions(
     @CurrentUser('id') userId: string,
     @Param('id') id: string,
@@ -58,6 +89,10 @@ export class WebsitesController {
   }
 
   @Get(':id/analytics/sources')
+  @ApiOperation({ summary: 'Get traffic sources (referrers, UTM campaigns)' })
+  @ApiParam({ name: 'id', description: 'Website ID' })
+  @ApiQuery({ name: 'period', enum: ['today', 'week', 'month'], required: false })
+  @ApiResponse({ status: 200, description: 'Traffic source breakdown' })
   getSources(
     @CurrentUser('id') userId: string,
     @Param('id') id: string,
@@ -67,11 +102,18 @@ export class WebsitesController {
   }
 
   @Get(':id/realtime')
+  @ApiOperation({ summary: 'Get real-time active visitors (last 5 minutes)' })
+  @ApiParam({ name: 'id', description: 'Website ID' })
+  @ApiResponse({ status: 200, description: 'Real-time visitor count and pages' })
   getRealtime(@CurrentUser('id') userId: string, @Param('id') id: string) {
     return this.websitesService.getRealtime(userId, id);
   }
 
   @Get(':id/events')
+  @ApiOperation({ summary: 'Get custom event stats' })
+  @ApiParam({ name: 'id', description: 'Website ID' })
+  @ApiQuery({ name: 'period', enum: ['today', 'week', 'month'], required: false })
+  @ApiResponse({ status: 200, description: 'Custom event breakdown by name' })
   getEvents(
     @CurrentUser('id') userId: string,
     @Param('id') id: string,
@@ -81,6 +123,9 @@ export class WebsitesController {
   }
 
   @Delete(':id')
+  @ApiOperation({ summary: 'Delete a website and all its data' })
+  @ApiParam({ name: 'id', description: 'Website ID' })
+  @ApiResponse({ status: 200, description: 'Website deleted' })
   remove(@CurrentUser('id') userId: string, @Param('id') id: string) {
     return this.websitesService.remove(userId, id);
   }

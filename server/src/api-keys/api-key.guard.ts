@@ -7,12 +7,11 @@ export class ApiKeyGuard implements CanActivate {
 
   async canActivate(ctx: ExecutionContext): Promise<boolean> {
     const req = ctx.switchToHttp().getRequest();
-    const authHeader = req.headers['authorization'] as string;
-    if (!authHeader?.startsWith('Bearer mk_live_')) {
-      throw new UnauthorizedException('Valid API key required');
+    const apiKey = req.headers['x-api-key'] as string;
+    if (!apiKey?.startsWith('mk_live_')) {
+      throw new UnauthorizedException('Valid API key required (X-API-Key: mk_live_...)');
     }
-    const key = authHeader.replace('Bearer ', '');
-    const user = await this.apiKeysService.validate(key);
+    const user = await this.apiKeysService.validate(apiKey);
     if (!user) throw new UnauthorizedException('Invalid or expired API key');
     req.user = user;
     return true;
