@@ -3,7 +3,6 @@ import {
   ConflictException,
   UnauthorizedException,
   BadRequestException,
-  NotFoundException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
@@ -49,7 +48,7 @@ export class AuthService {
     if (!valid) throw new UnauthorizedException('Email yoki parol noto\'g\'ri');
 
     return {
-      user: { id: user.id, email: user.email, name: user.name, avatar: user.avatar, provider: user.provider },
+      user: { id: user.id, email: user.email, name: user.name, avatar: user.avatar, role: user.role, provider: user.provider },
       token: this.signToken(user.id, user.email),
     };
   }
@@ -96,7 +95,7 @@ export class AuthService {
     }
 
     return {
-      user: { id: user.id, email: user.email, name: user.name, avatar: user.avatar, provider: user.provider },
+      user: { id: user.id, email: user.email, name: user.name, avatar: user.avatar, role: user.role, provider: user.provider },
       token: this.signToken(user.id, user.email),
     };
   }
@@ -149,7 +148,7 @@ export class AuthService {
   async getMe(userId: string) {
     return this.prisma.user.findUnique({
       where: { id: userId },
-      select: { id: true, email: true, name: true, avatar: true, provider: true, createdAt: true },
+      select: { id: true, email: true, name: true, avatar: true, role: true, provider: true, createdAt: true },
     });
   }
 

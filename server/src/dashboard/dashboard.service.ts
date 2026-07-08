@@ -23,7 +23,7 @@ export class DashboardService {
           stats: {
             orderBy: { date: 'desc' },
             take: 2,
-            select: { followers: true, views: true, date: true, growth: true },
+            select: { followers: true, views: true, likes: true, comments: true, engagement: true, date: true, growth: true },
           },
         },
       }),
@@ -56,16 +56,40 @@ export class DashboardService {
         username: conn.platformUsername,
         followers: latest?.followers ?? null,
         views: latest?.views ?? null,
+        likes: latest?.likes ?? null,
+        comments: latest?.comments ?? null,
+        engagement: latest?.engagement ?? null,
         growth: growth ? parseFloat(growth) : null,
         lastSync: latest?.date ?? null,
       };
     });
+
+    // Top pages per website (max 5 each)
+    const websiteIds = websites.map((w) => w.id);
+    const allPageGroups = websiteIds.length
+      ? await this.prisma.pageView.groupBy({
+          by: ['websiteId', 'path'],
+          where: { websiteId: { in: websiteIds }, createdAt: { gte: from } },
+          _count: { path: true },
+          orderBy: { _count: { path: 'desc' } },
+        })
+      : [];
+
+    const topPagesMap: Record<string, { path: string; views: number }[]> = {};
+    for (const row of allPageGroups) {
+      const list = topPagesMap[row.websiteId] ?? [];
+      if (list.length < 5) {
+        list.push({ path: row.path, views: row._count.path });
+        topPagesMap[row.websiteId] = list;
+      }
+    }
 
     const webWidgets = websites.map((site) => ({
       id: site.id,
       name: site.name,
       domain: site.domain,
       views: site._count.pageViews,
+      topPages: topPagesMap[site.id] ?? [],
     }));
 
     return {
@@ -78,6 +102,34 @@ export class DashboardService {
         totalWebViews: webWidgets.reduce((sum, w) => sum + w.views, 0),
       },
     };
+  }
+
+  async getWebViewsTrend(userId: string, days = 14) {
+    const from = new Date();
+    from.setDate(from.getDate() - days);
+    from.setHours(0, 0, 0, 0);
+
+    const websites = await this.prisma.website.findMany({
+      where: { userId },
+      select: { id: true },
+    });
+    if (!websites.length) return [];
+
+    const ids = websites.map((w) => w.id);
+
+    const rows = await this.prisma.$queryRaw<{ date: string; views: bigint }[]>`
+      SELECT DATE("createdAt") as date, COUNT(*) as views
+      FROM page_views
+      WHERE "websiteId" = ANY(${ids}::uuid[])
+        AND "createdAt" >= ${from}
+      GROUP BY DATE("createdAt")
+      ORDER BY date ASC
+    `;
+
+    return rows.map((r) => ({
+      date: String(r.date).slice(0, 10),
+      views: Number(r.views),
+    }));
   }
 
   async getPlatformHistory(userId: string, platform: string, days = 30) {

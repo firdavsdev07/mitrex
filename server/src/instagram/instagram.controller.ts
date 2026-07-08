@@ -40,8 +40,8 @@ export class InstagramController {
     @Res() res: Response,
   ) {
     await this.instagramService.handleCallback(code, state);
-    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
-    res.redirect(`${frontendUrl}?connected=instagram`);
+    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3001';
+    res.redirect(`${frontendUrl}/connections?connected=instagram`);
   }
 
   @ApiExcludeEndpoint()

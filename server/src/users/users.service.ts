@@ -3,7 +3,6 @@ import {
   NotFoundException,
   BadRequestException,
   UnauthorizedException,
-  ForbiddenException,
 } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import * as crypto from 'crypto';
@@ -59,22 +58,25 @@ export class UsersService {
     const now = new Date();
     const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
 
-    const [websites, connections, monthlyViews] = await Promise.all([
+    const [websites, connections, monthlyViews, subscription] = await Promise.all([
       this.prisma.website.count({ where: { userId } }),
       this.prisma.connection.count({ where: { userId, isActive: true } }),
       this.prisma.pageView.count({
-        where: {
-          website: { userId },
-          createdAt: { gte: monthStart },
-        },
+        where: { website: { userId }, createdAt: { gte: monthStart } },
+      }),
+      this.prisma.userSubscription.findUnique({
+        where: { userId },
+        include: { plan: true },
       }),
     ]);
 
+    const plan = subscription?.plan;
+
     return {
-      websites,
-      connections,
-      monthlyViews,
-      month: `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`,
+      websites:  { used: websites,     limit: plan?.maxWebsites    ?? null },
+      platforms: { used: connections,  limit: plan?.maxPlatforms   ?? null },
+      views:     { used: monthlyViews, limit: plan?.maxMonthlyViews ?? null },
+      plan: plan?.name ?? 'Free',
     };
   }
 

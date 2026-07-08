@@ -33,6 +33,17 @@ export class DashboardController {
     return this.dashboardService.getOverview(userId, period);
   }
 
+  @Get('web-trend')
+  @ApiOperation({ summary: 'Daily web page views for the past N days' })
+  @ApiQuery({ name: 'days', type: 'number', required: false })
+  @ApiResponse({ status: 200, description: 'Array of { date, views }' })
+  getWebViewsTrend(
+    @CurrentUser('id') userId: string,
+    @Query('days') days: string,
+  ) {
+    return this.dashboardService.getWebViewsTrend(userId, parseInt(days) || 14);
+  }
+
   @Get('history/:platform')
   @ApiOperation({ summary: 'Get follower/views history chart data for a platform' })
   @ApiParam({ name: 'platform', description: 'Platform slug e.g. YOUTUBE, TELEGRAM' })

@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, BadRequestException } from '@nestjs/common';
 import axios from 'axios';
 import { PrismaService } from '../prisma/prisma.service';
 import { Platform } from '@metrix/prisma-client';
@@ -6,136 +6,136 @@ import { Platform } from '@metrix/prisma-client';
 @Injectable()
 export class TelegramService {
   private readonly logger = new Logger(TelegramService.name);
-  private readonly botToken = process.env.TELEGRAM_BOT_TOKEN;
-  private readonly apiBase = `https://api.telegram.org/bot${process.env.TELEGRAM_BOT_TOKEN}`;
+  private get apiBase() { return `https://api.telegram.org/bot${process.env.TELEGRAM_BOT_TOKEN}`; }
 
   constructor(private readonly prisma: PrismaService) {}
 
-  // Foydalanuvchiga bot link qaytaradi
-  getConnectInfo(userId: string) {
-    const botUsername = process.env.TELEGRAM_BOT_USERNAME || 'MetrixBot';
-    // Deep link: user /start metrix_123 yuboradi
-    const startParam = `metrix_${userId}`;
-    return {
-      url: `https://t.me/${botUsername}?start=${startParam}`,
-      instructions: [
-        `1. Follow the link below to open the bot`,
-        `2. Press /start or send "${startParam}" `,
-        `3. Add the bot as admin to your channel for channel stats`,
-      ],
-    };
-  }
+  // ─── Kanal ulash (handle asosida) ─────────────────────────────────────────
 
-  // Webhook dan kelgan update ni ishlaydi
-  async handleWebhook(body: any) {
-    const message = body?.message;
-    if (!message) return;
-
-    const text: string = message.text || '';
-    const chatId: number = message.chat.id;
-    const chatType: string = message.chat.type;
-
-    // /start metrix_123 — userni ulash
-    if (text.startsWith('/start')) {
-      const parts = text.split(' ');
-      const param = parts[1] || '';
-
-      if (param.startsWith('metrix_')) {
-        const userId = param.replace('metrix_', '');
-        if (userId) {
-          await this.connectUser(userId, chatId, message.from);
-          await this.sendMessage(chatId, '✅ Successfully connected to Metrix!\n\nAdd me as admin to your channel, then send /channel command.');
-        }
-      } else {
-        await this.sendMessage(chatId, '👋 Welcome to Metrix Bot!\n\nClick "Connect Telegram" in your Metrix dashboard.');
-      }
+  async connectChannel(userId: string, channelHandle: string) {
+    if (!process.env.TELEGRAM_BOT_TOKEN) {
+      throw new BadRequestException('TELEGRAM_BOT_TOKEN sozlanmagan');
     }
 
-    // /channel command
-    if (text === '/channel' && chatType === 'private') {
-      await this.sendMessage(chatId, 'Add the bot as admin to your channel, then send the channel ID.\nExample: @mychannel or -1001234567890');
-    }
+    // @ ni tozalash
+    const handle = channelHandle.trim().replace(/^@/, '');
+    const chatId = `@${handle}`;
 
-    // Bot added to channel
-    if (body?.my_chat_member) {
-      await this.handleChatMemberUpdate(body.my_chat_member);
-    }
-  }
-
-  async fetchAndSaveStats(connectionId: string) {
-    const conn = await this.prisma.connection.findUnique({ where: { id: connectionId } });
-    if (!conn || !conn.platformUserId) return;
-
+    // Kanal ma'lumotini olish
+    let chat: any;
     try {
-      const chatId = conn.platformUserId;
-      const res = await axios.get(`${this.apiBase}/getChat`, { params: { chat_id: chatId } });
-      const chat = res.data.result;
-
-      let memberCount = 0;
-      try {
-        const countRes = await axios.get(`${this.apiBase}/getChatMemberCount`, {
-          params: { chat_id: chatId },
-        });
-        memberCount = countRes.data.result || 0;
-      } catch {}
-
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-
-      await this.prisma.platformStat.upsert({
-        where: { connectionId_date: { connectionId, date: today } },
-        create: {
-          connectionId,
-          date: today,
-          followers: memberCount,
-          raw: { chat, memberCount } as any,
-        },
-        update: {
-          followers: memberCount,
-          raw: { chat, memberCount } as any,
-        },
+      const res = await axios.get(`${this.apiBase}/getChat`, {
+        params: { chat_id: chatId },
       });
-    } catch (err) {
-      this.logger.error(`Telegram stat xatosi connectionId=${connectionId}: ${err.message}`);
+      chat = res.data.result;
+    } catch (err: any) {
+      const errMsg: string = err?.response?.data?.description ?? err.message ?? '';
+      if (errMsg.includes('chat not found') || errMsg.includes('Bad Request')) {
+        throw new BadRequestException(
+          `Kanal topilmadi: @${handle}. Kanal mavjud va botni admin sifatida qo'shganingizni tekshiring.`
+        );
+      }
+      throw new BadRequestException(`Telegram xatosi: ${errMsg}`);
     }
-  }
 
-  async setWebhook() {
-    const webhookUrl = process.env.TELEGRAM_WEBHOOK_URL;
-    if (!webhookUrl || !this.botToken) return;
-    const res = await axios.post(`${this.apiBase}/setWebhook`, { url: webhookUrl });
-    this.logger.log(`Telegram webhook set: ${res.data.description}`);
-  }
+    if (!chat || (chat.type !== 'channel' && chat.type !== 'supergroup' && chat.type !== 'group')) {
+      throw new BadRequestException('Bu Telegram kanal yoki guruh emas. @kanalUsername kiriting.');
+    }
 
-  private async connectUser(userId: string, chatId: number, from: any) {
-    const username = from?.username || from?.first_name || String(chatId);
+    // Member count
+    let memberCount = 0;
+    try {
+      const countRes = await axios.get(`${this.apiBase}/getChatMemberCount`, {
+        params: { chat_id: chatId },
+      });
+      memberCount = countRes.data.result ?? 0;
+    } catch {
+      // Bot admin emas — member count ko'rinmaydi
+      throw new BadRequestException(
+        `Bot kanalda admin emas. Avval @${process.env.TELEGRAM_BOT_USERNAME ?? 'MetrixBot'} ni kanalga admin sifatida qo'shing, keyin qayta ulanib ko'ring.`
+      );
+    }
 
-    await this.prisma.connection.upsert({
+    // Connection saqlash
+    const conn = await this.prisma.connection.upsert({
       where: { userId_platform: { userId, platform: Platform.TELEGRAM } },
       create: {
         userId,
         platform: Platform.TELEGRAM,
-        platformUserId: String(chatId),
-        platformUsername: username,
+        platformUserId: String(chat.id),
+        platformUsername: chat.username ?? handle,
+        isActive: true,
       },
       update: {
-        platformUserId: String(chatId),
-        platformUsername: username,
+        platformUserId: String(chat.id),
+        platformUsername: chat.username ?? handle,
         isActive: true,
       },
     });
+
+    // Darhol stats saqlash
+    await this.saveStats(conn.id, String(chat.id), memberCount, chat);
+
+    return {
+      connected: true,
+      channel: chat.title,
+      username: chat.username ?? handle,
+      members: memberCount,
+      type: chat.type,
+    };
   }
 
-  private async handleChatMemberUpdate(update: any) {
-    // Bot kanalga qo'shildi — saqlab qo'yish mumkin
-    this.logger.log(`Bot chat member update: ${JSON.stringify(update?.chat)}`);
-  }
+  // ─── Sync ──────────────────────────────────────────────────────────────────
 
-  private async sendMessage(chatId: number, text: string) {
+  async fetchAndSaveStats(connectionId: string) {
+    const conn = await this.prisma.connection.findUnique({ where: { id: connectionId } });
+    if (!conn?.platformUserId || !process.env.TELEGRAM_BOT_TOKEN) return;
+
     try {
-      await axios.post(`${this.apiBase}/sendMessage`, { chat_id: chatId, text });
-    } catch (err) {
-      this.logger.error(`sendMessage error: ${err.message}`);
+      const chatId = conn.platformUserId;
+      const [chatRes, countRes] = await Promise.allSettled([
+        axios.get(`${this.apiBase}/getChat`, { params: { chat_id: chatId } }),
+        axios.get(`${this.apiBase}/getChatMemberCount`, { params: { chat_id: chatId } }),
+      ]);
+
+      const chat = chatRes.status === 'fulfilled' ? chatRes.value.data.result : null;
+      const memberCount = countRes.status === 'fulfilled' ? (countRes.value.data.result ?? 0) : null;
+
+      if (memberCount !== null) {
+        await this.saveStats(connectionId, chatId, memberCount, chat);
+      }
+    } catch (err: any) {
+      this.logger.error(`Telegram stat xatosi connectionId=${connectionId}: ${err.message}`);
     }
+  }
+
+  // ─── Bot info (bot ishlayotganini tekshirish) ──────────────────────────────
+
+  async getBotInfo() {
+    if (!process.env.TELEGRAM_BOT_TOKEN) return null;
+    try {
+      const res = await axios.get(`${this.apiBase}/getMe`);
+      return res.data.result;
+    } catch { return null; }
+  }
+
+  // ─── Webhook (eski, saqlab turish) ────────────────────────────────────────
+
+  async handleWebhook(body: any) {
+    // Webhook orqali kelgan update (ixtiyoriy)
+    this.logger.debug(`Webhook received: ${JSON.stringify(body)?.slice(0, 100)}`);
+  }
+
+  // ─── Private ───────────────────────────────────────────────────────────────
+
+  private async saveStats(connectionId: string, _chatId: string, memberCount: number, raw: any) {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    await this.prisma.platformStat.upsert({
+      where: { connectionId_date: { connectionId, date: today } },
+      create: { connectionId, date: today, followers: memberCount, raw },
+      update: { followers: memberCount, raw },
+    });
   }
 }

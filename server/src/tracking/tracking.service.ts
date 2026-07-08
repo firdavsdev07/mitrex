@@ -89,17 +89,48 @@ export class TrackingService {
     else if (period === 'week') from.setDate(from.getDate() - 7);
     else from.setDate(from.getDate() - 30);
 
-    const events = await (this.prisma as any).customEvent.groupBy({
-      by: ['name'],
-      where: { websiteId, createdAt: { gte: from } },
-      _count: { name: true },
-      orderBy: { _count: { name: 'desc' } },
-    });
+    const [grouped, latest] = await Promise.all([
+      (this.prisma as any).customEvent.groupBy({
+        by: ['name'],
+        where: { websiteId, createdAt: { gte: from } },
+        _count: { name: true },
+        orderBy: { _count: { name: 'desc' } },
+      }),
+      // Latest occurrence per event name
+      (this.prisma as any).customEvent.findMany({
+        where: { websiteId, createdAt: { gte: from } },
+        orderBy: { createdAt: 'desc' },
+        select: { name: true, createdAt: true },
+        distinct: ['name'],
+      }),
+    ]);
+
+    const lastSeenMap = new Map(latest.map((e: any) => [e.name, e.createdAt]));
 
     return {
       period,
-      events: events.map((e: any) => ({ name: e.name, count: e._count.name })),
+      events: grouped.map((e: any) => ({
+        name: e.name,
+        count: e._count.name,
+        lastSeen: lastSeenMap.get(e.name) ?? null,
+      })),
     };
+  }
+
+  async getEventDetail(websiteId: string, eventName: string, period: 'today' | 'week' | 'month' = 'week') {
+    const from = new Date();
+    if (period === 'today') from.setHours(0, 0, 0, 0);
+    else if (period === 'week') from.setDate(from.getDate() - 7);
+    else from.setDate(from.getDate() - 30);
+
+    const events = await (this.prisma as any).customEvent.findMany({
+      where: { websiteId, name: eventName, createdAt: { gte: from } },
+      orderBy: { createdAt: 'desc' },
+      take: 20,
+      select: { id: true, path: true, properties: true, country: true, device: true, createdAt: true },
+    });
+
+    return events;
   }
 
   // ─── Direct DB methods (used by QueueProcessor fallback) ─────────────────

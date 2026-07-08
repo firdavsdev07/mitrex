@@ -1,11 +1,5 @@
-import { Controller, Get, Post, Body, UseGuards, HttpCode, HttpStatus } from '@nestjs/common';
-import {
-  ApiTags,
-  ApiBearerAuth,
-  ApiOperation,
-  ApiResponse,
-  ApiExcludeEndpoint,
-} from '@nestjs/swagger';
+import { Controller, Post, Body, UseGuards, HttpCode, HttpStatus } from '@nestjs/common';
+import { ApiTags, ApiBearerAuth, ApiOperation, ApiResponse, ApiBody, ApiExcludeEndpoint } from '@nestjs/swagger';
 import { PlanGuard, PlanLimit } from '../common/guards/plan.guard';
 import { TelegramService } from './telegram.service';
 import { JwtGuard } from '../auth/guards/jwt.guard';
@@ -18,13 +12,17 @@ export class TelegramController {
 
   @UseGuards(JwtGuard, PlanGuard)
   @PlanLimit('platforms')
-  @Get('connect')
+  @Post('connect')
   @ApiBearerAuth('jwt')
-  @ApiOperation({ summary: 'Get Telegram bot connect instructions and bot link' })
-  @ApiResponse({ status: 200, description: '{ botUrl, instructions } — user opens bot and sends /start' })
-  @ApiResponse({ status: 403, description: 'Plan platform limit reached' })
-  getConnectInfo(@CurrentUser('id') userId: string) {
-    return this.telegramService.getConnectInfo(userId);
+  @ApiOperation({ summary: 'Connect Telegram channel or group by @handle' })
+  @ApiBody({ schema: { properties: { channel: { type: 'string', example: '@mychannel' } } } })
+  @ApiResponse({ status: 201, description: '{ connected, channel, username, members, type }' })
+  @ApiResponse({ status: 400, description: 'Channel not found or bot is not admin' })
+  connectChannel(
+    @CurrentUser('id') userId: string,
+    @Body('channel') channel: string,
+  ) {
+    return this.telegramService.connectChannel(userId, channel);
   }
 
   @ApiExcludeEndpoint()

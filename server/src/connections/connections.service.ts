@@ -11,21 +11,35 @@ export class ConnectionsService {
   ) {}
 
   async findAll(userId: string) {
-    return this.prisma.connection.findMany({
+    const connections = await this.prisma.connection.findMany({
       where: { userId },
       select: {
         id: true,
         platform: true,
         platformUsername: true,
         isActive: true,
+        tokenExpiresAt: true,
         createdAt: true,
         stats: {
           orderBy: { date: 'desc' },
           take: 1,
-          select: { followers: true, views: true, date: true },
+          select: { followers: true, views: true, likes: true, comments: true, engagement: true, date: true },
         },
       },
       orderBy: { createdAt: 'asc' },
+    });
+
+    // Token holati
+    const now = new Date();
+    const threeDays = 3 * 24 * 60 * 60 * 1000;
+
+    return connections.map((c) => {
+      let tokenStatus: 'ok' | 'expiring_soon' | 'expired' = 'ok';
+      if (c.tokenExpiresAt) {
+        if (c.tokenExpiresAt < now) tokenStatus = 'expired';
+        else if (c.tokenExpiresAt.getTime() - now.getTime() < threeDays) tokenStatus = 'expiring_soon';
+      }
+      return { ...c, tokenStatus };
     });
   }
 

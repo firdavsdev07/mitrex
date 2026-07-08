@@ -49,6 +49,19 @@ export class WebsitesController {
     return this.websitesService.getScript(userId, id);
   }
 
+  @Get(':id/analytics/trend')
+  @ApiOperation({ summary: 'Get daily visitors + pageviews trend for charting' })
+  @ApiParam({ name: 'id', description: 'Website ID' })
+  @ApiQuery({ name: 'period', enum: ['today', 'week', 'month'], required: false })
+  @ApiResponse({ status: 200, description: 'Daily { date, visitors, views }[]' })
+  getTrend(
+    @CurrentUser('id') userId: string,
+    @Param('id') id: string,
+    @Query('period') period: 'today' | 'week' | 'month',
+  ) {
+    return this.websitesService.getTrend(userId, id, period);
+  }
+
   @Get(':id/analytics')
   @ApiOperation({ summary: 'Get overview analytics (visitors, views, bounce rate)' })
   @ApiParam({ name: 'id', description: 'Website ID' })
@@ -110,7 +123,7 @@ export class WebsitesController {
   }
 
   @Get(':id/events')
-  @ApiOperation({ summary: 'Get custom event stats' })
+  @ApiOperation({ summary: 'Get custom event stats grouped by name' })
   @ApiParam({ name: 'id', description: 'Website ID' })
   @ApiQuery({ name: 'period', enum: ['today', 'week', 'month'], required: false })
   @ApiResponse({ status: 200, description: 'Custom event breakdown by name' })
@@ -120,6 +133,21 @@ export class WebsitesController {
     @Query('period') period: 'today' | 'week' | 'month',
   ) {
     return this.trackingService.getEventStats(id, period);
+  }
+
+  @Get(':id/events/:name')
+  @ApiOperation({ summary: 'Get recent event instances for a specific event name' })
+  @ApiParam({ name: 'id', description: 'Website ID' })
+  @ApiParam({ name: 'name', description: 'Event name' })
+  @ApiQuery({ name: 'period', enum: ['today', 'week', 'month'], required: false })
+  @ApiResponse({ status: 200, description: 'Last 20 event instances with properties' })
+  getEventDetail(
+    @CurrentUser('id') _userId: string,
+    @Param('id') id: string,
+    @Param('name') name: string,
+    @Query('period') period: 'today' | 'week' | 'month',
+  ) {
+    return this.trackingService.getEventDetail(id, name, period);
   }
 
   @Delete(':id')

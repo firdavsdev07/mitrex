@@ -22,10 +22,32 @@ export class AlertsService {
   }
 
   async findAll(userId: string) {
-    return (this.prisma as any).alert.findMany({
+    const alerts = await this.prisma.alert.findMany({
       where: { userId },
       orderBy: { createdAt: 'desc' },
     });
+
+    // Join website name and connection info
+    const websiteIds = [...new Set(alerts.map((a) => a.websiteId).filter(Boolean))] as string[];
+    const connectionIds = [...new Set(alerts.map((a) => a.connectionId).filter(Boolean))] as string[];
+
+    const [websites, connections] = await Promise.all([
+      websiteIds.length
+        ? this.prisma.website.findMany({ where: { id: { in: websiteIds } }, select: { id: true, name: true, domain: true } })
+        : [],
+      connectionIds.length
+        ? this.prisma.connection.findMany({ where: { id: { in: connectionIds } }, select: { id: true, platform: true, platformUsername: true } })
+        : [],
+    ]);
+
+    const websiteMap = new Map<string, typeof websites[0]>(websites.map((w) => [w.id, w] as [string, typeof websites[0]]));
+    const connectionMap = new Map<string, typeof connections[0]>(connections.map((c) => [c.id, c] as [string, typeof connections[0]]));
+
+    return alerts.map((a) => ({
+      ...a,
+      website: a.websiteId ? websiteMap.get(a.websiteId) ?? null : null,
+      connection: a.connectionId ? connectionMap.get(a.connectionId) ?? null : null,
+    }));
   }
 
   async update(userId: string, id: string, data: Partial<CreateAlertDto>) {

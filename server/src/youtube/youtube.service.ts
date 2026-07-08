@@ -3,134 +3,143 @@ import axios from 'axios';
 import { PrismaService } from '../prisma/prisma.service';
 import { Platform } from '@metrix/prisma-client';
 
+const YT_API = 'https://www.googleapis.com/youtube/v3';
+
 @Injectable()
 export class YoutubeService {
-  private readonly clientId = process.env.GOOGLE_CLIENT_ID;
-  private readonly clientSecret = process.env.GOOGLE_CLIENT_SECRET;
-  private readonly redirectUri = process.env.YOUTUBE_REDIRECT_URI || 'http://localhost:3000/youtube/callback';
+  private get apiKey() { return process.env.YOUTUBE_API_KEY || process.env.GOOGLE_API_KEY; }
 
   constructor(private readonly prisma: PrismaService) {}
 
-  getAuthUrl(userId: string) {
-    const params = new URLSearchParams({
-      client_id: this.clientId!,
-      redirect_uri: this.redirectUri!,
-      response_type: 'code',
-      scope: 'https://www.googleapis.com/auth/youtube.readonly',
-      access_type: 'offline',
-      prompt: 'consent',
-      state: String(userId),
-    });
-    return { url: `https://accounts.google.com/o/oauth2/v2/auth?${params}` };
-  }
+  // ─── Handle / URL bo'yicha ulash (OAuth kerak emas) ─────────────────────────
 
-  async handleCallback(code: string, userId: string) {
-    const tokenRes = await axios.post('https://oauth2.googleapis.com/token', {
-      code,
-      client_id: this.clientId,
-      client_secret: this.clientSecret,
-      redirect_uri: this.redirectUri,
-      grant_type: 'authorization_code',
-    });
+  async connectByHandle(userId: string, handle: string) {
+    if (!this.apiKey) throw new BadRequestException('YOUTUBE_API_KEY sozlanmagan');
 
-    const { access_token, refresh_token, expires_in } = tokenRes.data;
-    const channelInfo = await this.getChannelInfo(access_token);
+    // @handle, channel URL yoki channel ID dan tozalash
+    const clean = handle
+      .trim()
+      .replace(/^https?:\/\/(www\.)?youtube\.com\/(c\/|channel\/|@)?/, '')
+      .replace(/^@/, '')
+      .replace(/\/$/, '');
 
-    const expiresAt = new Date(Date.now() + expires_in * 1000);
+    // Avval forHandle bilan qidirish (@username)
+    let channel = await this.findByHandle(clean);
 
-    await this.prisma.connection.upsert({
+    // Topilmasa forUsername bilan
+    if (!channel) channel = await this.findByUsername(clean);
+
+    // Topilmasa channelId bilan
+    if (!channel) channel = await this.findByChannelId(clean);
+
+    if (!channel) {
+      throw new BadRequestException(
+        `YouTube kanali topilmadi: "${handle}". Handle (@username), kanal URL yoki kanal ID kiriting.`
+      );
+    }
+
+    const conn = await this.prisma.connection.upsert({
       where: { userId_platform: { userId, platform: Platform.YOUTUBE } },
       create: {
         userId,
         platform: Platform.YOUTUBE,
-        accessToken: access_token,
-        refreshToken: refresh_token,
-        tokenExpiresAt: expiresAt,
-        platformUserId: channelInfo.id,
-        platformUsername: channelInfo.title,
-      },
-      update: {
-        accessToken: access_token,
-        refreshToken: refresh_token,
-        tokenExpiresAt: expiresAt,
-        platformUserId: channelInfo.id,
-        platformUsername: channelInfo.title,
+        platformUserId: channel.id,
+        platformUsername: channel.title,
         isActive: true,
       },
+      update: {
+        platformUserId: channel.id,
+        platformUsername: channel.title,
+        isActive: true,
+        accessToken: null,
+        refreshToken: null,
+        tokenExpiresAt: null,
+      },
     });
 
-    return { connected: true, channel: channelInfo.title };
+    // Darhol stats saqlash
+    await this.saveStats(conn.id, channel.id, channel.stats);
+
+    return { connected: true, channel: channel.title, subscribers: channel.stats.subscriberCount };
   }
 
-  async refreshAccessToken(connectionId: string, refreshToken: string) {
-    const res = await axios.post('https://oauth2.googleapis.com/token', {
-      client_id: this.clientId,
-      client_secret: this.clientSecret,
-      refresh_token: refreshToken,
-      grant_type: 'refresh_token',
-    });
-
-    const { access_token, expires_in } = res.data;
-    const expiresAt = new Date(Date.now() + expires_in * 1000);
-
-    await this.prisma.connection.update({
-      where: { id: connectionId },
-      data: { accessToken: access_token, tokenExpiresAt: expiresAt },
-    });
-
-    return access_token;
-  }
+  // ─── Stats yangilash (sync) ─────────────────────────────────────────────────
 
   async fetchAndSaveStats(connectionId: string) {
     const conn = await this.prisma.connection.findUnique({ where: { id: connectionId } });
-    if (!conn || !conn.accessToken) return;
+    if (!conn?.platformUserId) return;
 
-    let token = conn.accessToken;
-    if (conn.tokenExpiresAt && conn.tokenExpiresAt < new Date() && conn.refreshToken) {
-      token = await this.refreshAccessToken(connectionId, conn.refreshToken);
-    }
+    if (!this.apiKey) return;
 
-    const stats = await this.getChannelStats(token);
+    const res = await axios.get(`${YT_API}/channels`, {
+      params: { part: 'statistics', id: conn.platformUserId, key: this.apiKey },
+    });
+    const stats = res.data.items?.[0]?.statistics;
+    if (!stats) return;
+
+    await this.saveStats(connectionId, conn.platformUserId, {
+      subscriberCount: parseInt(stats.subscriberCount || '0'),
+      viewCount: parseInt(stats.viewCount || '0'),
+      videoCount: parseInt(stats.videoCount || '0'),
+    });
+  }
+
+  // ─── Private helpers ────────────────────────────────────────────────────────
+
+  private async findByHandle(handle: string) {
+    try {
+      const res = await axios.get(`${YT_API}/channels`, {
+        params: { part: 'snippet,statistics', forHandle: `@${handle}`, key: this.apiKey },
+      });
+      return this.parseChannel(res.data.items?.[0]);
+    } catch { return null; }
+  }
+
+  private async findByUsername(username: string) {
+    try {
+      const res = await axios.get(`${YT_API}/channels`, {
+        params: { part: 'snippet,statistics', forUsername: username, key: this.apiKey },
+      });
+      return this.parseChannel(res.data.items?.[0]);
+    } catch { return null; }
+  }
+
+  private async findByChannelId(channelId: string) {
+    if (!channelId.startsWith('UC')) return null;
+    try {
+      const res = await axios.get(`${YT_API}/channels`, {
+        params: { part: 'snippet,statistics', id: channelId, key: this.apiKey },
+      });
+      return this.parseChannel(res.data.items?.[0]);
+    } catch { return null; }
+  }
+
+  private parseChannel(item: any) {
+    if (!item) return null;
+    const stats = item.statistics ?? {};
+    return {
+      id: item.id as string,
+      title: item.snippet?.title as string,
+      stats: {
+        subscriberCount: parseInt(stats.subscriberCount || '0'),
+        viewCount: parseInt(stats.viewCount || '0'),
+        videoCount: parseInt(stats.videoCount || '0'),
+      },
+    };
+  }
+
+  private async saveStats(
+    connectionId: string,
+    _channelId: string,
+    stats: { subscriberCount: number; viewCount: number; videoCount: number },
+  ) {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
     await this.prisma.platformStat.upsert({
       where: { connectionId_date: { connectionId, date: today } },
-      create: {
-        connectionId,
-        date: today,
-        followers: stats.subscriberCount,
-        views: stats.viewCount,
-        raw: stats as any,
-      },
-      update: {
-        followers: stats.subscriberCount,
-        views: stats.viewCount,
-        raw: stats as any,
-      },
+      create: { connectionId, date: today, followers: stats.subscriberCount, views: stats.viewCount, raw: stats as any },
+      update: { followers: stats.subscriberCount, views: stats.viewCount, raw: stats as any },
     });
-  }
-
-  private async getChannelInfo(accessToken: string) {
-    const res = await axios.get('https://www.googleapis.com/youtube/v3/channels', {
-      params: { part: 'snippet', mine: true },
-      headers: { Authorization: `Bearer ${accessToken}` },
-    });
-    const channel = res.data.items?.[0];
-    if (!channel) throw new BadRequestException('YouTube kanal topilmadi');
-    return { id: channel.id, title: channel.snippet.title };
-  }
-
-  private async getChannelStats(accessToken: string) {
-    const res = await axios.get('https://www.googleapis.com/youtube/v3/channels', {
-      params: { part: 'statistics', mine: true },
-      headers: { Authorization: `Bearer ${accessToken}` },
-    });
-    const stats = res.data.items?.[0]?.statistics;
-    return {
-      subscriberCount: parseInt(stats?.subscriberCount || '0'),
-      viewCount: parseInt(stats?.viewCount || '0'),
-      videoCount: parseInt(stats?.videoCount || '0'),
-    };
   }
 }

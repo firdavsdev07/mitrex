@@ -37,7 +37,7 @@ export class DiscordController {
     @Res() res: Response,
   ) {
     await this.discordService.handleCallback(code, guildId, state);
-    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
-    res.redirect(`${frontendUrl}?connected=discord`);
+    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3001';
+    res.redirect(`${frontendUrl}/connections?connected=discord`);
   }
 }
