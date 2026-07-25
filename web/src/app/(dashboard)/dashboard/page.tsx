@@ -1,37 +1,52 @@
-"use client";
+'use client';
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback } from 'react';
 import {
-  AreaChart, Area, LineChart, Line,
-  XAxis, YAxis, CartesianGrid, Tooltip,
+  AreaChart,
+  Area,
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
   ResponsiveContainer,
-} from "recharts";
+} from 'recharts';
 import {
-  RefreshCw, TrendingUp, TrendingDown,
-  Globe, Link2, Plus, Eye,
-} from "lucide-react";
-import Link from "next/link";
+  RefreshCw,
+  TrendingUp,
+  TrendingDown,
+  Globe,
+  Link2,
+  Plus,
+  Eye,
+} from 'lucide-react';
+import Link from 'next/link';
 import {
   dashboardApi,
   type DashboardOverview,
   type Period,
   type TrendPoint,
   type PlatformHistoryPoint,
-} from "@/lib/api/dashboard";
-import { useAuthStore } from "@/store/auth";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+} from '@/lib/api/dashboard';
+import { useAuthStore } from '@/store/auth';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
 import {
-  YouTubeIcon, TelegramIcon, InstagramIcon,
-  DiscordIcon, BlueskyIcon,
-} from "@/components/icons/platform-icons";
+  YouTubeIcon,
+  TelegramIcon,
+  InstagramIcon,
+  DiscordIcon,
+  BlueskyIcon,
+  RedditIcon,
+} from '@/components/icons/platform-icons';
 
 // ─── constants ────────────────────────────────────────────────────────────────
 
 const PERIOD_LABELS: Record<Period, string> = {
-  today: "Bugun",
-  week: "Bu hafta",
-  month: "Bu oy",
+  today: 'Bugun',
+  week: 'Bu hafta',
+  month: 'Bu oy',
 };
 
 const PLATFORM_ICONS: Record<string, React.FC<{ className?: string }>> = {
@@ -40,28 +55,32 @@ const PLATFORM_ICONS: Record<string, React.FC<{ className?: string }>> = {
   INSTAGRAM: InstagramIcon,
   DISCORD: DiscordIcon,
   BLUESKY: BlueskyIcon,
+  REDDIT: RedditIcon,
 };
 
 const PLATFORM_COLORS: Record<string, string> = {
-  YOUTUBE: "#ff4444",
-  TELEGRAM: "#2AABEE",
-  INSTAGRAM: "#E1306C",
-  DISCORD: "#5865F2",
-  BLUESKY: "#0085ff",
+  YOUTUBE: '#ff4444',
+  TELEGRAM: '#2AABEE',
+  INSTAGRAM: '#E1306C',
+  DISCORD: '#5865F2',
+  BLUESKY: '#0085ff',
+  REDDIT: '#FF4500',
 };
 
 const PLATFORM_LABELS: Record<string, string> = {
-  YOUTUBE: "YouTube",
-  TELEGRAM: "Telegram",
-  INSTAGRAM: "Instagram",
-  DISCORD: "Discord",
-  BLUESKY: "Bluesky",
+  YOUTUBE: 'YouTube',
+  TELEGRAM: 'Telegram',
+  INSTAGRAM: 'Instagram',
+  DISCORD: 'Discord',
+  BLUESKY: 'Bluesky',
+  REDDIT: 'Reddit',
 };
 
 // ─── helpers ──────────────────────────────────────────────────────────────────
 
 function fmt(n: number | null) {
-  if (n === null) return "—";
+  if (n === null) return '—';
+  if (n >= 1_000_000_000) return `${(n / 1_000_000_000).toFixed(1)}B`;
   if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
   if (n >= 1_000) return `${(n / 1_000).toFixed(1)}K`;
   return n.toLocaleString();
@@ -72,16 +91,45 @@ function fmtDate(iso: string) {
   return `${d.getMonth() + 1}/${d.getDate()}`;
 }
 
+// "5 daqiqa oldin" — foydalanuvchi "Yangilash" bosgandan keyin ma'lumot
+// haqiqatan yangilanganini darhol ko'rishi uchun.
+function timeAgo(iso: string): string {
+  const diffMs = Date.now() - new Date(iso).getTime();
+  const min = Math.floor(diffMs / 60000);
+  if (min < 1) return 'hozirgina yangilandi';
+  if (min < 60) return `${min} daqiqa oldin`;
+  const hr = Math.floor(min / 60);
+  if (hr < 24) return `${hr} soat oldin`;
+  const day = Math.floor(hr / 24);
+  return `${day} kun oldin`;
+}
+
 // ─── custom tooltip ───────────────────────────────────────────────────────────
 
-function ChartTooltip({ active, payload, label, unit = "" }: any) {
+interface TooltipPayloadItem {
+  name?: string;
+  value?: number;
+  color?: string;
+}
+
+function ChartTooltip({
+  active,
+  payload,
+  label,
+  unit = '',
+}: {
+  active?: boolean;
+  payload?: TooltipPayloadItem[];
+  label?: string;
+  unit?: string;
+}) {
   if (!active || !payload?.length) return null;
   return (
     <div className="bg-zinc-900 border border-zinc-700 rounded-lg px-3 py-2 text-xs shadow-xl">
       <p className="text-zinc-500 mb-1">{label}</p>
-      {payload.map((p: any) => (
+      {payload.map((p) => (
         <p key={p.name} style={{ color: p.color }} className="font-semibold">
-          {fmt(p.value)} {unit}
+          {fmt(p.value ?? 0)} {unit}
         </p>
       ))}
     </div>
@@ -91,14 +139,14 @@ function ChartTooltip({ active, payload, label, unit = "" }: any) {
 // ─── main page ────────────────────────────────────────────────────────────────
 
 const DAYS_OPTIONS = [
-  { label: "7 kun", value: 7 },
-  { label: "14 kun", value: 14 },
-  { label: "30 kun", value: 30 },
+  { label: '7 kun', value: 7 },
+  { label: '14 kun', value: 14 },
+  { label: '30 kun', value: 30 },
 ];
 
 export default function DashboardPage() {
   const { user } = useAuthStore();
-  const [period, setPeriod] = useState<Period>("week");
+  const [period, setPeriod] = useState<Period>('week');
   const [trendDays, setTrendDays] = useState(14);
   const [data, setData] = useState<DashboardOverview | null>(null);
   const [trend, setTrend] = useState<TrendPoint[]>([]);
@@ -107,9 +155,11 @@ export default function DashboardPage() {
   >({});
   const [loading, setLoading] = useState(true);
   const [syncing, setSyncing] = useState(false);
+  const [error, setError] = useState(false);
 
   const load = useCallback(async (p: Period, days: number) => {
     setLoading(true);
+    setError(false);
     try {
       const [overview, webTrend] = await Promise.all([
         dashboardApi.overview(p),
@@ -118,24 +168,33 @@ export default function DashboardPage() {
       setData(overview);
       setTrend(webTrend);
 
-      // Platform history — parallel
-      const connected = overview.platforms.map((pl) => pl.platform);
-      if (connected.length) {
+      // Ulanish tarixi — connectionId bo'yicha (bitta platformada bir nechta
+      // ulanish bo'lishi mumkin, platform stringi endi noyob emas).
+      const connectionIds = overview.platforms.map((pl) => pl.id);
+      if (connectionIds.length) {
         const histories = await Promise.all(
-          connected.map((pl) => dashboardApi.platformHistory(pl, 14))
+          connectionIds.map((id) => dashboardApi.connectionHistory(id, 14)),
         );
         const map: Record<string, PlatformHistoryPoint[]> = {};
-        histories.forEach((h, i) => { if (h) map[connected[i]] = h.history; });
+        histories.forEach((h, i) => {
+          if (h) map[connectionIds[i]] = h.history;
+        });
         setPlatformHistory(map);
       }
     } catch {
-      // silently ignore — empty state ko'rinadi
+      // Avvalgi so'rov (bootstrapSession/refresh) hali tugamagan bo'lishi
+      // mumkin, yoki tarmoq xatosi — foydalanuvchiga sababsiz bo'sh sahifa
+      // ko'rsatish o'rniga qayta urinish imkonini beramiz.
+      setError(true);
     } finally {
       setLoading(false);
     }
   }, []);
 
-  useEffect(() => { load(period, trendDays); }, [period, trendDays, load]);
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- qasddan: fetch-on-mount/reset-on-dep-change, asosiy render tugagach ishlaydi
+    load(period, trendDays);
+  }, [period, trendDays, load]);
 
   async function handleSync() {
     setSyncing(true);
@@ -148,8 +207,8 @@ export default function DashboardPage() {
   }
 
   const greeting = user?.name
-    ? `Xush kelibsiz, ${user.name.split(" ")[0]}`
-    : "Xush kelibsiz";
+    ? `Xush kelibsiz, ${user.name.split(' ')[0]}`
+    : 'Xush kelibsiz';
 
   return (
     <div className="max-w-5xl mx-auto space-y-6">
@@ -163,14 +222,14 @@ export default function DashboardPage() {
         </div>
         <div className="flex items-center gap-2">
           <div className="flex items-center gap-0.5 bg-zinc-900 border border-zinc-800 rounded-lg p-0.5">
-            {(["today", "week", "month"] as Period[]).map((p) => (
+            {(['today', 'week', 'month'] as Period[]).map((p) => (
               <button
                 key={p}
                 onClick={() => setPeriod(p)}
                 className={`text-xs px-3 py-1.5 rounded-md transition-all duration-150 ${
                   period === p
-                    ? "bg-orange-500/12 text-orange-400 border border-orange-500/20"
-                    : "text-zinc-600 hover:text-zinc-300"
+                    ? 'bg-orange-500/12 text-orange-400 border border-orange-500/20'
+                    : 'text-zinc-600 hover:text-zinc-300'
                 }`}
               >
                 {PERIOD_LABELS[p]}
@@ -190,24 +249,38 @@ export default function DashboardPage() {
         </div>
       </div>
 
+      {/* ── Error banner ── */}
+      {error && !loading && (
+        <div className="flex items-center justify-between gap-3 bg-red-500/10 border border-red-500/20 text-red-400 text-sm px-4 py-3 rounded-xl">
+          <span>Statistikani yuklab bo&apos;lmadi. Internetni tekshiring.</span>
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={() => load(period, trendDays)}
+          >
+            Qayta urinish
+          </Button>
+        </div>
+      )}
+
       {/* ── Summary cards ── */}
       <div className="grid grid-cols-3 gap-3">
         <SummaryCard
           icon={<Link2 className="w-4 h-4 text-orange-400" />}
           label="Ulangan platformalar"
-          value={loading ? null : data?.summary.totalPlatforms ?? 0}
+          value={loading ? null : (data?.summary.totalPlatforms ?? 0)}
           bg="bg-orange-500/8 border-orange-500/15"
         />
         <SummaryCard
           icon={<Globe className="w-4 h-4 text-blue-400" />}
           label="Saytlar"
-          value={loading ? null : data?.summary.totalWebsites ?? 0}
+          value={loading ? null : (data?.summary.totalWebsites ?? 0)}
           bg="bg-blue-500/8 border-blue-500/15"
         />
         <SummaryCard
           icon={<Eye className="w-4 h-4 text-green-400" />}
           label="Sayt tashriflari"
-          value={loading ? null : data?.summary.totalWebViews ?? 0}
+          value={loading ? null : (data?.summary.totalWebViews ?? 0)}
           bg="bg-green-500/8 border-green-500/15"
         />
       </div>
@@ -217,11 +290,15 @@ export default function DashboardPage() {
         <CardContent className="p-5">
           <div className="flex items-center justify-between mb-4">
             <div>
-              <p className="text-sm font-medium text-zinc-200">Sayt tashriflari</p>
+              <p className="text-sm font-medium text-zinc-200">
+                Sayt tashriflari
+              </p>
               {trend.length > 0 && (
                 <p className="text-xl font-bold text-zinc-100 tabular-nums mt-0.5">
                   {fmt(trend.reduce((s, t) => s + t.views, 0))}
-                  <span className="text-xs font-normal text-zinc-600 ml-1">jami</span>
+                  <span className="text-xs font-normal text-zinc-600 ml-1">
+                    jami
+                  </span>
                 </p>
               )}
             </div>
@@ -233,8 +310,8 @@ export default function DashboardPage() {
                   onClick={() => setTrendDays(opt.value)}
                   className={`text-xs px-2.5 py-1 rounded-md transition-all ${
                     trendDays === opt.value
-                      ? "bg-zinc-700 text-zinc-100"
-                      : "text-zinc-500 hover:text-zinc-300"
+                      ? 'bg-zinc-700 text-zinc-100'
+                      : 'text-zinc-500 hover:text-zinc-300'
                   }`}
                 >
                   {opt.label}
@@ -255,22 +332,28 @@ export default function DashboardPage() {
             </div>
           ) : (
             <ResponsiveContainer width="100%" height={176}>
-              <AreaChart data={trend.map((t) => ({ ...t, date: fmtDate(t.date) }))}>
+              <AreaChart
+                data={trend.map((t) => ({ ...t, date: fmtDate(t.date) }))}
+              >
                 <defs>
                   <linearGradient id="viewsGrad" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="5%" stopColor="#f97316" stopOpacity={0.2} />
                     <stop offset="95%" stopColor="#f97316" stopOpacity={0} />
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="#27272a" vertical={false} />
+                <CartesianGrid
+                  strokeDasharray="3 3"
+                  stroke="#27272a"
+                  vertical={false}
+                />
                 <XAxis
                   dataKey="date"
-                  tick={{ fill: "#52525b", fontSize: 11 }}
+                  tick={{ fill: '#52525b', fontSize: 11 }}
                   axisLine={false}
                   tickLine={false}
                 />
                 <YAxis
-                  tick={{ fill: "#52525b", fontSize: 11 }}
+                  tick={{ fill: '#52525b', fontSize: 11 }}
                   axisLine={false}
                   tickLine={false}
                   width={36}
@@ -284,7 +367,7 @@ export default function DashboardPage() {
                   strokeWidth={2}
                   fill="url(#viewsGrad)"
                   dot={false}
-                  activeDot={{ r: 4, fill: "#f97316" }}
+                  activeDot={{ r: 4, fill: '#f97316' }}
                 />
               </AreaChart>
             </ResponsiveContainer>
@@ -314,15 +397,16 @@ export default function DashboardPage() {
             <div className="flex flex-col gap-3">
               {data.platforms.map((p) => {
                 const Icon = PLATFORM_ICONS[p.platform] ?? Globe;
-                const color = PLATFORM_COLORS[p.platform] ?? "#f97316";
-                const history = platformHistory[p.platform] ?? [];
+                const color = PLATFORM_COLORS[p.platform] ?? '#f97316';
+                const history = platformHistory[p.id] ?? [];
                 const chartData = history.map((h) => ({
                   date: fmtDate(h.date),
                   followers: h.followers ?? 0,
                 }));
 
                 return (
-                  <Card key={p.platform}>
+                  <Link key={p.id} href={`/connections/${p.id}`} className="block">
+                  <Card className="hover:border-zinc-700 transition-colors">
                     <CardContent className="p-4">
                       <div className="flex items-center gap-3 mb-3">
                         <div className="w-8 h-8 rounded-lg bg-zinc-800/60 border border-zinc-700/50 flex items-center justify-center shrink-0">
@@ -341,11 +425,19 @@ export default function DashboardPage() {
                         <div className="text-right shrink-0">
                           <p className="text-sm font-bold text-zinc-100 tabular-nums">
                             {fmt(p.followers)}
-                            <span className="text-xs font-normal text-zinc-600 ml-1">obunachi</span>
+                            <span className="text-xs font-normal text-zinc-600 ml-1">
+                              obunachi
+                            </span>
                           </p>
                           {p.growth !== null && (
-                            <div className={`flex items-center gap-0.5 justify-end text-xs ${p.growth >= 0 ? "text-green-400" : "text-red-400"}`}>
-                              {p.growth >= 0 ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
+                            <div
+                              className={`flex items-center gap-0.5 justify-end text-xs ${p.growth >= 0 ? 'text-green-400' : 'text-red-400'}`}
+                            >
+                              {p.growth >= 0 ? (
+                                <TrendingUp className="w-3 h-3" />
+                              ) : (
+                                <TrendingDown className="w-3 h-3" />
+                              )}
                               {Math.abs(p.growth)}%
                             </div>
                           )}
@@ -353,37 +445,71 @@ export default function DashboardPage() {
                       </div>
 
                       {/* Engagement stats */}
-                      {(p.likes != null || p.comments != null || p.engagement != null) && (
+                      {(p.likes != null ||
+                        p.comments != null ||
+                        p.engagement != null) && (
                         <div className="flex items-center gap-3 mb-2 text-xs text-zinc-500">
                           {p.likes != null && (
-                            <span>❤ <span className="text-zinc-300">{fmt(p.likes)}</span></span>
+                            <span>
+                              ❤{' '}
+                              <span className="text-zinc-300">
+                                {fmt(p.likes)}
+                              </span>
+                            </span>
                           )}
                           {p.comments != null && (
-                            <span>💬 <span className="text-zinc-300">{fmt(p.comments)}</span></span>
+                            <span>
+                              💬{' '}
+                              <span className="text-zinc-300">
+                                {fmt(p.comments)}
+                              </span>
+                            </span>
                           )}
                           {p.engagement != null && (
-                            <span className="ml-auto text-orange-400 font-medium">
+                            <span className="text-orange-400 font-medium">
                               {(p.engagement as number).toFixed(1)}% eng
+                            </span>
+                          )}
+                          {p.lastSync && (
+                            <span className="ml-auto text-zinc-600">
+                              {timeAgo(p.lastSync)}
                             </span>
                           )}
                         </div>
                       )}
+                      {!(p.likes != null || p.comments != null || p.engagement != null) &&
+                        p.lastSync && (
+                          <p className="text-xs text-zinc-600 mb-2 text-right">
+                            {timeAgo(p.lastSync)}
+                          </p>
+                        )}
 
                       {/* Sparkline */}
                       {chartData.length > 1 ? (
                         <ResponsiveContainer width="100%" height={40}>
                           <LineChart data={chartData}>
-                            <Line type="monotone" dataKey="followers" stroke={color} strokeWidth={1.5} dot={false} />
-                            <Tooltip content={<ChartTooltip unit="obunachi" />} />
+                            <Line
+                              type="monotone"
+                              dataKey="followers"
+                              stroke={color}
+                              strokeWidth={1.5}
+                              dot={false}
+                            />
+                            <Tooltip
+                              content={<ChartTooltip unit="obunachi" />}
+                            />
                           </LineChart>
                         </ResponsiveContainer>
                       ) : (
                         <div className="h-10 flex items-center justify-center">
-                          <p className="text-xs text-zinc-700">Trend ma&apos;lumoti yo&apos;q</p>
+                          <p className="text-xs text-zinc-700">
+                            Trend ma&apos;lumoti yo&apos;q
+                          </p>
                         </div>
                       )}
                     </CardContent>
                   </Card>
+                  </Link>
                 );
               })}
             </div>
@@ -412,7 +538,10 @@ export default function DashboardPage() {
                 <Card key={site.id}>
                   <CardContent className="p-4">
                     {/* Site header */}
-                    <Link href={`/websites/${site.id}`} className="flex items-center gap-3 mb-3 group">
+                    <Link
+                      href={`/websites/${site.id}`}
+                      className="flex items-center gap-3 mb-3 group"
+                    >
                       <div className="w-8 h-8 rounded-lg bg-zinc-800/60 border border-zinc-700/50 flex items-center justify-center shrink-0">
                         <Globe className="w-4 h-4 text-zinc-400" />
                       </div>
@@ -421,7 +550,9 @@ export default function DashboardPage() {
                           {site.name}
                         </p>
                         {site.domain && (
-                          <p className="text-xs text-zinc-600 truncate">{site.domain}</p>
+                          <p className="text-xs text-zinc-600 truncate">
+                            {site.domain}
+                          </p>
                         )}
                       </div>
                       <div className="text-right shrink-0">
@@ -436,11 +567,15 @@ export default function DashboardPage() {
                     {site.topPages.length > 0 ? (
                       <div className="border-t border-zinc-800/50 pt-3 space-y-1.5">
                         {site.topPages.map((page) => {
-                          const pct = site.views > 0
-                            ? Math.round((page.views / site.views) * 100)
-                            : 0;
+                          const pct =
+                            site.views > 0
+                              ? Math.round((page.views / site.views) * 100)
+                              : 0;
                           return (
-                            <div key={page.path} className="flex items-center gap-2">
+                            <div
+                              key={page.path}
+                              className="flex items-center gap-2"
+                            >
                               <p className="text-xs text-zinc-500 font-mono truncate flex-1 min-w-0">
                                 {page.path}
                               </p>
@@ -485,7 +620,10 @@ export default function DashboardPage() {
 // ─── sub-components ───────────────────────────────────────────────────────────
 
 function SummaryCard({
-  icon, label, value, bg,
+  icon,
+  label,
+  value,
+  bg,
 }: {
   icon: React.ReactNode;
   label: string;

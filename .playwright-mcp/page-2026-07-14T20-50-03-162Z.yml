@@ -1,0 +1,95 @@
+- generic [active] [ref=f47e1]:
+  - generic [ref=f47e2]:
+    - complementary [ref=f47e5]:
+      - link "Metrix" [ref=f47e7] [cursor=pointer]:
+        - /url: /dashboard
+      - navigation [ref=f47e12]:
+        - link "Dashboard" [ref=f47e13] [cursor=pointer]:
+          - /url: /dashboard
+        - link "Saytlar" [ref=f47e19] [cursor=pointer]:
+          - /url: /websites
+        - link "Ulashlar" [ref=f47e23] [cursor=pointer]:
+          - /url: /connections
+        - link "Postlar" [ref=f47e27] [cursor=pointer]:
+          - /url: /posts
+        - link "AI Insights" [ref=f47e31] [cursor=pointer]:
+          - /url: /insights
+        - link "Alertlar" [ref=f47e35] [cursor=pointer]:
+          - /url: /alerts
+        - link "Sozlamalar" [ref=f47e39] [cursor=pointer]:
+          - /url: /settings
+      - button "R Reddit Check reddit_ui_check@example.com" [ref=f47e44]:
+        - generic [ref=f47e45]: R
+        - generic [ref=f47e46]:
+          - paragraph [ref=f47e47]: Reddit Check
+          - paragraph [ref=f47e48]: reddit_ui_check@example.com
+    - main [ref=f47e52]:
+      - generic [ref=f47e53]:
+        - generic [ref=f47e54]:
+          - generic [ref=f47e55]: Metrix
+          - generic [ref=f47e58]: connections
+        - button "Bildirishnomalar" [ref=f47e61]
+      - generic [ref=f47e66]:
+        - generic [ref=f47e67]:
+          - paragraph [ref=f47e68]: Ulashlar
+          - heading "Platformalar" [level=1] [ref=f47e69]
+          - paragraph [ref=f47e70]: Platformalarni ulang — statistika avtomatik yangilanib turadi
+        - generic [ref=f47e71]:
+          - generic [ref=f47e74]:
+            - generic [ref=f47e78]:
+              - paragraph [ref=f47e80]: YouTube
+              - paragraph [ref=f47e81]: Ulanmagan
+            - button "Ulash" [ref=f47e83]
+          - generic [ref=f47e168]:
+            - generic [ref=f47e170]:
+              - generic [ref=f47e171]:
+                - generic [ref=f47e175]:
+                  - generic [ref=f47e176]:
+                    - paragraph [ref=f47e177]: Telegram
+                    - generic [ref=f47e178]: Ulangan
+                  - paragraph [ref=f47e179]: "@telegram"
+                - generic [ref=f47e180]:
+                  - button "Yangilash" [ref=f47e181]
+                  - button "Uzish" [ref=f47e187]
+              - generic [ref=f47e191]:
+                - generic [ref=f47e192]: 👥 10,081,587 obunachi
+                - generic [ref=f47e193]: 2026-07-14
+              - link "Batafsil statistika" [ref=f47e194] [cursor=pointer]:
+                - /url: /connections/b1c2730e-c86b-4f8c-a6fe-d43fdcf97ab1
+            - generic [ref=f47e224]:
+              - generic [ref=f47e225]:
+                - generic [ref=f47e229]:
+                  - generic [ref=f47e230]:
+                    - paragraph [ref=f47e231]: Telegram
+                    - generic [ref=f47e232]: Ulangan
+                  - paragraph [ref=f47e233]: "@durov"
+                - generic [ref=f47e234]:
+                  - button "Yangilash" [ref=f47e235]
+                  - button "Uzish" [ref=f47e241]
+              - generic [ref=f47e245]:
+                - generic [ref=f47e246]: 👥 11,672,266 obunachi
+                - generic [ref=f47e247]: 2026-07-14
+              - link "Batafsil statistika" [ref=f47e248] [cursor=pointer]:
+                - /url: /connections/3c3b35ed-c949-4107-9a23-803904510760
+            - button "Yana Telegram akkaunt qo'shish" [ref=f47e197]
+          - generic [ref=f47e98]:
+            - generic [ref=f47e102]:
+              - paragraph [ref=f47e104]: Instagram
+              - paragraph [ref=f47e105]: Ulanmagan
+            - button "Ulash" [ref=f47e107]
+          - generic [ref=f47e110]:
+            - generic [ref=f47e114]:
+              - paragraph [ref=f47e116]: Discord
+              - paragraph [ref=f47e117]: Ulanmagan
+            - button "Ulash" [ref=f47e119]
+          - generic [ref=f47e122]:
+            - generic [ref=f47e126]:
+              - paragraph [ref=f47e128]: Bluesky
+              - paragraph [ref=f47e129]: Ulanmagan
+            - button "Ulash" [ref=f47e131]
+          - generic [ref=f47e134]:
+            - generic [ref=f47e138]:
+              - paragraph [ref=f47e140]: Reddit
+              - paragraph [ref=f47e141]: Ulanmagan
+            - button "Ulash" [ref=f47e143]
+  - alert [ref=f47e4]

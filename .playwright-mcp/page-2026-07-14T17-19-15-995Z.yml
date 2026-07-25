@@ -1,0 +1,46 @@
+- generic [active] [ref=f2e1]:
+  - generic [ref=f2e2]:
+    - banner [ref=f2e3]:
+      - link "Metrix" [ref=f2e4] [cursor=pointer]:
+        - /url: /
+    - main [ref=f2e9]:
+      - generic [ref=f2e10]:
+        - generic [ref=f2e11]:
+          - heading "Hisob yaratish" [level=1] [ref=f2e12]
+          - paragraph [ref=f2e13]: Bepul boshlang, karta kerak emas
+        - generic [ref=f2e14]:
+          - generic [ref=f2e15]:
+            - link "Google bilan ro'yxatdan o'tish" [ref=f2e16] [cursor=pointer]:
+              - /url: http://localhost:3000/auth/google
+            - link "GitHub bilan ro'yxatdan o'tish" [ref=f2e22] [cursor=pointer]:
+              - /url: http://localhost:3000/auth/github
+          - generic [ref=f2e25]: yoki email bilan
+          - generic [ref=f2e29]:
+            - generic [ref=f2e30]:
+              - generic [ref=f2e31]: Ism
+              - textbox "Ism" [ref=f2e32]:
+                - /placeholder: Firdavs
+            - generic [ref=f2e33]:
+              - generic [ref=f2e34]: Email
+              - textbox "Email" [ref=f2e35]:
+                - /placeholder: siz@example.com
+            - generic [ref=f2e36]:
+              - generic [ref=f2e37]: Parol
+              - generic [ref=f2e38]:
+                - textbox "Parol" [ref=f2e39]:
+                  - /placeholder: Kamida 8 ta belgi
+                - button "Parolni ko'rsatish" [ref=f2e40]
+            - button "Hisob yaratish" [ref=f2e44]
+        - paragraph [ref=f2e45]:
+          - text: Hisob bormi?
+          - link "Kirish" [ref=f2e46] [cursor=pointer]:
+            - /url: /login
+        - paragraph [ref=f2e47]:
+          - text: Ro'yxatdan o'tish orqali siz
+          - link "Foydalanish shartlari" [ref=f2e48] [cursor=pointer]:
+            - /url: /terms
+          - text: va
+          - link "Maxfiylik siyosati" [ref=f2e49] [cursor=pointer]:
+            - /url: /privacy
+          - text: ga rozilik bildirasiz.
+  - alert [ref=f2e50]

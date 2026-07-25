@@ -1,6 +1,17 @@
 import { Injectable } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { Strategy } from 'passport-apple';
+import { OAuthDoneCallback } from '../types/oauth-user.type';
+
+// `passport-apple` o'z TypeScript turlarini bermaydi — Apple ID token'dan
+// keladigan foydalanuvchi ma'lumoti uchun faqat ishlatiladigan maydonlar bilan
+// minimal interfeys.
+interface AppleProfile {
+  id?: string;
+  sub?: string;
+  email?: string;
+  name?: { firstName?: string; lastName?: string };
+}
 
 @Injectable()
 export class AppleStrategy extends PassportStrategy(Strategy, 'apple') {
@@ -18,17 +29,20 @@ export class AppleStrategy extends PassportStrategy(Strategy, 'apple') {
   validate(
     _accessToken: string,
     _refreshToken: string,
-    _idToken: any,
-    profile: any,
-    done: Function,
+    _idToken: unknown,
+    profile: AppleProfile,
+    done: OAuthDoneCallback,
   ) {
     done(null, {
-      providerId: profile?.id || profile?.sub,
+      providerId: profile?.id || profile?.sub || '',
       provider: 'APPLE',
-      email: profile?.email,
+      email: profile?.email ?? '',
+      // Apple ID token'i faqat tasdiqlangan (Apple tomonidan boshqariladigan
+      // yoki "Hide My Email" relay) manzillarni beradi.
+      emailVerified: true,
       name: profile?.name
         ? `${profile.name.firstName || ''} ${profile.name.lastName || ''}`.trim()
-        : null,
+        : undefined,
       avatar: null,
     });
   }

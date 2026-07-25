@@ -3,7 +3,7 @@ import { Logger } from '@nestjs/common';
 import { Job } from 'bullmq';
 import { Platform } from '@metrix/prisma-client';
 import { SyncService } from '../../sync/sync.service';
-import { QUEUE_SYNC, JOB_SYNC_CONNECTION, JOB_SYNC_USER } from '../queue.constants';
+import { QUEUE_SYNC, JOB_SYNC_CONNECTION } from '../queue.constants';
 
 @Processor(QUEUE_SYNC, { concurrency: 3 })
 export class SyncProcessor extends WorkerHost {
@@ -13,13 +13,13 @@ export class SyncProcessor extends WorkerHost {
     super();
   }
 
-  async process(job: Job) {
+  async process(job: Job<{ connectionId: string; platform: Platform }>) {
     switch (job.name) {
       case JOB_SYNC_CONNECTION:
-        await this.syncService.syncOne(job.data.connectionId, job.data.platform as Platform);
-        break;
-      case JOB_SYNC_USER:
-        await this.syncService.syncUser(job.data.userId);
+        await this.syncService.syncOne(
+          job.data.connectionId,
+          job.data.platform,
+        );
         break;
       default:
         this.logger.warn(`Unknown sync job: ${job.name}`);

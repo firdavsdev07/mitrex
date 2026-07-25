@@ -1,0 +1,105 @@
+- generic [ref=f17e1]:
+  - generic [ref=f17e2]:
+    - complementary [ref=f17e3]:
+      - link "Metrix" [ref=f17e5] [cursor=pointer]:
+        - /url: /dashboard
+      - navigation [ref=f17e10]:
+        - link "Dashboard" [ref=f17e11] [cursor=pointer]:
+          - /url: /dashboard
+        - link "Saytlar" [ref=f17e17] [cursor=pointer]:
+          - /url: /websites
+        - link "Ulashlar" [ref=f17e21] [cursor=pointer]:
+          - /url: /connections
+        - link "Postlar" [ref=f17e25] [cursor=pointer]:
+          - /url: /posts
+        - link "AI Insights" [ref=f17e29] [cursor=pointer]:
+          - /url: /insights
+        - link "Alertlar" [ref=f17e33] [cursor=pointer]:
+          - /url: /alerts
+        - link "Sozlamalar" [ref=f17e37] [cursor=pointer]:
+          - /url: /settings
+      - button "R Reddit Check reddit_ui_check@example.com" [ref=f17e42]:
+        - generic [ref=f17e43]: R
+        - generic [ref=f17e44]:
+          - paragraph [ref=f17e45]: Reddit Check
+          - paragraph [ref=f17e46]: reddit_ui_check@example.com
+    - main [ref=f17e50]:
+      - generic [ref=f17e51]:
+        - generic [ref=f17e52]:
+          - generic [ref=f17e53]: Metrix
+          - generic [ref=f17e56]: d29a31ed-546d-4a51-bb65-1f193d8adc19
+        - button "Bildirishnomalar" [ref=f17e59]
+      - generic [ref=f17e64]:
+        - generic [ref=f17e65]:
+          - generic [ref=f17e66]:
+            - link [ref=f17e67] [cursor=pointer]:
+              - /url: /websites
+            - generic [ref=f17e70]:
+              - paragraph [ref=f17e71]: Sayt tahlili
+              - heading "Mening blogim" [level=1] [ref=f17e72]
+          - generic [ref=f17e73]:
+            - generic [ref=f17e74]: 3 faol
+            - button "Ulashish" [ref=f17e76]
+            - generic [ref=f17e83]:
+              - button "Bugun" [ref=f17e84]
+              - button "Bu hafta" [ref=f17e85]
+              - button "Bu oy" [ref=f17e86]
+        - generic [ref=f17e87]:
+          - generic [ref=f17e88]:
+            - generic [ref=f17e89]: Tashrifchilar
+            - paragraph [ref=f17e96]: "3"
+            - paragraph [ref=f17e97]: +0.0%
+          - generic [ref=f17e98]:
+            - generic [ref=f17e99]: Sahifa ko'rishlar
+            - paragraph [ref=f17e104]: "5"
+            - paragraph [ref=f17e105]: +0.0%
+          - generic [ref=f17e106]:
+            - generic [ref=f17e107]: Bounce rate
+            - paragraph [ref=f17e112]: 66.7%
+          - generic [ref=f17e113]:
+            - generic [ref=f17e114]: O'rtacha vaqt
+            - paragraph [ref=f17e119]: 0s
+        - generic [ref=f17e121]:
+          - paragraph [ref=f17e122]: Tashrifchilar va ko'rishlar dinamikasi
+          - generic [ref=f17e124]:
+            - list [ref=f17e126]:
+              - listitem [ref=f17e127]:
+                - img "Ko'rishlar legend icon" [ref=f17e128]
+                - text: Ko'rishlar
+              - listitem [ref=f17e130]:
+                - img "Tashrifchilar legend icon" [ref=f17e131]
+                - text: Tashrifchilar
+            - application [ref=f17e133]:
+              - generic [ref=f17e142]:
+                - generic [ref=f17e143]: 7/15
+                - generic [ref=f17e146]:
+                  - generic [ref=f17e147]: "0"
+                  - generic [ref=f17e149]: "2"
+                  - generic [ref=f17e151]: "4"
+                  - generic [ref=f17e153]: "6"
+                  - generic [ref=f17e155]: "8"
+        - generic [ref=f17e157]:
+          - generic [ref=f17e158]:
+            - button "Top sahifalar" [ref=f17e159]
+            - button "Traffic manbalari" [ref=f17e160]
+            - button "Auditoriya" [ref=f17e161]
+            - button "Funnel" [ref=f17e162]
+            - button "Events" [ref=f17e163]
+          - generic [ref=f17e186]:
+            - generic [ref=f17e187]:
+              - button "Manbalar" [ref=f17e188]
+              - button "UTM Kampaniyalar (1)" [active] [ref=f17e189]
+            - generic [ref=f17e213]:
+              - generic [ref=f17e214]: Manba
+              - generic [ref=f17e215]: Medium
+              - generic [ref=f17e216]: Kampaniya
+              - generic [ref=f17e217]: Tashrif
+              - generic [ref=f17e218]: "%"
+            - generic [ref=f17e220]:
+              - paragraph [ref=f17e221]: google
+              - paragraph [ref=f17e222]: organic
+              - paragraph [ref=f17e223]: —
+              - paragraph [ref=f17e224]: "2"
+              - paragraph [ref=f17e225]: 66.7%
+  - alert [ref=f17e175]
+  - generic [ref=f17e176]: "0"

@@ -1,14 +1,30 @@
-"use client";
+'use client';
 
-import { useState, useEffect, useRef, useCallback } from "react";
-import { Bell, CheckCheck, Info, AlertTriangle, CheckCircle, XCircle, X } from "lucide-react";
-import { notificationsApi, type Notification } from "@/lib/api/notifications";
+import { useState, useEffect, useRef, useCallback } from 'react';
+import {
+  Bell,
+  CheckCheck,
+  Info,
+  AlertTriangle,
+  CheckCircle,
+  XCircle,
+  X,
+} from 'lucide-react';
+import { notificationsApi, type Notification } from '@/lib/api/notifications';
 
 const TYPE_CONFIG = {
-  info:    { icon: Info,          color: "text-blue-400",   bg: "bg-blue-500/10"   },
-  warning: { icon: AlertTriangle, color: "text-yellow-400", bg: "bg-yellow-500/10" },
-  success: { icon: CheckCircle,   color: "text-green-400",  bg: "bg-green-500/10"  },
-  error:   { icon: XCircle,       color: "text-red-400",    bg: "bg-red-500/10"    },
+  info: { icon: Info, color: 'text-blue-400', bg: 'bg-blue-500/10' },
+  warning: {
+    icon: AlertTriangle,
+    color: 'text-yellow-400',
+    bg: 'bg-yellow-500/10',
+  },
+  success: {
+    icon: CheckCircle,
+    color: 'text-green-400',
+    bg: 'bg-green-500/10',
+  },
+  error: { icon: XCircle, color: 'text-red-400', bg: 'bg-red-500/10' },
 };
 
 function timeAgo(iso: string) {
@@ -19,7 +35,7 @@ function timeAgo(iso: string) {
   if (d > 0) return `${d} kun oldin`;
   if (h > 0) return `${h} soat oldin`;
   if (m > 0) return `${m} daq oldin`;
-  return "Hozir";
+  return 'Hozir';
 }
 
 export function NotificationBell() {
@@ -27,6 +43,7 @@ export function NotificationBell() {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [unread, setUnread] = useState(0);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const ref = useRef<HTMLDivElement>(null);
 
   const loadCount = useCallback(async () => {
@@ -50,6 +67,7 @@ export function NotificationBell() {
 
   // Unread count har 60 soniyada yangilanadi
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- qasddan: fetch-on-mount/reset-on-dep-change, asosiy render tugagach ishlaydi
     loadCount();
     const iv = setInterval(loadCount, 60_000);
     return () => clearInterval(iv);
@@ -57,6 +75,7 @@ export function NotificationBell() {
 
   // Dropdown ochilganda to'liq ro'yxat yuklash
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- qasddan: fetch-on-mount/reset-on-dep-change, asosiy render tugagach ishlaydi
     if (open) loadNotifications();
   }, [open, loadNotifications]);
 
@@ -67,22 +86,42 @@ export function NotificationBell() {
         setOpen(false);
       }
     }
-    document.addEventListener("mousedown", handler);
-    return () => document.removeEventListener("mousedown", handler);
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
   }, []);
 
+  function flashError(message: string) {
+    setError(message);
+    setTimeout(() => setError(null), 4000);
+  }
+
   async function handleMarkRead(id: string) {
-    await notificationsApi.markRead(id);
-    setNotifications((prev) =>
-      prev.map((n) => (n.id === id ? { ...n, readAt: new Date().toISOString() } : n))
-    );
-    setUnread((c) => Math.max(0, c - 1));
+    try {
+      await notificationsApi.markRead(id);
+      setNotifications((prev) =>
+        prev.map((n) =>
+          n.id === id ? { ...n, readAt: new Date().toISOString() } : n,
+        ),
+      );
+      setUnread((c) => Math.max(0, c - 1));
+    } catch {
+      flashError('Bildirishnomani belgilashda xatolik yuz berdi');
+    }
   }
 
   async function handleMarkAllRead() {
-    await notificationsApi.markAllRead();
-    setNotifications((prev) => prev.map((n) => ({ ...n, readAt: n.readAt ?? new Date().toISOString() })));
-    setUnread(0);
+    try {
+      await notificationsApi.markAllRead();
+      setNotifications((prev) =>
+        prev.map((n) => ({
+          ...n,
+          readAt: n.readAt ?? new Date().toISOString(),
+        })),
+      );
+      setUnread(0);
+    } catch {
+      flashError("Hammasini o'qilgan deb belgilashda xatolik yuz berdi");
+    }
   }
 
   return (
@@ -90,12 +129,13 @@ export function NotificationBell() {
       {/* Bell button */}
       <button
         onClick={() => setOpen((v) => !v)}
+        aria-label="Bildirishnomalar"
         className="relative w-7 h-7 flex items-center justify-center rounded-md text-zinc-500 hover:text-zinc-200 hover:bg-zinc-800/50 transition-all"
       >
         <Bell className="w-4 h-4" />
         {unread > 0 && (
           <span className="absolute -top-0.5 -right-0.5 min-w-[14px] h-3.5 px-0.5 rounded-full bg-red-500 text-[9px] font-bold text-white flex items-center justify-center leading-none">
-            {unread > 9 ? "9+" : unread}
+            {unread > 9 ? '9+' : unread}
           </span>
         )}
       </button>
@@ -105,7 +145,9 @@ export function NotificationBell() {
         <div className="absolute right-0 top-9 w-80 rounded-xl border border-zinc-800 bg-zinc-900 shadow-2xl z-50 overflow-hidden">
           {/* Header */}
           <div className="flex items-center justify-between px-4 py-3 border-b border-zinc-800">
-            <p className="text-sm font-semibold text-zinc-100">Bildirishnomalar</p>
+            <p className="text-sm font-semibold text-zinc-100">
+              Bildirishnomalar
+            </p>
             <div className="flex items-center gap-2">
               {unread > 0 && (
                 <button
@@ -118,12 +160,19 @@ export function NotificationBell() {
               )}
               <button
                 onClick={() => setOpen(false)}
+                aria-label="Yopish"
                 className="text-zinc-600 hover:text-zinc-300 transition-colors"
               >
                 <X className="w-3.5 h-3.5" />
               </button>
             </div>
           </div>
+
+          {error && (
+            <p className="text-xs text-red-400 bg-red-500/10 border-b border-red-500/20 px-4 py-2">
+              {error}
+            </p>
+          )}
 
           {/* List */}
           <div className="max-h-80 overflow-y-auto">
@@ -142,7 +191,9 @@ export function NotificationBell() {
             ) : notifications.length === 0 ? (
               <div className="py-10 text-center">
                 <Bell className="w-7 h-7 text-zinc-700 mx-auto mb-2" />
-                <p className="text-sm text-zinc-600">Hali bildirishnoma yo&apos;q</p>
+                <p className="text-sm text-zinc-600">
+                  Hali bildirishnoma yo&apos;q
+                </p>
               </div>
             ) : (
               notifications.map((n, i) => {
@@ -155,8 +206,8 @@ export function NotificationBell() {
                   <div
                     key={n.id}
                     className={`flex gap-3 px-4 py-3 transition-colors ${
-                      isUnread ? "bg-zinc-800/30" : ""
-                    } ${!isLast ? "border-b border-zinc-800/40" : ""}`}
+                      isUnread ? 'bg-zinc-800/30' : ''
+                    } ${!isLast ? 'border-b border-zinc-800/40' : ''}`}
                   >
                     <div
                       className={`w-7 h-7 rounded-lg ${cfg.bg} flex items-center justify-center shrink-0 mt-0.5`}
@@ -165,7 +216,9 @@ export function NotificationBell() {
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-start justify-between gap-2">
-                        <p className={`text-xs font-semibold leading-snug ${isUnread ? "text-zinc-100" : "text-zinc-400"}`}>
+                        <p
+                          className={`text-xs font-semibold leading-snug ${isUnread ? 'text-zinc-100' : 'text-zinc-400'}`}
+                        >
                           {n.title}
                         </p>
                         {isUnread && (
@@ -176,8 +229,12 @@ export function NotificationBell() {
                           />
                         )}
                       </div>
-                      <p className="text-xs text-zinc-500 mt-0.5 leading-snug">{n.body}</p>
-                      <p className="text-[10px] text-zinc-700 mt-1">{timeAgo(n.createdAt)}</p>
+                      <p className="text-xs text-zinc-500 mt-0.5 leading-snug">
+                        {n.body}
+                      </p>
+                      <p className="text-[10px] text-zinc-700 mt-1">
+                        {timeAgo(n.createdAt)}
+                      </p>
                     </div>
                   </div>
                 );

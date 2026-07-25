@@ -16,7 +16,9 @@ export class PlatformsService {
       }),
     ]);
 
-    const connectedMap = new Map(connections.map((c) => [c.platform, c.platformUsername]));
+    const connectedMap = new Map(
+      connections.map((c) => [c.platform, c.platformUsername]),
+    );
 
     return configs.map((cfg) => ({
       slug: cfg.slug,
@@ -31,8 +33,13 @@ export class PlatformsService {
   }
 
   // Admin — bitta platformani toggle qilish
-  async toggle(slug: Platform, data: { enabled?: boolean; comingSoon?: boolean }) {
-    const config = await this.prisma.platformConfig.findUnique({ where: { slug } });
+  async toggle(
+    slug: Platform,
+    data: { enabled?: boolean; comingSoon?: boolean },
+  ) {
+    const config = await this.prisma.platformConfig.findUnique({
+      where: { slug },
+    });
     if (!config) throw new NotFoundException('Platform not found');
 
     return this.prisma.platformConfig.update({
@@ -48,11 +55,6 @@ export class PlatformsService {
   async findAllAdmin() {
     return this.prisma.platformConfig.findMany({
       orderBy: { sortOrder: 'asc' },
-      include: {
-        _count: {
-          select: { slug: true } as any,
-        },
-      },
     });
   }
 }

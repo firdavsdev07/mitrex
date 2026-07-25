@@ -25,59 +25,99 @@ export class ExportController {
   @ApiParam({ name: 'id', description: 'Website ID' })
   @ApiQuery({ name: 'period', enum: ['week', 'month', 'all'], required: false })
   @ApiProduces('text/csv')
-  @ApiResponse({ status: 200, description: 'CSV file download', content: { 'text/csv': {} } })
+  @ApiResponse({
+    status: 200,
+    description: 'CSV file download',
+    content: { 'text/csv': {} },
+  })
   async exportPageviews(
     @CurrentUser('id') userId: string,
     @Param('id') id: string,
     @Query('period') period: 'week' | 'month' | 'all',
     @Res() res: Response,
   ) {
-    const csv = await this.exportService.exportWebsitePageviews(userId, id, period);
+    const csv = await this.exportService.exportWebsitePageviews(
+      userId,
+      id,
+      period,
+    );
     res.setHeader('Content-Type', 'text/csv');
-    res.setHeader('Content-Disposition', `attachment; filename="pageviews-${id}-${period || 'month'}.csv"`);
+    res.setHeader(
+      'Content-Disposition',
+      `attachment; filename="pageviews-${id}-${period || 'month'}.csv"`,
+    );
     res.send(csv);
   }
 
-  @Get('connections/:platform/stats')
+  @Get('connections/:connectionId/stats')
   @ApiOperation({ summary: 'Export platform stats as CSV' })
-  @ApiParam({ name: 'platform', description: 'Platform slug e.g. YOUTUBE' })
+  @ApiParam({ name: 'connectionId', description: 'Connection UUID' })
   @ApiProduces('text/csv')
-  @ApiResponse({ status: 200, description: 'CSV file download', content: { 'text/csv': {} } })
+  @ApiResponse({
+    status: 200,
+    description: 'CSV file download',
+    content: { 'text/csv': {} },
+  })
   async exportPlatformStats(
     @CurrentUser('id') userId: string,
-    @Param('platform') platform: string,
+    @Param('connectionId') connectionId: string,
     @Res() res: Response,
   ) {
-    const csv = await this.exportService.exportPlatformStats(userId, platform);
+    const csv = await this.exportService.exportPlatformStats(
+      userId,
+      connectionId,
+    );
     res.setHeader('Content-Type', 'text/csv');
-    res.setHeader('Content-Disposition', `attachment; filename="${platform.toLowerCase()}-stats.csv"`);
+    res.setHeader(
+      'Content-Disposition',
+      `attachment; filename="connection-${connectionId}-stats.csv"`,
+    );
     res.send(csv);
   }
 
-  @Get('connections/:platform/posts')
+  @Get('connections/:connectionId/posts')
   @ApiOperation({ summary: 'Export post stats as CSV' })
-  @ApiParam({ name: 'platform', description: 'Platform slug e.g. YOUTUBE' })
+  @ApiParam({ name: 'connectionId', description: 'Connection UUID' })
   @ApiProduces('text/csv')
-  @ApiResponse({ status: 200, description: 'CSV file download', content: { 'text/csv': {} } })
+  @ApiResponse({
+    status: 200,
+    description: 'CSV file download',
+    content: { 'text/csv': {} },
+  })
   async exportPosts(
     @CurrentUser('id') userId: string,
-    @Param('platform') platform: string,
+    @Param('connectionId') connectionId: string,
     @Res() res: Response,
   ) {
-    const csv = await this.exportService.exportPosts(userId, platform);
+    const csv = await this.exportService.exportPosts(userId, connectionId);
     res.setHeader('Content-Type', 'text/csv');
-    res.setHeader('Content-Disposition', `attachment; filename="${platform.toLowerCase()}-posts.csv"`);
+    res.setHeader(
+      'Content-Disposition',
+      `attachment; filename="connection-${connectionId}-posts.csv"`,
+    );
     res.send(csv);
   }
 
   @Get('my-data')
-  @ApiOperation({ summary: 'Export all user data as JSON (GDPR data portability)' })
+  @ApiOperation({
+    summary: 'Export all user data as JSON (GDPR data portability)',
+  })
   @ApiProduces('application/json')
-  @ApiResponse({ status: 200, description: 'JSON file download with all user data', content: { 'application/json': {} } })
-  async exportUserData(@CurrentUser('id') userId: string, @Res() res: Response) {
+  @ApiResponse({
+    status: 200,
+    description: 'JSON file download with all user data',
+    content: { 'application/json': {} },
+  })
+  async exportUserData(
+    @CurrentUser('id') userId: string,
+    @Res() res: Response,
+  ) {
     const data = await this.exportService.exportUserData(userId);
     res.setHeader('Content-Type', 'application/json');
-    res.setHeader('Content-Disposition', 'attachment; filename="metrix-my-data.json"');
+    res.setHeader(
+      'Content-Disposition',
+      'attachment; filename="metrix-my-data.json"',
+    );
     res.send(JSON.stringify(data, null, 2));
   }
 }

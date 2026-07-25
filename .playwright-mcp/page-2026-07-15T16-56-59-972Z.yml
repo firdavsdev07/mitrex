@@ -1,0 +1,37 @@
+- generic [active] [ref=f4e1]:
+  - generic [ref=f4e2]:
+    - banner [ref=f4e3]:
+      - link "Metrix" [ref=f4e4] [cursor=pointer]:
+        - /url: /
+    - main [ref=f4e9]:
+      - generic [ref=f4e10]:
+        - generic [ref=f4e11]:
+          - heading "Xush kelibsiz" [level=1] [ref=f4e12]
+          - paragraph [ref=f4e13]: Hisobingizga kiring
+        - generic [ref=f4e14]:
+          - generic [ref=f4e15]:
+            - link "Google bilan kirish" [ref=f4e16] [cursor=pointer]:
+              - /url: http://localhost:3000/auth/google
+            - link "GitHub bilan kirish" [ref=f4e22] [cursor=pointer]:
+              - /url: http://localhost:3000/auth/github
+          - generic [ref=f4e25]: yoki email bilan
+          - generic [ref=f4e29]:
+            - generic [ref=f4e30]:
+              - generic [ref=f4e31]: Email
+              - textbox "Email" [ref=f4e32]:
+                - /placeholder: siz@example.com
+            - generic [ref=f4e33]:
+              - generic [ref=f4e34]:
+                - generic [ref=f4e35]: Parol
+                - link "Parolni unutdingizmi?" [ref=f4e36] [cursor=pointer]:
+                  - /url: /forgot-password
+              - generic [ref=f4e37]:
+                - textbox "Parol" [ref=f4e38]:
+                  - /placeholder: ••••••••
+                - button "Parolni ko'rsatish" [ref=f4e39]
+            - button "Kirish" [ref=f4e43]
+        - paragraph [ref=f4e44]:
+          - text: Hisob yo'qmi?
+          - link "Ro'yxatdan o'tish" [ref=f4e45] [cursor=pointer]:
+            - /url: /register
+  - button "Open Next.js Dev Tools" [ref=f4e51] [cursor=pointer]

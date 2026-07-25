@@ -7,8 +7,10 @@ import {
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { PrismaService } from '../../prisma/prisma.service';
+import { getEffectivePlan } from '../utils/plan.util';
+import { AuthenticatedRequest } from '../../auth/types/jwt-user.type';
 
-export const PlanLimit = (resource: 'websites' | 'platforms' | 'views') =>
+export const PlanLimit = (resource: 'websites' | 'platforms') =>
   SetMetadata('planLimit', resource);
 
 @Injectable()
@@ -22,16 +24,11 @@ export class PlanGuard implements CanActivate {
     const resource = this.reflector.get<string>('planLimit', ctx.getHandler());
     if (!resource) return true;
 
-    const req = ctx.switchToHttp().getRequest();
+    const req = ctx.switchToHttp().getRequest<AuthenticatedRequest>();
     const userId = req.user?.id;
     if (!userId) return true;
 
-    const sub = await (this.prisma as any).userSubscription.findUnique({
-      where: { userId },
-      include: { plan: true },
-    });
-
-    const plan = sub?.plan || await (this.prisma as any).plan.findUnique({ where: { slug: 'free' } });
+    const plan = await getEffectivePlan(this.prisma, userId);
     if (!plan) return true;
 
     if (resource === 'websites') {
@@ -46,7 +43,9 @@ export class PlanGuard implements CanActivate {
 
     if (resource === 'platforms') {
       if (plan.maxPlatforms === -1) return true;
-      const count = await this.prisma.connection.count({ where: { userId, isActive: true } });
+      const count = await this.prisma.connection.count({
+        where: { userId, isActive: true },
+      });
       if (count >= plan.maxPlatforms) {
         throw new ForbiddenException(
           `Your "${plan.name}" plan platform limit reached (${plan.maxPlatforms} ). Please upgrade your plan.`,

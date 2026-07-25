@@ -1,6 +1,14 @@
 import {
-  Controller, Get, Post, Patch, Delete,
-  Param, Body, UseGuards, HttpCode, HttpStatus,
+  Controller,
+  Get,
+  Post,
+  Patch,
+  Delete,
+  Param,
+  Body,
+  UseGuards,
+  HttpCode,
+  HttpStatus,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -8,11 +16,14 @@ import {
   ApiOperation,
   ApiResponse,
   ApiParam,
-  ApiBody,
 } from '@nestjs/swagger';
 import { WorkspacesService } from './workspaces.service';
-import { CreateWorkspaceDto } from './dto/create-workspace.dto';
+import {
+  CreateWorkspaceDto,
+  UpdateWorkspaceDto,
+} from './dto/create-workspace.dto';
 import { InviteMemberDto } from './dto/invite-member.dto';
+import { UpdateMemberRoleDto } from './dto/update-member-role.dto';
 import { JwtGuard } from '../auth/guards/jwt.guard';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 
@@ -54,7 +65,7 @@ export class WorkspacesController {
   update(
     @CurrentUser('id') userId: string,
     @Param('id') id: string,
-    @Body() dto: Partial<CreateWorkspaceDto>,
+    @Body() dto: UpdateWorkspaceDto,
   ) {
     return this.workspacesService.update(userId, id, dto);
   }
@@ -82,15 +93,19 @@ export class WorkspacesController {
   @ApiOperation({ summary: 'Change a member role' })
   @ApiParam({ name: 'id', description: 'Workspace ID' })
   @ApiParam({ name: 'memberId', description: 'Member user ID' })
-  @ApiBody({ schema: { properties: { role: { type: 'string', enum: ['ADMIN', 'EDITOR', 'VIEWER'] } } } })
   @ApiResponse({ status: 200, description: 'Role updated' })
   updateMemberRole(
     @CurrentUser('id') userId: string,
     @Param('id') id: string,
     @Param('memberId') memberId: string,
-    @Body('role') role: string,
+    @Body() dto: UpdateMemberRoleDto,
   ) {
-    return this.workspacesService.updateMemberRole(userId, id, memberId, role);
+    return this.workspacesService.updateMemberRole(
+      userId,
+      id,
+      memberId,
+      dto.role,
+    );
   }
 
   @Delete(':id/members/:memberId')
@@ -145,11 +160,16 @@ export class WorkspacesController {
 
   @Post('join/:token')
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Accept a workspace invite via token (from invite email)' })
+  @ApiOperation({
+    summary: 'Accept a workspace invite via token (from invite email)',
+  })
   @ApiParam({ name: 'token', description: 'Invite token from email link' })
   @ApiResponse({ status: 200, description: 'Joined workspace' })
   @ApiResponse({ status: 400, description: 'Token invalid or expired' })
-  acceptInvite(@CurrentUser('id') userId: string, @Param('token') token: string) {
+  acceptInvite(
+    @CurrentUser('id') userId: string,
+    @Param('token') token: string,
+  ) {
     return this.workspacesService.acceptInvite(userId, token);
   }
 

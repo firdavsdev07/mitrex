@@ -1,0 +1,112 @@
+- generic [ref=f5e1]:
+  - generic [ref=f5e2]:
+    - complementary [ref=f5e14]:
+      - link "Metrix" [ref=f5e16] [cursor=pointer]:
+        - /url: /dashboard
+      - navigation [ref=f5e21]:
+        - link "Dashboard" [ref=f5e22] [cursor=pointer]:
+          - /url: /dashboard
+        - link "Saytlar" [ref=f5e28] [cursor=pointer]:
+          - /url: /websites
+        - link "Ulashlar" [ref=f5e32] [cursor=pointer]:
+          - /url: /connections
+        - link "Postlar" [ref=f5e36] [cursor=pointer]:
+          - /url: /posts
+        - link "AI Insights" [ref=f5e40] [cursor=pointer]:
+          - /url: /insights
+        - link "Alertlar" [ref=f5e44] [cursor=pointer]:
+          - /url: /alerts
+        - link "Sozlamalar" [ref=f5e48] [cursor=pointer]:
+          - /url: /settings
+      - button "A Admin akbaralisherono@gmail.com" [ref=f5e53]:
+        - generic [ref=f5e54]: A
+        - generic [ref=f5e55]:
+          - paragraph [ref=f5e56]: Admin
+          - paragraph [ref=f5e57]: akbaralisherono@gmail.com
+    - main [ref=f5e61]:
+      - generic [ref=f5e62]:
+        - generic [ref=f5e63]:
+          - generic [ref=f5e64]: Metrix
+          - generic [ref=f5e67]: connections
+        - button "Bildirishnomalar" [ref=f5e70]
+      - generic [ref=f5e75]:
+        - generic [ref=f5e76]:
+          - paragraph [ref=f5e77]: Ulashlar
+          - heading "Platformalar" [level=1] [ref=f5e78]
+          - paragraph [ref=f5e79]: Platformalarni ulang — statistika avtomatik yangilanib turadi
+        - generic [ref=f5e80]:
+          - generic [ref=f5e81]:
+            - generic [ref=f5e83]:
+              - generic [ref=f5e84]:
+                - generic [ref=f5e88]:
+                  - generic [ref=f5e89]:
+                    - paragraph [ref=f5e90]: YouTube
+                    - generic [ref=f5e91]: Ulangan
+                  - paragraph [ref=f5e92]: "@MrBeast"
+                - generic [ref=f5e93]:
+                  - button "Yangilash" [ref=f5e94]
+                  - button "Uzish" [ref=f5e100]
+              - generic [ref=f5e104]:
+                - generic [ref=f5e105]: 👥 508,000,000 obunachi
+                - generic [ref=f5e106]: 👁 133,543,005,910 ko'rish
+                - generic "2026-07-15 18:00:03" [ref=f5e107]: 3 soat oldin
+              - link "Batafsil statistika" [ref=f5e108] [cursor=pointer]:
+                - /url: /connections/aabe0bb3-2c9f-4ca2-be24-7ca365a01676
+            - button "Yana YouTube akkaunt qo'shish" [active] [ref=f5e111]
+          - generic [ref=f5e113]:
+            - generic [ref=f5e115]:
+              - generic [ref=f5e116]:
+                - generic [ref=f5e120]:
+                  - generic [ref=f5e121]:
+                    - paragraph [ref=f5e122]: Telegram
+                    - generic [ref=f5e123]: Ulangan
+                  - paragraph [ref=f5e124]: "@Avtotest_Plus_Uz"
+                - generic [ref=f5e125]:
+                  - button "Yangilash" [ref=f5e126]
+                  - button "Uzish" [ref=f5e132]
+              - generic [ref=f5e136]:
+                - generic [ref=f5e137]: 👥 26 obunachi
+                - generic [ref=f5e138]: 👁 349 ko'rish
+                - generic "2026-07-15 18:00:03" [ref=f5e139]: 3 soat oldin
+              - link "Batafsil statistika" [ref=f5e140] [cursor=pointer]:
+                - /url: /connections/12862b8d-e13e-4811-b4eb-a59fca371df6
+            - button "Yana Telegram akkaunt qo'shish" [ref=f5e143]
+          - generic [ref=f5e147]:
+            - generic [ref=f5e151]:
+              - paragraph [ref=f5e153]: Instagram
+              - paragraph [ref=f5e154]: Ulanmagan
+            - button "Ulash" [ref=f5e156]
+          - generic [ref=f5e159]:
+            - generic [ref=f5e163]:
+              - paragraph [ref=f5e165]: Discord
+              - paragraph [ref=f5e166]: Ulanmagan
+            - button "Ulash" [ref=f5e168]
+          - generic [ref=f5e171]:
+            - generic [ref=f5e175]:
+              - paragraph [ref=f5e177]: Bluesky
+              - paragraph [ref=f5e178]: Ulanmagan
+            - button "Ulash" [ref=f5e180]
+          - generic [ref=f5e183]:
+            - generic [ref=f5e187]:
+              - paragraph [ref=f5e189]: Reddit
+              - paragraph [ref=f5e190]: Ulanmagan
+            - button "Ulash" [ref=f5e192]
+        - generic [ref=f5e195]:
+          - generic [ref=f5e196]:
+            - heading "YouTube ulash" [level=3] [ref=f5e197]
+            - button "Yopish" [ref=f5e198]
+          - paragraph [ref=f5e202]: OAuth talab qilinmaydi — faqat kanal handle yoki URL kiriting.
+          - generic [ref=f5e203]:
+            - generic [ref=f5e204]:
+              - generic [ref=f5e205]: Kanal handle yoki URL
+              - textbox "Kanal handle yoki URL" [ref=f5e206]:
+                - /placeholder: "@MrBeast yoki youtube.com/c/MrBeast"
+              - paragraph [ref=f5e207]: "@handle, to'liq URL yoki Channel ID bo'lishi mumkin"
+            - generic [ref=f5e208]:
+              - button "Bekor" [ref=f5e209]
+              - button "Ulash" [ref=f5e210]
+          - generic [ref=f5e211]:
+            - paragraph [ref=f5e212]: "Bu FAQAT o'zingiz egalik qiladigan kanal uchun: har bir video qancha yangi obunachi olib kelganini ham ko'rish uchun Google orqali ulang."
+            - button "Google orqali ulash (obunachi statistikasi bilan)" [ref=f5e213]
+  - button "Open Next.js Dev Tools" [ref=f5e9] [cursor=pointer]
+  - alert [ref=f5e13]

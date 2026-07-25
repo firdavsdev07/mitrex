@@ -21,7 +21,9 @@ export class BlueskyController {
   @Post('connect')
   @UseGuards(PlanGuard)
   @PlanLimit('platforms')
-  @ApiOperation({ summary: 'Connect Bluesky account with handle and App Password' })
+  @ApiOperation({
+    summary: 'Connect Bluesky account with handle and App Password',
+  })
   @ApiResponse({ status: 201, description: 'Bluesky account connected' })
   @ApiResponse({ status: 400, description: 'Invalid handle or App Password' })
   @ApiResponse({ status: 403, description: 'Plan platform limit reached' })

@@ -12,7 +12,10 @@ export class InviteMemberDto {
   @IsEmail()
   email: string;
 
-  @ApiPropertyOptional({ enum: WorkspaceRoleDto, example: WorkspaceRoleDto.EDITOR })
+  @ApiPropertyOptional({
+    enum: WorkspaceRoleDto,
+    example: WorkspaceRoleDto.EDITOR,
+  })
   @IsOptional()
   @IsEnum(WorkspaceRoleDto)
   role?: WorkspaceRoleDto;

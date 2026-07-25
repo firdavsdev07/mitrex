@@ -1,0 +1,35 @@
+- generic [active] [ref=f1e1]:
+  - generic [ref=f1e2]:
+    - generic [ref=f1e3]:
+      - progressbar [ref=f1e5]
+      - generic [ref=f1e13]:
+        - generic [ref=f1e14]:
+          - generic [ref=f1e15]: Sign in with Google
+          - generic [ref=f1e24]:
+            - heading "Choose an account" [level=1] [ref=f1e25]
+            - generic [ref=f1e27]:
+              - text: to continue to
+              - button "Metrix" [ref=f1e28] [cursor=pointer]
+        - list [ref=f1e40]:
+          - listitem [ref=f1e41]:
+            - link "Akbarali Sheronov sheronovakbarali2706@gmail.com" [ref=f1e42] [cursor=pointer]:
+              - generic [ref=f1e46]:
+                - generic [ref=f1e47]: Akbarali Sheronov
+                - generic [ref=f1e48]: sheronovakbarali2706@gmail.com
+          - listitem [ref=f1e49]:
+            - link "Use another account" [ref=f1e50] [cursor=pointer]
+    - contentinfo [ref=f1e59]:
+      - combobox "‪English (United Kingdom)‬" [ref=f1e63] [cursor=pointer]
+      - list [ref=f1e65]:
+        - listitem [ref=f1e66]:
+          - link "Help" [ref=f1e67] [cursor=pointer]:
+            - /url: https://support.google.com/accounts?hl=en-GB&p=account_iph
+        - listitem [ref=f1e68]:
+          - link "Privacy" [ref=f1e69] [cursor=pointer]:
+            - /url: https://accounts.google.com/TOS?loc=UZ&hl=en-GB&privacy=true
+        - listitem [ref=f1e70]:
+          - link "Terms" [ref=f1e71] [cursor=pointer]:
+            - /url: https://accounts.google.com/TOS?loc=UZ&hl=en-GB
+  - iframe [ref=f1e72]:
+    
+  - generic [ref=f1e73]: Choose an account to continue to Metrix

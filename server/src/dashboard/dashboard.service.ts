@@ -5,7 +5,10 @@ import { PrismaService } from '../prisma/prisma.service';
 export class DashboardService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async getOverview(userId: string, period: 'today' | 'week' | 'month' = 'week') {
+  async getOverview(
+    userId: string,
+    period: 'today' | 'week' | 'month' = 'week',
+  ) {
     const from = new Date();
     if (period === 'today') from.setHours(0, 0, 0, 0);
     else if (period === 'week') from.setDate(from.getDate() - 7);
@@ -23,7 +26,16 @@ export class DashboardService {
           stats: {
             orderBy: { date: 'desc' },
             take: 2,
-            select: { followers: true, views: true, likes: true, comments: true, engagement: true, date: true, growth: true },
+            select: {
+              followers: true,
+              views: true,
+              likes: true,
+              comments: true,
+              engagement: true,
+              date: true,
+              growth: true,
+              updatedAt: true,
+            },
           },
         },
       }),
@@ -48,10 +60,14 @@ export class DashboardService {
       const prev = conn.stats[1];
       const growth =
         latest && prev && prev.followers
-          ? (((latest.followers! - prev.followers!) / prev.followers!) * 100).toFixed(1)
+          ? (
+              ((latest.followers! - prev.followers) / prev.followers) *
+              100
+            ).toFixed(1)
           : null;
 
       return {
+        id: conn.id,
         platform: conn.platform,
         username: conn.platformUsername,
         followers: latest?.followers ?? null,
@@ -60,7 +76,13 @@ export class DashboardService {
         comments: latest?.comments ?? null,
         engagement: latest?.engagement ?? null,
         growth: growth ? parseFloat(growth) : null,
-        lastSync: latest?.date ?? null,
+        // `date` — kalendar kuni (@db.Date, doim yarim tun) — "necha vaqt
+        // oldin" hisoblash uchun ishlatilsa, kun davomida hech narsa
+        // o'zgarmagandek ko'rinardi. `updatedAt` esa sinxronizatsiya
+        // haqiqatan OXIRGI marta qachon yozilganini beradi (bir kunda
+        // qayta-qayta "Yangilash" bosilsa ham `createdAt` faqat
+        // birinchisida o'rnatiladi).
+        lastSync: latest?.updatedAt ?? null,
       };
     });
 
@@ -117,8 +139,13 @@ export class DashboardService {
 
     const ids = websites.map((w) => w.id);
 
+    // TO_CHAR bilan to'g'ridan-to'g'ri ISO satr sifatida qaytariladi — pg
+    // driver DATE ustunini JS Date obyektiga aylantiradi va String(date)
+    // "Wed Jul 15" kabi weekday-prefiksli formatga tushib qolardi (ISO emas),
+    // bu esa frontend'dagi `new Date(iso)` parsingini vaqt zonasiga qarab
+    // noto'g'ri kunga siljitib yuborishi mumkin edi.
     const rows = await this.prisma.$queryRaw<{ date: string; views: bigint }[]>`
-      SELECT DATE("createdAt") as date, COUNT(*) as views
+      SELECT TO_CHAR(DATE("createdAt"), 'YYYY-MM-DD') as date, COUNT(*) as views
       FROM page_views
       WHERE "websiteId" = ANY(${ids}::uuid[])
         AND "createdAt" >= ${from}
@@ -127,16 +154,18 @@ export class DashboardService {
     `;
 
     return rows.map((r) => ({
-      date: String(r.date).slice(0, 10),
+      date: r.date,
       views: Number(r.views),
     }));
   }
 
-  async getPlatformHistory(userId: string, platform: string, days = 30) {
-    const conn = await this.prisma.connection.findFirst({
-      where: { userId, platform: platform as any, isActive: true },
+  // platform emas, aniq connectionId — bitta platformada bir nechta ulanish
+  // bo'lishi mumkin.
+  async getConnectionHistory(userId: string, connectionId: string, days = 30) {
+    const conn = await this.prisma.connection.findUnique({
+      where: { id: connectionId },
     });
-    if (!conn) return null;
+    if (!conn || conn.userId !== userId) return null;
 
     const from = new Date();
     from.setDate(from.getDate() - days);
@@ -147,6 +176,10 @@ export class DashboardService {
       select: { date: true, followers: true, views: true, engagement: true },
     });
 
-    return { platform, username: conn.platformUsername, history: stats };
+    return {
+      platform: conn.platform,
+      username: conn.platformUsername,
+      history: stats,
+    };
   }
 }

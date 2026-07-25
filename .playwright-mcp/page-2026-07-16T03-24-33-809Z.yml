@@ -1,0 +1,95 @@
+- generic [active] [ref=f1e1]:
+  - generic [ref=f1e2]:
+    - complementary [ref=f1e14]:
+      - link "Metrix" [ref=f1e16] [cursor=pointer]:
+        - /url: /dashboard
+      - navigation [ref=f1e21]:
+        - link "Dashboard" [ref=f1e22] [cursor=pointer]:
+          - /url: /dashboard
+        - link "Saytlar" [ref=f1e28] [cursor=pointer]:
+          - /url: /websites
+        - link "Ulashlar" [ref=f1e32] [cursor=pointer]:
+          - /url: /connections
+        - link "Postlar" [ref=f1e36] [cursor=pointer]:
+          - /url: /posts
+        - link "AI Insights" [ref=f1e40] [cursor=pointer]:
+          - /url: /insights
+        - link "Alertlar" [ref=f1e44] [cursor=pointer]:
+          - /url: /alerts
+        - link "Sozlamalar" [ref=f1e48] [cursor=pointer]:
+          - /url: /settings
+      - button "A Admin akbaralisherono@gmail.com" [ref=f1e53]:
+        - generic [ref=f1e54]: A
+        - generic [ref=f1e55]:
+          - paragraph [ref=f1e56]: Admin
+          - paragraph [ref=f1e57]: akbaralisherono@gmail.com
+    - main [ref=f1e61]:
+      - generic [ref=f1e62]:
+        - generic [ref=f1e63]:
+          - generic [ref=f1e64]: Metrix
+          - generic [ref=f1e67]: connections
+        - button "Bildirishnomalar" [ref=f1e70]
+      - generic [ref=f1e75]:
+        - generic [ref=f1e76]:
+          - paragraph [ref=f1e77]: Ulashlar
+          - heading "Platformalar" [level=1] [ref=f1e78]
+          - paragraph [ref=f1e79]: Platformalarni ulang — statistika avtomatik yangilanib turadi
+        - generic [ref=f1e80]:
+          - generic [ref=f1e81]:
+            - generic [ref=f1e83]:
+              - generic [ref=f1e84]:
+                - generic [ref=f1e88]:
+                  - generic [ref=f1e89]:
+                    - paragraph [ref=f1e90]: YouTube
+                    - generic [ref=f1e91]: Ulangan
+                  - paragraph [ref=f1e92]: "@MrBeast"
+                - generic [ref=f1e93]:
+                  - button "Yangilash" [ref=f1e94]
+                  - button "Uzish" [ref=f1e100]
+              - generic [ref=f1e104]:
+                - generic [ref=f1e105]: 👥 508,000,000 obunachi
+                - generic [ref=f1e106]: 👁 133,543,005,910 ko'rish
+                - generic "2026-07-15 18:00:03" [ref=f1e107]: 14 soat oldin
+              - link "Batafsil statistika" [ref=f1e108] [cursor=pointer]:
+                - /url: /connections/aabe0bb3-2c9f-4ca2-be24-7ca365a01676
+            - button "Yana YouTube akkaunt qo'shish" [ref=f1e111]
+          - generic [ref=f1e113]:
+            - generic [ref=f1e115]:
+              - generic [ref=f1e116]:
+                - generic [ref=f1e120]:
+                  - generic [ref=f1e121]:
+                    - paragraph [ref=f1e122]: Telegram
+                    - generic [ref=f1e123]: Ulangan
+                  - paragraph [ref=f1e124]: "@Avtotest_Plus_Uz"
+                - generic [ref=f1e125]:
+                  - button "Yangilash" [ref=f1e126]
+                  - button "Uzish" [ref=f1e132]
+              - generic [ref=f1e136]:
+                - generic [ref=f1e137]: 👥 26 obunachi
+                - generic [ref=f1e138]: 👁 349 ko'rish
+                - generic "2026-07-15 18:00:03" [ref=f1e139]: 14 soat oldin
+              - link "Batafsil statistika" [ref=f1e140] [cursor=pointer]:
+                - /url: /connections/12862b8d-e13e-4811-b4eb-a59fca371df6
+            - button "Yana Telegram akkaunt qo'shish" [ref=f1e143]
+          - generic [ref=f1e147]:
+            - generic [ref=f1e151]:
+              - paragraph [ref=f1e153]: Instagram
+              - paragraph [ref=f1e154]: Ulanmagan
+            - button "Ulash" [ref=f1e156]
+          - generic [ref=f1e159]:
+            - generic [ref=f1e163]:
+              - paragraph [ref=f1e165]: Discord
+              - paragraph [ref=f1e166]: Ulanmagan
+            - button "Ulash" [ref=f1e168]
+          - generic [ref=f1e171]:
+            - generic [ref=f1e175]:
+              - paragraph [ref=f1e177]: Bluesky
+              - paragraph [ref=f1e178]: Ulanmagan
+            - button "Ulash" [ref=f1e180]
+          - generic [ref=f1e183]:
+            - generic [ref=f1e187]:
+              - paragraph [ref=f1e189]: Reddit
+              - paragraph [ref=f1e190]: Ulanmagan
+            - button "Ulash" [ref=f1e192]
+  - button "Open Next.js Dev Tools" [ref=f1e9] [cursor=pointer]
+  - alert [ref=f1e13]

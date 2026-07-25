@@ -1,0 +1,17 @@
+- generic [active] [ref=f5e1]:
+  - button "Open Next.js Dev Tools" [ref=f5e9] [cursor=pointer]
+  - alert [ref=f5e13]
+  - generic [ref=f5e182]:
+    - banner [ref=f5e183]:
+      - link "Metrix" [ref=f5e184] [cursor=pointer]:
+        - /url: /
+    - main [ref=f5e189]:
+      - generic [ref=f5e190]:
+        - generic [ref=f5e191]:
+          - heading "Ikki bosqichli tekshiruv" [level=1] [ref=f5e230]
+          - paragraph [ref=f5e231]: Autentifikator ilovangizdagi 6 xonali kodni kiriting
+        - generic [ref=f5e232]:
+          - textbox "000000" [ref=f5e233]: "939073"
+          - paragraph [ref=f5e236]: Noto'g'ri 2FA kod
+          - button "Tasdiqlash" [ref=f5e234]
+          - button "Orqaga" [ref=f5e235]

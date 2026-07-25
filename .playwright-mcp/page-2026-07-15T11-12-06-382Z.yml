@@ -1,0 +1,37 @@
+- generic [active] [ref=f36e1]:
+  - generic [ref=f36e2]:
+    - banner [ref=f36e3]:
+      - link "Metrix" [ref=f36e4] [cursor=pointer]:
+        - /url: /
+    - main [ref=f36e9]:
+      - generic [ref=f36e10]:
+        - generic [ref=f36e11]:
+          - heading "Xush kelibsiz" [level=1] [ref=f36e12]
+          - paragraph [ref=f36e13]: Hisobingizga kiring
+        - generic [ref=f36e14]:
+          - generic [ref=f36e15]:
+            - link "Google bilan kirish" [ref=f36e16] [cursor=pointer]:
+              - /url: http://localhost:3000/auth/google
+            - link "GitHub bilan kirish" [ref=f36e22] [cursor=pointer]:
+              - /url: http://localhost:3000/auth/github
+          - generic [ref=f36e25]: yoki email bilan
+          - generic [ref=f36e29]:
+            - generic [ref=f36e30]:
+              - generic [ref=f36e31]: Email
+              - textbox "Email" [ref=f36e32]:
+                - /placeholder: siz@example.com
+            - generic [ref=f36e33]:
+              - generic [ref=f36e34]:
+                - generic [ref=f36e35]: Parol
+                - link "Parolni unutdingizmi?" [ref=f36e36] [cursor=pointer]:
+                  - /url: /forgot-password
+              - generic [ref=f36e37]:
+                - textbox "Parol" [ref=f36e38]:
+                  - /placeholder: ••••••••
+                - button "Parolni ko'rsatish" [ref=f36e39]
+            - button "Kirish" [ref=f36e43]
+        - paragraph [ref=f36e44]:
+          - text: Hisob yo'qmi?
+          - link "Ro'yxatdan o'tish" [ref=f36e45] [cursor=pointer]:
+            - /url: /register
+  - alert [ref=f36e46]

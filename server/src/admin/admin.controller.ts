@@ -1,6 +1,14 @@
 import {
-  Controller, Get, Post, Patch, Delete,
-  Param, Body, Query, UseGuards, Optional,
+  Controller,
+  Get,
+  Post,
+  Patch,
+  Delete,
+  Param,
+  Body,
+  Query,
+  UseGuards,
+  Optional,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -16,7 +24,7 @@ import { JwtGuard } from '../auth/guards/jwt.guard';
 import { AdminGuard } from '../common/guards/admin.guard';
 import { QueueService } from '../queue/queue.service';
 import { TogglePlatformDto } from './dto/toggle-platform.dto';
-import { CreatePlanDto } from '../plans/dto/create-plan.dto';
+import { CreatePlanDto, UpdatePlanDto } from '../plans/dto/create-plan.dto';
 import { Platform } from '@metrix/prisma-client';
 
 @ApiTags('admin')
@@ -32,7 +40,9 @@ export class AdminController {
   // ─── Stats ──────────────────────────────────────────────────────────────
 
   @Get('stats')
-  @ApiOperation({ summary: 'Get platform-wide stats (total users, connections, revenue)' })
+  @ApiOperation({
+    summary: 'Get platform-wide stats (total users, connections, revenue)',
+  })
   @ApiResponse({ status: 200, description: 'Admin overview stats' })
   @ApiResponse({ status: 403, description: 'Admin role required' })
   getStats() {
@@ -54,7 +64,12 @@ export class AdminController {
   @ApiQuery({ name: 'page', required: false, type: 'number' })
   @ApiQuery({ name: 'limit', required: false, type: 'number' })
   @ApiQuery({ name: 'search', required: false, type: 'string' })
-  @ApiQuery({ name: 'deleted', required: false, type: 'boolean', description: 'Show only soft-deleted accounts' })
+  @ApiQuery({
+    name: 'deleted',
+    required: false,
+    type: 'boolean',
+    description: 'Show only soft-deleted accounts',
+  })
   @ApiResponse({ status: 200, description: 'Paginated user list' })
   getUsers(
     @Query('page') page?: string,
@@ -71,7 +86,9 @@ export class AdminController {
   }
 
   @Get('users/:id')
-  @ApiOperation({ summary: 'Get full user detail with connections and subscription' })
+  @ApiOperation({
+    summary: 'Get full user detail with connections and subscription',
+  })
   @ApiParam({ name: 'id', description: 'User ID' })
   @ApiResponse({ status: 200, description: 'User detail' })
   getUserDetail(@Param('id') id: string) {
@@ -90,7 +107,9 @@ export class AdminController {
   @Patch('users/:id/plan')
   @ApiOperation({ summary: 'Override a user plan (e.g. grant Pro for free)' })
   @ApiParam({ name: 'id', description: 'User ID' })
-  @ApiBody({ schema: { properties: { plan: { type: 'string', example: 'pro' } } } })
+  @ApiBody({
+    schema: { properties: { plan: { type: 'string', example: 'pro' } } },
+  })
   @ApiResponse({ status: 200, description: 'Plan updated' })
   changeUserPlan(@Param('id') id: string, @Body('plan') plan: string) {
     return this.adminService.changeUserPlan(id, plan);
@@ -99,17 +118,24 @@ export class AdminController {
   // ─── Platforms ──────────────────────────────────────────────────────────
 
   @Get('platforms')
-  @ApiOperation({ summary: 'List all platform configs with enabled/comingSoon status' })
+  @ApiOperation({
+    summary: 'List all platform configs with enabled/comingSoon status',
+  })
   @ApiResponse({ status: 200, description: 'Array of platform configs' })
   getPlatforms() {
     return this.adminService.getPlatforms();
   }
 
   @Patch('platforms/:slug')
-  @ApiOperation({ summary: 'Enable/disable a platform or toggle comingSoon flag' })
+  @ApiOperation({
+    summary: 'Enable/disable a platform or toggle comingSoon flag',
+  })
   @ApiParam({ name: 'slug', enum: Platform, description: 'Platform slug' })
   @ApiResponse({ status: 200, description: 'Platform config updated' })
-  togglePlatform(@Param('slug') slug: Platform, @Body() dto: TogglePlatformDto) {
+  togglePlatform(
+    @Param('slug') slug: Platform,
+    @Body() dto: TogglePlatformDto,
+  ) {
     return this.adminService.togglePlatform(slug, dto);
   }
 
@@ -133,7 +159,7 @@ export class AdminController {
   @ApiOperation({ summary: 'Update an existing plan' })
   @ApiParam({ name: 'id', description: 'Plan ID' })
   @ApiResponse({ status: 200, description: 'Plan updated' })
-  updatePlan(@Param('id') id: string, @Body() dto: Partial<CreatePlanDto>) {
+  updatePlan(@Param('id') id: string, @Body() dto: UpdatePlanDto) {
     return this.adminService.updatePlan(id, dto);
   }
 

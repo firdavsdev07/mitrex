@@ -1,4 +1,13 @@
-import { Controller, Get, Post, Delete, Body, Param, Query, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Delete,
+  Body,
+  Param,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import {
   ApiTags,
   ApiBearerAuth,
@@ -29,11 +38,18 @@ export class ApiKeysController {
       required: ['name'],
       properties: {
         name: { type: 'string', example: 'My Dashboard Script' },
-        expiresInDays: { type: 'number', example: 365, description: 'Days until expiry (omit for no expiry)' },
+        expiresInDays: {
+          type: 'number',
+          example: 365,
+          description: 'Days until expiry (omit for no expiry)',
+        },
       },
     },
   })
-  @ApiResponse({ status: 201, description: 'API key created — key value shown only once' })
+  @ApiResponse({
+    status: 201,
+    description: 'API key created — key value shown only once',
+  })
   create(
     @CurrentUser('id') userId: string,
     @Body('name') name: string,
@@ -66,11 +82,24 @@ export class PublicApiController {
   constructor(private readonly apiKeysService: ApiKeysService) {}
 
   @Get('stats')
-  @ApiOperation({ summary: 'Get website stats via API key (programmatic access)' })
-  @ApiQuery({ name: 'domain', type: 'string', description: 'Website domain e.g. myblog.com' })
-  @ApiQuery({ name: 'period', type: 'string', description: 'today | week | month' })
+  @ApiOperation({
+    summary: 'Get website stats via API key (programmatic access)',
+  })
+  @ApiQuery({
+    name: 'domain',
+    type: 'string',
+    description: 'Website domain e.g. myblog.com',
+  })
+  @ApiQuery({
+    name: 'period',
+    type: 'string',
+    description: 'today | week | month',
+  })
   @ApiResponse({ status: 200, description: 'Aggregated website stats' })
-  @ApiResponse({ status: 401, description: 'Invalid or missing X-API-Key header' })
+  @ApiResponse({
+    status: 401,
+    description: 'Invalid or missing X-API-Key header',
+  })
   getStats(
     @CurrentUser('id') userId: string,
     @Query('domain') domain: string,

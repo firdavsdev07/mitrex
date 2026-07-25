@@ -19,7 +19,10 @@ export class BillingController {
 
   @Get()
   @ApiOperation({ summary: 'Get current subscription' })
-  @ApiResponse({ status: 200, description: 'Active subscription with plan details' })
+  @ApiResponse({
+    status: 200,
+    description: 'Active subscription with plan details',
+  })
   getSubscription(@CurrentUser('id') userId: string) {
     return this.billingService.getSubscription(userId);
   }
@@ -28,12 +31,18 @@ export class BillingController {
   @ApiOperation({ summary: 'Subscribe or upgrade to a plan' })
   @ApiResponse({ status: 201, description: 'Subscription updated' })
   @ApiResponse({ status: 400, description: 'Invalid plan slug' })
-  checkout(@CurrentUser('id') userId: string, @Body() dto: CheckoutDto) {
-    return this.billingService.checkout(userId, dto.plan);
+  checkout(
+    @CurrentUser('id') userId: string,
+    @CurrentUser('email') userEmail: string,
+    @Body() dto: CheckoutDto,
+  ) {
+    return this.billingService.checkout(userId, userEmail, dto.plan);
   }
 
   @Delete('cancel')
-  @ApiOperation({ summary: 'Cancel current subscription (stays active until period end)' })
+  @ApiOperation({
+    summary: 'Cancel current subscription (stays active until period end)',
+  })
   @ApiResponse({ status: 200, description: 'Subscription canceled' })
   cancel(@CurrentUser('id') userId: string) {
     return this.billingService.cancel(userId);

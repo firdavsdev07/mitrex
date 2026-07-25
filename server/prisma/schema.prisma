@@ -53,12 +53,12 @@ enum WorkspaceRole {
 }
 
 enum AlertMetric {
-  TRAFFIC_SPIKE      // Traffic suddenly increases
-  TRAFFIC_DROP       // Traffic suddenly drops
+  TRAFFIC_SPIKE // Traffic suddenly increases
+  TRAFFIC_DROP // Traffic suddenly drops
   FOLLOWER_SPIKE
   FOLLOWER_DROP
-  SITE_DOWN          // No traffic for X minutes
-  NEW_REFERRER       // New traffic source detected
+  SITE_DOWN // No traffic for X minutes
+  NEW_REFERRER // New traffic source detected
 }
 
 enum AlertChannel {
@@ -68,7 +68,7 @@ enum AlertChannel {
 
 enum AiProvider {
   GROQ
-  OPENAI
+  GEMINI
 }
 
 enum AiInsightType {
@@ -92,6 +92,9 @@ model User {
   role                  UserRole             @default(USER)
   provider              AuthProvider         @default(LOCAL)
   providerId            String?
+  twoFactorSecret       String? // AES-GCM bilan shifrlangan TOTP siri
+  twoFactorEnabled      Boolean              @default(false)
+  weeklyDigest          Boolean              @default(true) // haftalik AI email hisobotiga rozilik
   deletedAt             DateTime?
   deleteReason          String?
   restoreToken          String?              @unique
@@ -109,8 +112,41 @@ model User {
   apiKeys               ApiKey[]
   ownedWorkspaces       Workspace[]
   workspaceMemberships  WorkspaceMember[]
+  loginEvents           LoginEvent[]
+  refreshTokens         RefreshToken[]
 
   @@map("users")
+}
+
+// Login tarixi / audit log
+model LoginEvent {
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String   @db.Uuid
+  ip        String?
+  userAgent String?
+  provider  String? // LOCAL, GOOGLE, ... yoki "2FA"
+  success   Boolean  @default(true)
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+  @@map("login_events")
+}
+
+// Aylanuvchi (rotating) refresh tokenlar — httpOnly cookie sessiyalari uchun
+model RefreshToken {
+  id        String    @id @default(uuid()) @db.Uuid
+  userId    String    @db.Uuid
+  tokenHash String    @unique // SHA-256 hex
+  userAgent String?
+  ip        String?
+  expiresAt DateTime
+  revokedAt DateTime?
+  createdAt DateTime  @default(now())
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("refresh_tokens")
 }
 
 model PasswordResetToken {
@@ -122,6 +158,7 @@ model PasswordResetToken {
   createdAt DateTime  @default(now())
   user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
+  @@index([userId])
   @@map("password_reset_tokens")
 }
 
@@ -134,6 +171,7 @@ model MagicLinkToken {
   createdAt DateTime  @default(now())
   user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
+  @@index([userId])
   @@map("magic_link_tokens")
 }
 
@@ -146,12 +184,15 @@ model Plan {
   maxWebsites       Int
   maxPlatforms      Int
   maxMonthlyViews   Int
-  dataRetentionDays Int                @default(30)  // -1 = unlimited
+  dataRetentionDays Int                @default(30) // -1 = unlimited
   hasAiInsights     Boolean            @default(false)
   hasWeeklyReport   Boolean            @default(false)
   hasCustomAlerts   Boolean            @default(false)
   isActive          Boolean            @default(true)
   sortOrder         Int                @default(0)
+  // Stripe Price ID (masalan "price_1Nx...") — bepul (free) planda null.
+  // scripts/stripe-provision-plans.ts orqali to'ldiriladi.
+  stripePriceId     String?            @unique
   createdAt         DateTime           @default(now())
   updatedAt         DateTime           @updatedAt
   subscriptions     UserSubscription[]
@@ -160,17 +201,22 @@ model Plan {
 }
 
 model UserSubscription {
-  id                 String             @id @default(uuid()) @db.Uuid
-  userId             String             @unique @db.Uuid
-  planId             String             @db.Uuid
-  status             SubscriptionStatus @default(ACTIVE)
-  currentPeriodStart DateTime           @default(now())
-  currentPeriodEnd   DateTime?
-  canceledAt         DateTime?
-  createdAt          DateTime           @default(now())
-  updatedAt          DateTime           @updatedAt
-  user               User               @relation(fields: [userId], references: [id], onDelete: Cascade)
-  plan               Plan               @relation(fields: [planId], references: [id])
+  id                   String             @id @default(uuid()) @db.Uuid
+  userId               String             @unique @db.Uuid
+  planId               String             @db.Uuid
+  status               SubscriptionStatus @default(ACTIVE)
+  currentPeriodStart   DateTime           @default(now())
+  currentPeriodEnd     DateTime?
+  canceledAt           DateTime?
+  // Stripe orqali obuna bo'lgan userlar uchun to'ldiriladi — checkout.session
+  // webhook'idan keladi. Free plan yoki admin tomonidan qo'lda berilgan
+  // plan'larda null.
+  stripeCustomerId     String?
+  stripeSubscriptionId String?            @unique
+  createdAt            DateTime           @default(now())
+  updatedAt            DateTime           @updatedAt
+  user                 User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  plan                 Plan               @relation(fields: [planId], references: [id])
 
   @@map("user_subscriptions")
 }
@@ -201,77 +247,90 @@ model Connection {
   platformUserId   String?
   platformUsername String?
   isActive         Boolean        @default(true)
+  lastSyncAt       DateTime?
+  // Oxirgi sync urinishi muvaffaqiyatsiz bo'lsa xabari shu yerda saqlanadi
+  // (muvaffaqiyatli sync clear qiladi) — shu orqali UI'da "bu ulanish
+  // buzilgan" holatini foydalanuvchiga ko'rsatish mumkin, faqat loglarda
+  // emas.
+  lastSyncError    String?
   createdAt        DateTime       @default(now())
   updatedAt        DateTime       @updatedAt
   user             User           @relation(fields: [userId], references: [id], onDelete: Cascade)
   workspace        Workspace?     @relation(fields: [workspaceId], references: [id], onDelete: SetNull)
   stats            PlatformStat[]
   postStats        PostStat[]
+  aiInsights       AiInsight[]
 
-  @@unique([userId, platform])
+  // Bitta userda bitta platformadan bir nechta akkaunt bo'lishi mumkin
+  // (masalan 2 ta Telegram kanal) — shu sabab uniqueness platformUserId
+  // bilan birga: xuddi shu tashqi akkauntni qayta ulash yangi qator
+  // yaratmasdan mavjudini yangilaydi, boshqa akkaunt esa alohida qator bo'ladi.
+  @@unique([userId, platform, platformUserId])
+  @@index([userId, platform])
   @@map("connections")
 }
 
 model Website {
-  id            String     @id @default(uuid()) @db.Uuid
-  userId        String     @db.Uuid
-  workspaceId   String?    @db.Uuid
-  name          String
-  domain        String?
-  trackingKey   String     @unique @default(cuid())
-  createdAt     DateTime   @default(now())
-  updatedAt     DateTime   @updatedAt
-  user          User       @relation(fields: [userId], references: [id], onDelete: Cascade)
-  workspace     Workspace? @relation(fields: [workspaceId], references: [id], onDelete: SetNull)
-  sessions      Session[]
-  pageViews     PageView[]
-  customEvents  CustomEvent[]
+  id           String        @id @default(uuid()) @db.Uuid
+  userId       String        @db.Uuid
+  workspaceId  String?       @db.Uuid
+  name         String
+  domain       String?
+  trackingKey  String        @unique @default(cuid())
+  shareId      String?       @unique // public dashboard havolasi (null = o'chirilgan)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  workspace    Workspace?    @relation(fields: [workspaceId], references: [id], onDelete: SetNull)
+  sessions     Session[]
+  pageViews    PageView[]
+  customEvents CustomEvent[]
 
+  @@index([userId])
   @@map("websites")
 }
 
-
 model Session {
-  id            String     @id @default(uuid()) @db.Uuid
-  websiteId     String     @db.Uuid
-  fingerprint   String                        // browser fingerprint (localStorage key)
-  startedAt     DateTime   @default(now())
-  lastSeenAt    DateTime   @default(now())
-  duration      Int        @default(0)        // soniya
-  pageCount     Int        @default(1)
-  bounced       Boolean    @default(true)     
-  entryPage     String
-  exitPage      String?
-  referrer      String?
-  utmSource     String?
-  utmMedium     String?
-  utmCampaign   String?
-  utmTerm       String?
-  utmContent    String?
-  device        String?
-  browser       String?
-  country       String?
-  ip            String?
-  website       Website    @relation(fields: [websiteId], references: [id], onDelete: Cascade)
-  pageViews     PageView[]
+  id          String     @id @default(uuid()) @db.Uuid
+  websiteId   String     @db.Uuid
+  fingerprint String // browser fingerprint (localStorage key)
+  startedAt   DateTime   @default(now())
+  lastSeenAt  DateTime   @default(now())
+  duration    Int        @default(0) // soniya
+  pageCount   Int        @default(1)
+  bounced     Boolean    @default(true)
+  entryPage   String
+  exitPage    String?
+  referrer    String?
+  utmSource   String?
+  utmMedium   String?
+  utmCampaign String?
+  utmTerm     String?
+  utmContent  String?
+  device      String?
+  browser     String?
+  country     String?
+  ip          String?
+  website     Website    @relation(fields: [websiteId], references: [id], onDelete: Cascade)
+  pageViews   PageView[]
 
+  @@unique([websiteId, fingerprint]) // race-condition'siz upsert uchun
   @@index([websiteId, startedAt])
-  @@index([websiteId, fingerprint])
   @@map("sessions")
 }
 
 model PageView {
   id          String   @id @default(uuid()) @db.Uuid
   websiteId   String   @db.Uuid
-  sessionId   String?  @db.Uuid              
+  sessionId   String?  @db.Uuid
   path        String
   referrer    String?
   device      String?
   browser     String?
   country     String?
   ip          String?
-  duration    Int?                           
-  scrollDepth Int?                           // 0-100 %
+  duration    Int?
+  scrollDepth Int? // 0-100 %
   isEntry     Boolean  @default(false)
   isExit      Boolean  @default(false)
   utmSource   String?
@@ -286,28 +345,33 @@ model PageView {
   @@map("page_views")
 }
 
-
 model PostStat {
-  id              String     @id @default(uuid()) @db.Uuid
-  connectionId    String     @db.Uuid
-  platform        Platform
-  postId          String                        
-  title           String?
-  caption         String?
-  thumbnailUrl    String?
-  url             String?
-  publishedAt     DateTime?
-  views           Int?
-  likes           Int?
-  dislikes        Int?
-  comments        Int?
-  shares          Int?
-  reach           Int?
-  impressions     Int?
-  engagementRate  Float?
-  raw             Json?
-  syncedAt        DateTime   @default(now())
-  connection      Connection @relation(fields: [connectionId], references: [id], onDelete: Cascade)
+  id             String     @id @default(uuid()) @db.Uuid
+  connectionId   String     @db.Uuid
+  platform       Platform
+  postId         String
+  title          String?
+  caption        String?
+  // Instagram uchun: FEED / REELS / STORY / CAROUSEL_ALBUM. Boshqa
+  // platformalarda null (yagona kontent turi bo'lgani uchun kerak emas).
+  contentType    String?
+  thumbnailUrl   String?
+  url            String?
+  publishedAt    DateTime?
+  // Yirik kanallarning bitta virusli videosi ham 2^31'dan (Postgres Int
+  // chegarasi, ~2.1 mlrd) oshib ketishi mumkin — BigInt shart.
+  views          BigInt?
+  likes          Int?
+  dislikes       Int?
+  comments       Int?
+  shares         Int?
+  reach          Int?
+  impressions    Int?
+  engagementRate Float?
+  follows        Int? // shu post orqali qo'shilgan yangi obunachilar (hozircha faqat Instagram FEED postlari)
+  raw            Json?
+  syncedAt       DateTime   @default(now())
+  connection     Connection @relation(fields: [connectionId], references: [id], onDelete: Cascade)
 
   @@unique([connectionId, postId])
   @@index([connectionId, publishedAt])
@@ -319,8 +383,8 @@ model CustomEvent {
   id         String   @id @default(uuid()) @db.Uuid
   websiteId  String   @db.Uuid
   sessionId  String?  @db.Uuid
-  name       String                     // "Purchase", "Signup", "Video Play"
-  properties Json?                      // { price: 49, currency: "USD" }
+  name       String // "Purchase", "Signup", "Video Play"
+  properties Json? // { price: 49, currency: "USD" }
   path       String?
   device     String?
   country    String?
@@ -337,13 +401,20 @@ model PlatformStat {
   connectionId String     @db.Uuid
   date         DateTime   @db.Date
   followers    Int?
-  views        Int?
+  // Kanalning umumiy ko'rishlar soni (masalan YouTube) 2^31'dan (Postgres
+  // Int chegarasi, ~2.1 mlrd) oshib ketishi mumkin — BigInt shart.
+  views        BigInt?
   likes        Int?
   comments     Int?
   engagement   Float?
   growth       Float?
   raw          Json?
   createdAt    DateTime   @default(now())
+  // Har bir kunlik qatorga bir necha marta yozilishi mumkin (kunlik cron +
+  // qo'lda "Yangilash"). `createdAt` faqat BIRINCHI yozuvda o'rnatiladi —
+  // "necha vaqt oldin sinxronlandi" ko'rsatkichi esa oxirgi yozuvni bilishi
+  // kerak, shuning uchun alohida `@updatedAt` maydon.
+  updatedAt    DateTime   @updatedAt
   connection   Connection @relation(fields: [connectionId], references: [id], onDelete: Cascade)
 
   @@unique([connectionId, date])
@@ -382,6 +453,7 @@ model WorkspaceMember {
   user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([workspaceId, userId])
+  @@index([userId])
   @@map("workspace_members")
 }
 
@@ -403,48 +475,53 @@ model WorkspaceInvite {
 
 // Public API keys for programmatic access
 model ApiKey {
-  id          String    @id @default(uuid()) @db.Uuid
-  userId      String    @db.Uuid
-  name        String
-  key         String    @unique          // mk_live_xxxxx
-  lastUsedAt  DateTime?
-  expiresAt   DateTime?
-  isActive    Boolean   @default(true)
-  createdAt   DateTime  @default(now())
-  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id         String    @id @default(uuid()) @db.Uuid
+  userId     String    @db.Uuid
+  name       String
+  key        String    @unique // xom kalitning SHA-256 hex hash'i (xom kalit saqlanmaydi)
+  keyPrefix  String? // ko'rsatish uchun: "mk_live_ab12"
+  lastUsedAt DateTime?
+  expiresAt  DateTime?
+  isActive   Boolean   @default(true)
+  createdAt  DateTime  @default(now())
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
+  @@index([userId])
   @@map("api_keys")
 }
 
 // Alert rules configured by user
 model Alert {
-  id            String        @id @default(uuid()) @db.Uuid
-  userId        String        @db.Uuid
+  id            String       @id @default(uuid()) @db.Uuid
+  userId        String       @db.Uuid
   name          String
   metric        AlertMetric
-  threshold     Float         // e.g. 2.0 = 2x spike, 0.5 = 50% drop
-  websiteId     String?       @db.Uuid
-  connectionId  String?       @db.Uuid
-  channel       AlertChannel  @default(EMAIL)
-  isActive      Boolean       @default(true)
+  threshold     Float // e.g. 2.0 = 2x spike, 0.5 = 50% drop
+  websiteId     String?      @db.Uuid
+  connectionId  String?      @db.Uuid
+  channel       AlertChannel @default(EMAIL)
+  isActive      Boolean      @default(true)
   lastTriggered DateTime?
-  createdAt     DateTime      @default(now())
-  updatedAt     DateTime      @updatedAt
-  user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+  user          User         @relation(fields: [userId], references: [id], onDelete: Cascade)
 
+  @@index([userId])
+  @@index([websiteId])
+  @@index([connectionId])
   @@map("alerts")
 }
 
 // In-app notifications
 model Notification {
-  id        String   @id @default(uuid()) @db.Uuid
-  userId    String   @db.Uuid
+  id        String    @id @default(uuid()) @db.Uuid
+  userId    String    @db.Uuid
   title     String
   body      String
-  type      String   @default("info")   // info | warning | success | error
+  type      String    @default("info") // info | warning | success | error
   readAt    DateTime?
-  createdAt DateTime @default(now())
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime  @default(now())
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId, readAt, createdAt])
   @@map("notifications")
@@ -452,15 +529,21 @@ model Notification {
 
 // AI insights cache
 model AiInsight {
-  id            String        @id @default(uuid()) @db.Uuid
-  userId        String        @db.Uuid
-  type          AiInsightType
-  title         String?
-  content       String        @db.Text
-  provider      AiProvider
-  tokensUsed    Int?
-  generatedAt   DateTime      @default(now())
-  user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id           String        @id @default(uuid()) @db.Uuid
+  userId       String        @db.Uuid
+  type         AiInsightType
+  title        String?
+  content      String        @db.Text
+  provider     AiProvider
+  tokensUsed   Int?
+  generatedAt  DateTime      @default(now())
+  // CUSTOM (platforma) tahlillari uchun — bir platformada bir nechta ulanish
+  // bo'lishi mumkinligi sabab, qaysi aniq ulanish uchun ekanini title'dan
+  // taxmin qilish o'rniga to'g'ridan-to'g'ri saqlaymiz. Ulanish o'chirilsa
+  // ham tahlil tarixi qolishi uchun SetNull.
+  connectionId String?       @db.Uuid
+  connection   Connection?   @relation(fields: [connectionId], references: [id], onDelete: SetNull)
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId, type, generatedAt])
   @@map("ai_insights")

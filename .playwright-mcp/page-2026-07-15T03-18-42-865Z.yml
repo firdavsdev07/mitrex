@@ -1,0 +1,68 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - complementary [ref=e5]:
+      - link "Metrix" [ref=e7] [cursor=pointer]:
+        - /url: /dashboard
+      - navigation [ref=e12]:
+        - link "Dashboard" [ref=e13] [cursor=pointer]:
+          - /url: /dashboard
+        - link "Saytlar" [ref=e19] [cursor=pointer]:
+          - /url: /websites
+        - link "Ulashlar" [ref=e23] [cursor=pointer]:
+          - /url: /connections
+        - link "Postlar" [ref=e27] [cursor=pointer]:
+          - /url: /posts
+        - link "AI Insights" [ref=e31] [cursor=pointer]:
+          - /url: /insights
+        - link "Alertlar" [ref=e35] [cursor=pointer]:
+          - /url: /alerts
+        - link "Sozlamalar" [ref=e39] [cursor=pointer]:
+          - /url: /settings
+      - button "R Reddit Check reddit_ui_check@example.com" [ref=e44]:
+        - generic [ref=e45]: R
+        - generic [ref=e46]:
+          - paragraph [ref=e47]: Reddit Check
+          - paragraph [ref=e48]: reddit_ui_check@example.com
+    - main [ref=e52]:
+      - generic [ref=e53]:
+        - generic [ref=e54]:
+          - generic [ref=e55]: Metrix
+          - generic [ref=e58]: websites
+        - button "Bildirishnomalar" [ref=e61]
+      - generic [ref=e66]:
+        - generic [ref=e67]:
+          - generic [ref=e68]:
+            - paragraph [ref=e69]: Saytlar
+            - heading "Web Analytics" [level=1] [ref=e70]
+          - button "Sayt qo'shish" [ref=e71]
+        - generic [ref=e76]:
+          - generic [ref=e81]:
+            - paragraph [ref=e82]: Mening blogim
+            - paragraph [ref=e83]: sheronovakbarali.uz
+          - generic [ref=e84]:
+            - button "Script" [ref=e85]
+            - link [ref=e89] [cursor=pointer]:
+              - /url: /websites/d29a31ed-546d-4a51-bb65-1f193d8adc19
+              - button "Statistika" [ref=e90]
+            - button [ref=e92]
+        - generic [ref=e98]:
+          - generic [ref=e99]:
+            - heading "Yangi sayt qo'shish" [level=3] [ref=e100]
+            - button "Yopish" [ref=e101]
+          - generic [ref=e105]:
+            - generic [ref=e106]:
+              - generic [ref=e107]: Sayt nomi
+              - textbox "Sayt nomi" [ref=e108]:
+                - /placeholder: Mening blogim
+                - text: CORS Test Site
+            - generic [ref=e109]:
+              - generic [ref=e110]: Domen (ixtiyoriy)
+              - textbox "Domen (ixtiyoriy)" [ref=e111]:
+                - /placeholder: example.com
+                - text: example-customer-site.com
+              - paragraph [ref=e112]: "Protokolsiz kiriting: example.com"
+            - paragraph [ref=e116]: Your "Free" plan website limit reached (1 ). Please upgrade your plan.
+            - generic [ref=e113]:
+              - button "Bekor" [ref=e114]
+              - button "Qo'shish" [ref=e115]
+  - alert [ref=e4]

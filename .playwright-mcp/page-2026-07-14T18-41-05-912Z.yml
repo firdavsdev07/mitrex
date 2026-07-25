@@ -1,0 +1,90 @@
+- generic [ref=f11e1]:
+  - generic [ref=f11e2]:
+    - complementary [ref=f11e5]:
+      - link "Metrix" [ref=f11e7] [cursor=pointer]:
+        - /url: /dashboard
+      - navigation [ref=f11e12]:
+        - link "Dashboard" [ref=f11e13] [cursor=pointer]:
+          - /url: /dashboard
+        - link "Saytlar" [ref=f11e19] [cursor=pointer]:
+          - /url: /websites
+        - link "Ulashlar" [ref=f11e23] [cursor=pointer]:
+          - /url: /connections
+        - link "Postlar" [ref=f11e27] [cursor=pointer]:
+          - /url: /posts
+        - link "AI Insights" [ref=f11e31] [cursor=pointer]:
+          - /url: /insights
+        - link "Alertlar" [ref=f11e35] [cursor=pointer]:
+          - /url: /alerts
+        - link "Sozlamalar" [ref=f11e39] [cursor=pointer]:
+          - /url: /settings
+      - button "V Vizual Test vizual_check@example.com" [ref=f11e44]:
+        - generic [ref=f11e45]: V
+        - generic [ref=f11e46]:
+          - paragraph [ref=f11e47]: Vizual Test
+          - paragraph [ref=f11e48]: vizual_check@example.com
+    - main [ref=f11e52]:
+      - generic [ref=f11e53]:
+        - generic [ref=f11e54]:
+          - generic [ref=f11e55]: Metrix
+          - generic [ref=f11e58]: connections
+        - button "Bildirishnomalar" [ref=f11e61]
+      - generic [ref=f11e66]:
+        - generic [ref=f11e67]:
+          - paragraph [ref=f11e68]: Ulashlar
+          - heading "Platformalar" [level=1] [ref=f11e69]
+          - paragraph [ref=f11e70]: Platformalarni ulang — statistika avtomatik yangilanib turadi
+        - generic [ref=f11e71]:
+          - generic [ref=f11e74]:
+            - generic [ref=f11e78]:
+              - paragraph [ref=f11e80]: YouTube
+              - paragraph [ref=f11e81]: Ulanmagan
+            - button "Ulash" [ref=f11e83]
+          - generic [ref=f11e86]:
+            - generic [ref=f11e90]:
+              - paragraph [ref=f11e92]: Telegram
+              - paragraph [ref=f11e93]: Ulanmagan
+            - button "Ulash" [active] [ref=f11e95]
+          - generic [ref=f11e98]:
+            - generic [ref=f11e102]:
+              - paragraph [ref=f11e104]: Instagram
+              - paragraph [ref=f11e105]: Ulanmagan
+            - button "Ulash" [ref=f11e107]
+          - generic [ref=f11e110]:
+            - generic [ref=f11e114]:
+              - paragraph [ref=f11e116]: Discord
+              - paragraph [ref=f11e117]: Ulanmagan
+            - button "Ulash" [ref=f11e119]
+          - generic [ref=f11e122]:
+            - generic [ref=f11e126]:
+              - paragraph [ref=f11e128]: Bluesky
+              - paragraph [ref=f11e129]: Ulanmagan
+            - button "Ulash" [ref=f11e131]
+          - generic [ref=f11e134]:
+            - generic [ref=f11e138]:
+              - paragraph [ref=f11e140]: Reddit
+              - paragraph [ref=f11e141]: Ulanmagan
+            - button "Ulash" [ref=f11e143]
+        - generic [ref=f11e146]:
+          - generic [ref=f11e147]:
+            - heading "Telegram kanal ulash" [level=3] [ref=f11e148]
+            - button "Yopish" [ref=f11e149]
+          - generic [ref=f11e153]:
+            - paragraph [ref=f11e154]: "Avval botni kanalingizga admin sifatida qo'shing:"
+            - paragraph [ref=f11e155]: 1. Kanalingiz sozlamalariga o'ting
+            - paragraph [ref=f11e156]: 2. Administrators → Add Administrator
+            - paragraph [ref=f11e157]:
+              - text: "3."
+              - generic [ref=f11e158]: "@mitrizss_bot"
+              - text: ni qo'shing
+            - paragraph [ref=f11e159]: 4. Keyin quyidagi formani to'ldiring
+          - generic [ref=f11e160]:
+            - generic [ref=f11e161]:
+              - generic [ref=f11e162]: Kanal yoki guruh
+              - textbox "Kanal yoki guruh" [ref=f11e163]:
+                - /placeholder: "@mening_kanalim"
+              - paragraph [ref=f11e164]: "@handle formatida kiriting"
+            - generic [ref=f11e165]:
+              - button "Bekor" [ref=f11e166]
+              - button "Ulash" [ref=f11e167]
+  - alert [ref=f11e4]

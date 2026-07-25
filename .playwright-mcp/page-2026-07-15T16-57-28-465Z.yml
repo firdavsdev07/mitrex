@@ -1,0 +1,55 @@
+- generic [active] [ref=f4e1]:
+  - button "Open Next.js Dev Tools" [ref=f4e51] [cursor=pointer]
+  - alert [ref=f4e55]
+  - generic [ref=f4e56]:
+    - complementary [ref=f4e57]:
+      - generic [ref=f4e58]:
+        - generic [ref=f4e62]: Admin
+        - generic [ref=f4e63]: PANEL
+      - navigation [ref=f4e64]:
+        - link "Overview" [ref=f4e65] [cursor=pointer]:
+          - /url: /admin
+        - link "Foydalanuvchilar" [ref=f4e71] [cursor=pointer]:
+          - /url: /admin/users
+        - link "Planlar" [ref=f4e77] [cursor=pointer]:
+          - /url: /admin/plans
+        - link "Platformalar" [ref=f4e80] [cursor=pointer]:
+          - /url: /admin/platforms
+        - link "User panelga" [ref=f4e83] [cursor=pointer]:
+          - /url: /dashboard
+      - button "A Admin Administrator" [ref=f4e87]:
+        - generic [ref=f4e88]: A
+        - generic [ref=f4e89]:
+          - paragraph [ref=f4e90]: Admin
+          - paragraph [ref=f4e91]: Administrator
+    - main [ref=f4e95]:
+      - generic [ref=f4e97]:
+        - generic [ref=f4e98]: Admin
+        - generic [ref=f4e101]: Overview
+      - generic [ref=f4e103]:
+        - generic [ref=f4e104]:
+          - paragraph [ref=f4e105]: Admin
+          - heading "Overview" [level=1] [ref=f4e106]
+          - paragraph [ref=f4e107]: Platform bo'yicha umumiy statistika
+        - generic [ref=f4e108]:
+          - generic [ref=f4e109]:
+            - generic [ref=f4e110]: Jami foydalanuvchilar
+            - paragraph [ref=f4e117]: "5"
+            - paragraph [ref=f4e118]: +5 bu oy
+          - generic [ref=f4e119]:
+            - generic [ref=f4e120]: Faol ulanishlar
+            - paragraph [ref=f4e125]: "7"
+          - generic [ref=f4e126]:
+            - generic [ref=f4e127]: Jami saytlar
+            - paragraph [ref=f4e132]: "4"
+          - generic [ref=f4e133]:
+            - generic [ref=f4e134]: Bu oylik ko'rishlar
+            - paragraph [ref=f4e139]: "2"
+          - generic [ref=f4e140]:
+            - generic [ref=f4e141]: Bu oy yangi userlar
+            - paragraph [ref=f4e146]: "5"
+        - paragraph [ref=f4e148]:
+          - text: Foydalanuvchilarni boshqarish uchun
+          - link "Foydalanuvchilar" [ref=f4e149] [cursor=pointer]:
+            - /url: /admin/users
+          - text: bo'limiga o'ting. Planlar va platformalarni sozlash uchun mos bo'limlardan foydalaning.

@@ -12,13 +12,23 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     });
   }
 
-  async validate(payload: { sub: string; email: string }) {
+  async validate(payload: { sub: string; email?: string; twofa?: boolean }) {
+    // 2FA oraliq tokeni (email'siz, twofa:true) faqat /auth/2fa/verify uchun —
+    // umumiy API'ga kirish uchun ishlatilishi mumkin emas.
+    if (payload.twofa) throw new UnauthorizedException();
+
     const user = await this.prisma.user.findUnique({
       where: { id: payload.sub },
-      select: { id: true, email: true, name: true, role: true, deletedAt: true } as any,
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        role: true,
+        deletedAt: true,
+      },
     });
     if (!user) throw new UnauthorizedException();
-    if ((user as any).deletedAt) throw new UnauthorizedException('Hisob o\'chirilgan');
+    if (user.deletedAt) throw new UnauthorizedException("Hisob o'chirilgan");
     return user;
   }
 }

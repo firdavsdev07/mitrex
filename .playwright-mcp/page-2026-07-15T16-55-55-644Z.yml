@@ -1,0 +1,36 @@
+- generic [ref=f3e3]:
+  - generic [ref=f3e4]:
+    - generic [ref=f3e6]:
+      - generic [ref=f3e7]: Loading
+      - progressbar [ref=f3e8]
+    - main [ref=f3e15]:
+      - generic [ref=f3e16]:
+        - generic [ref=f3e17]: Sign in with Google
+        - 'heading "Access blocked: This app''s request is invalid" [level=1] [ref=f3e27]'
+      - generic [ref=f3e35]:
+        - generic [ref=f3e36]:
+          - text: You can't sign in because this app sent an invalid request. You can try again later, or contact the developer about this issue.
+          - link "Learn more about this error (external, opens in a new window)" [ref=f3e37] [cursor=pointer]:
+            - /url: https://developers.google.com/identity/protocols/oauth2/web-server#authorization-errors-redirect-uri-mismatch
+            - text: Learn more about this error
+        - generic [ref=f3e38]:
+          - text: If you are a developer of this app, see
+          - button "error details" [ref=f3e39] [cursor=pointer]
+          - text: .
+        - generic [ref=f3e40]: "Error 400: redirect_uri_mismatch"
+  - contentinfo [ref=f3e45]:
+    - combobox "Change language English (United States)" [ref=f3e49] [cursor=pointer]:
+      - generic: English (United States)
+    - list [ref=f3e51]:
+      - listitem [ref=f3e52]:
+        - link "Open Google Account Help Center (external, opens in a new window)" [ref=f3e53] [cursor=pointer]:
+          - /url: https://support.google.com/accounts?hl=en-US&p=account_iph
+          - text: Help
+      - listitem [ref=f3e54]:
+        - link "Privacy Policy (external, opens in a new window)" [ref=f3e55] [cursor=pointer]:
+          - /url: https://accounts.google.com/TOS?loc=UZ&hl=en-US&privacy=true
+          - text: Privacy
+      - listitem [ref=f3e56]:
+        - link "Google Terms of Service (external, opens in a new window)" [ref=f3e57] [cursor=pointer]:
+          - /url: https://accounts.google.com/TOS?loc=UZ&hl=en-US
+          - text: Terms

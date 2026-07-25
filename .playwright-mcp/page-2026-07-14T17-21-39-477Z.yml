@@ -1,0 +1,92 @@
+- generic [active] [ref=f3e1]:
+  - generic [ref=f3e2]:
+    - complementary [ref=f3e5]:
+      - link "Metrix" [ref=f3e7] [cursor=pointer]:
+        - /url: /dashboard
+      - navigation [ref=f3e12]:
+        - link "Dashboard" [ref=f3e13] [cursor=pointer]:
+          - /url: /dashboard
+        - link "Saytlar" [ref=f3e19] [cursor=pointer]:
+          - /url: /websites
+        - link "Ulashlar" [ref=f3e23] [cursor=pointer]:
+          - /url: /connections
+        - link "Postlar" [ref=f3e27] [cursor=pointer]:
+          - /url: /posts
+        - link "AI Insights" [ref=f3e31] [cursor=pointer]:
+          - /url: /insights
+        - link "Alertlar" [ref=f3e35] [cursor=pointer]:
+          - /url: /alerts
+        - link "Sozlamalar" [ref=f3e39] [cursor=pointer]:
+          - /url: /settings
+      - button "B Bot Demo botdemo_check@example.com" [ref=f3e44]:
+        - generic [ref=f3e45]: B
+        - generic [ref=f3e46]:
+          - paragraph [ref=f3e47]: Bot Demo
+          - paragraph [ref=f3e48]: botdemo_check@example.com
+    - main [ref=f3e52]:
+      - generic [ref=f3e53]:
+        - generic [ref=f3e54]:
+          - generic [ref=f3e55]: Metrix
+          - generic [ref=f3e58]: connections
+        - button "Bildirishnomalar" [ref=f3e61]
+      - generic [ref=f3e66]:
+        - generic [ref=f3e67]:
+          - paragraph [ref=f3e68]: Ulashlar
+          - heading "Platformalar" [level=1] [ref=f3e69]
+          - paragraph [ref=f3e70]: Platformalarni ulang — statistika avtomatik yangilanib turadi
+        - generic [ref=f3e71]:
+          - generic [ref=f3e74]:
+            - generic [ref=f3e78]:
+              - paragraph [ref=f3e80]: YouTube
+              - paragraph [ref=f3e81]: Ulanmagan
+            - button "Ulash" [ref=f3e83]
+          - generic [ref=f3e86]:
+            - generic [ref=f3e90]:
+              - paragraph [ref=f3e92]: Telegram
+              - paragraph [ref=f3e93]: Ulanmagan
+            - button "Ulash" [ref=f3e95]
+          - generic [ref=f3e98]:
+            - generic [ref=f3e102]:
+              - paragraph [ref=f3e104]: Instagram
+              - paragraph [ref=f3e105]: Ulanmagan
+            - button "Ulash" [ref=f3e107]
+          - generic [ref=f3e110]:
+            - generic [ref=f3e114]:
+              - paragraph [ref=f3e116]: Discord
+              - paragraph [ref=f3e117]: Ulanmagan
+            - button "Ulash" [ref=f3e119]
+          - generic [ref=f3e122]:
+            - generic [ref=f3e126]:
+              - paragraph [ref=f3e128]: Bluesky
+              - paragraph [ref=f3e129]: Ulanmagan
+            - button "Ulash" [ref=f3e131]
+          - generic [ref=f3e134]:
+            - generic [ref=f3e138]:
+              - paragraph [ref=f3e140]: Reddit
+              - paragraph [ref=f3e141]: Ulanmagan
+            - button "Ulash" [ref=f3e143]
+        - generic [ref=f3e146]:
+          - generic [ref=f3e147]:
+            - heading "Telegram kanal ulash" [level=3] [ref=f3e148]
+            - button "Yopish" [ref=f3e149]
+          - generic [ref=f3e153]:
+            - paragraph [ref=f3e154]: "Avval botni kanalingizga admin sifatida qo'shing:"
+            - paragraph [ref=f3e155]: 1. Kanalingiz sozlamalariga o'ting
+            - paragraph [ref=f3e156]: 2. Administrators → Add Administrator
+            - paragraph [ref=f3e157]:
+              - text: "3."
+              - generic [ref=f3e158]: "@mitrizss_bot"
+              - text: ni qo'shing
+            - paragraph [ref=f3e159]: 4. Keyin quyidagi formani to'ldiring
+          - generic [ref=f3e160]:
+            - generic [ref=f3e161]:
+              - generic [ref=f3e162]: Kanal yoki guruh
+              - textbox "Kanal yoki guruh" [ref=f3e163]:
+                - /placeholder: "@mening_kanalim"
+                - text: "@telegram"
+              - paragraph [ref=f3e164]: "@handle formatida kiriting"
+            - paragraph [ref=f3e168]: "Telegram xatosi:"
+            - generic [ref=f3e165]:
+              - button "Bekor" [ref=f3e166]
+              - button "Ulash" [ref=f3e167]
+  - alert [ref=f3e4]

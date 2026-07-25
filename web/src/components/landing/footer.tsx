@@ -1,22 +1,22 @@
-import { Zap } from "lucide-react";
-import Link from "next/link";
+import { Zap } from 'lucide-react';
+import Link from 'next/link';
 
 const links = {
   Mahsulot: [
-    { label: "Imkoniyatlar", href: "#imkoniyatlar" },
-    { label: "Narxlar", href: "#narxlar" },
-    { label: "Integratsiyalar", href: "#" },
-    { label: "Changelog", href: "#" },
+    { label: 'Imkoniyatlar', href: '#imkoniyatlar' },
+    { label: 'Narxlar', href: '#narxlar' },
+    { label: 'Integratsiyalar', href: '#' },
+    { label: 'Changelog', href: '#' },
   ],
   Kompaniya: [
-    { label: "Haqida", href: "#haqida" },
-    { label: "Blog", href: "#" },
-    { label: "Ish o'rinlari", href: "#" },
+    { label: 'Haqida', href: '#haqida' },
+    { label: 'Blog', href: '#' },
+    { label: "Ish o'rinlari", href: '#' },
   ],
   "Qo'llab-quvvatlash": [
-    { label: "Docs", href: "#" },
-    { label: "Status", href: "#" },
-    { label: "hello@metrix.io", href: "mailto:hello@metrix.io" },
+    { label: 'Docs', href: '#' },
+    { label: 'Status', href: '#' },
+    { label: 'hello@metrix.io', href: 'mailto:hello@metrix.io' },
   ],
 };
 
@@ -31,7 +31,9 @@ export default function Footer() {
               <div className="w-6 h-6 rounded-md bg-orange-500/10 border border-orange-500/20 flex items-center justify-center">
                 <Zap className="w-3.5 h-3.5 text-orange-500" />
               </div>
-              <span className="text-sm font-semibold text-zinc-100">Metrix</span>
+              <span className="text-sm font-semibold text-zinc-100">
+                Metrix
+              </span>
             </div>
             <p className="text-xs text-zinc-600 leading-relaxed max-w-[180px]">
               Barcha analitikangiz bitta minimalist dashboardda.
@@ -41,7 +43,9 @@ export default function Footer() {
           {/* Links */}
           {Object.entries(links).map(([section, items]) => (
             <div key={section}>
-              <p className="text-xs font-medium text-zinc-400 mb-3">{section}</p>
+              <p className="text-xs font-medium text-zinc-400 mb-3">
+                {section}
+              </p>
               <ul className="space-y-2">
                 {items.map((item) => (
                   <li key={item.label}>
@@ -64,10 +68,16 @@ export default function Footer() {
             © 2025 Metrix. Barcha huquqlar himoyalangan.
           </p>
           <div className="flex items-center gap-4">
-            <Link href="#" className="text-xs text-zinc-700 hover:text-zinc-500 transition-colors">
+            <Link
+              href="#"
+              className="text-xs text-zinc-700 hover:text-zinc-500 transition-colors"
+            >
               Maxfiylik siyosati
             </Link>
-            <Link href="#" className="text-xs text-zinc-700 hover:text-zinc-500 transition-colors">
+            <Link
+              href="#"
+              className="text-xs text-zinc-700 hover:text-zinc-500 transition-colors"
+            >
               Foydalanish shartlari
             </Link>
           </div>

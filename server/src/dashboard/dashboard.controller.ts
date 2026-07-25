@@ -24,8 +24,15 @@ export class DashboardController {
 
   @Get()
   @ApiOperation({ summary: 'Get aggregated overview: web + all platforms' })
-  @ApiQuery({ name: 'period', enum: ['today', 'week', 'month'], required: false })
-  @ApiResponse({ status: 200, description: 'Overview data for all connected sources' })
+  @ApiQuery({
+    name: 'period',
+    enum: ['today', 'week', 'month'],
+    required: false,
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Overview data for all connected sources',
+  })
   getOverview(
     @CurrentUser('id') userId: string,
     @Query('period') period: 'today' | 'week' | 'month',
@@ -44,17 +51,31 @@ export class DashboardController {
     return this.dashboardService.getWebViewsTrend(userId, parseInt(days) || 14);
   }
 
-  @Get('history/:platform')
-  @ApiOperation({ summary: 'Get follower/views history chart data for a platform' })
-  @ApiParam({ name: 'platform', description: 'Platform slug e.g. YOUTUBE, TELEGRAM' })
-  @ApiQuery({ name: 'days', type: 'number', required: false, description: 'Number of days (default 30)' })
+  @Get('history/:connectionId')
+  @ApiOperation({
+    summary: 'Get follower/views history chart data for a connection',
+  })
+  @ApiParam({
+    name: 'connectionId',
+    description: 'Connection UUID',
+  })
+  @ApiQuery({
+    name: 'days',
+    type: 'number',
+    required: false,
+    description: 'Number of days (default 30)',
+  })
   @ApiResponse({ status: 200, description: 'Daily stat series for charting' })
-  getPlatformHistory(
+  getConnectionHistory(
     @CurrentUser('id') userId: string,
-    @Param('platform') platform: string,
+    @Param('connectionId') connectionId: string,
     @Query('days') days: string,
   ) {
-    return this.dashboardService.getPlatformHistory(userId, platform, parseInt(days) || 30);
+    return this.dashboardService.getConnectionHistory(
+      userId,
+      connectionId,
+      parseInt(days) || 30,
+    );
   }
 
   @Get('sync')

@@ -1,4 +1,13 @@
-import { Controller, Get, Post, Delete, Query, Param, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Delete,
+  Query,
+  Param,
+  UseGuards,
+} from '@nestjs/common';
+import { Throttle } from '@nestjs/throttler';
 import {
   ApiTags,
   ApiBearerAuth,
@@ -20,25 +29,44 @@ export class AiController {
 
   @Get('insights')
   @ApiOperation({ summary: 'List saved AI insights' })
-  @ApiQuery({ name: 'type', required: false, description: 'Filter by type: WEEKLY, DAILY, WEBSITE, POST, CUSTOM' })
-  @ApiQuery({ name: 'limit', required: false, type: 'number', description: 'Max results (default 10)' })
+  @ApiQuery({
+    name: 'type',
+    required: false,
+    description: 'Filter by type: WEEKLY, DAILY, WEBSITE, POST, CUSTOM',
+  })
+  @ApiQuery({
+    name: 'limit',
+    required: false,
+    type: 'number',
+    description: 'Max results (default 10)',
+  })
   @ApiResponse({ status: 200, description: 'Array of AI insights' })
   getInsights(
     @CurrentUser('id') userId: string,
     @Query('type') type?: string,
     @Query('limit') limit?: string,
   ) {
-    return this.aiService.getInsights(userId, type, limit ? parseInt(limit) : 10);
+    return this.aiService.getInsights(
+      userId,
+      type,
+      limit ? parseInt(limit) : 10,
+    );
   }
 
+  // AI generation calls a paid LLM provider, so it gets a tighter limit than
+  // the app-wide default to bound per-account cost from repeated requests.
   @Post('insights/weekly')
+  @Throttle({ short: { ttl: 60000, limit: 5 } })
   @ApiOperation({ summary: 'Generate a weekly AI insight on demand' })
   @ApiResponse({ status: 201, description: 'AI-generated weekly summary' })
   generateWeekly(@CurrentUser('id') userId: string) {
-    return this.aiService.generateWeeklyInsight(userId).then((content) => ({ content }));
+    return this.aiService
+      .generateWeeklyInsight(userId)
+      .then((content) => ({ content }));
   }
 
   @Post('insights/website/:websiteId')
+  @Throttle({ short: { ttl: 60000, limit: 5 } })
   @ApiOperation({ summary: 'Generate an AI insight for a specific website' })
   @ApiParam({ name: 'websiteId', description: 'Website ID' })
   @ApiResponse({ status: 201, description: 'AI-generated website insight' })
@@ -46,32 +74,46 @@ export class AiController {
     @CurrentUser('id') userId: string,
     @Param('websiteId') websiteId: string,
   ) {
-    return this.aiService.generateWebsiteInsight(userId, websiteId).then((content) => ({ content }));
+    return this.aiService
+      .generateWebsiteInsight(userId, websiteId)
+      .then((content) => ({ content }));
   }
 
   @Post('insights/monthly')
+  @Throttle({ short: { ttl: 60000, limit: 5 } })
   @ApiOperation({ summary: 'Generate a monthly AI insight (last 30 days)' })
   @ApiResponse({ status: 201, description: 'AI-generated monthly summary' })
   generateMonthly(@CurrentUser('id') userId: string) {
-    return this.aiService.generateMonthlyInsight(userId).then((content) => ({ content }));
+    return this.aiService
+      .generateMonthlyInsight(userId)
+      .then((content) => ({ content }));
   }
 
   @Post('insights/yearly')
+  @Throttle({ short: { ttl: 60000, limit: 5 } })
   @ApiOperation({ summary: 'Generate a yearly AI insight (last 365 days)' })
   @ApiResponse({ status: 201, description: 'AI-generated yearly summary' })
   generateYearly(@CurrentUser('id') userId: string) {
-    return this.aiService.generateYearlyInsight(userId).then((content) => ({ content }));
+    return this.aiService
+      .generateYearlyInsight(userId)
+      .then((content) => ({ content }));
   }
 
-  @Post('insights/platform/:platform')
-  @ApiOperation({ summary: 'Generate an AI insight for a connected platform' })
-  @ApiParam({ name: 'platform', description: 'Platform slug e.g. YOUTUBE, TELEGRAM' })
+  @Post('insights/connection/:connectionId')
+  @Throttle({ short: { ttl: 60000, limit: 5 } })
+  @ApiOperation({ summary: 'Generate an AI insight for a connection' })
+  @ApiParam({
+    name: 'connectionId',
+    description: 'Connection UUID',
+  })
   @ApiResponse({ status: 201, description: 'AI-generated platform insight' })
   generatePlatformInsight(
     @CurrentUser('id') userId: string,
-    @Param('platform') platform: string,
+    @Param('connectionId') connectionId: string,
   ) {
-    return this.aiService.generatePlatformInsight(userId, platform.toUpperCase()).then((content) => ({ content }));
+    return this.aiService
+      .generatePlatformInsight(userId, connectionId)
+      .then((content) => ({ content }));
   }
 
   @Delete('insights/:id')

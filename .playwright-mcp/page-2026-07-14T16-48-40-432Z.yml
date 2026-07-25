@@ -1,0 +1,65 @@
+- generic [active] [ref=f23e1]:
+  - generic [ref=f23e2]:
+    - banner [ref=f23e3]:
+      - link "Metrix" [ref=f23e4] [cursor=pointer]:
+        - /url: /
+    - main [ref=f23e9]:
+      - link "Bosh sahifaga" [ref=f23e10] [cursor=pointer]:
+        - /url: /
+      - heading "Foydalanish shartlari" [level=1] [ref=f23e13]
+      - paragraph [ref=f23e14]: "Oxirgi yangilanish: 2026-07-14"
+      - generic [ref=f23e15]:
+        - paragraph [ref=f23e16]: Ushbu Foydalanish shartlari ("Shartlar") Metrix analitika xizmati ("Xizmat", "biz") dan foydalanishingizni tartibga soladi. Hisob yaratish yoki Xizmatdan foydalanish orqali siz ushbu Shartlarga rozilik bildirasiz.
+        - generic [ref=f23e17]:
+          - heading "1. Xizmat tavsifi" [level=2] [ref=f23e18]
+          - paragraph [ref=f23e20]: Metrix — veb-sayt tashrifchilari statistikasi va ijtimoiy tarmoq (YouTube, Telegram, Discord, Instagram, Bluesky, Reddit va boshqalar) ko'rsatkichlarini bitta boshqaruv panelida birlashtiruvchi analitika xizmati. Xizmat sizga o'z saytingizga kuzatuv skriptini o'rnatish, ijtimoiy tarmoq hisoblaringizni ulash va yig'ilgan ma'lumotlar asosida hisobotlar (jumladan AI yordamida tayyorlangan tahlillar) olish imkonini beradi.
+        - generic [ref=f23e21]:
+          - heading "2. Hisob yaratish" [level=2] [ref=f23e22]
+          - list [ref=f23e24]:
+            - listitem [ref=f23e25]: Hisob yaratish uchun haqiqiy email manzil taqdim etishingiz kerak.
+            - listitem [ref=f23e26]: Parolingiz va hisobingiz xavfsizligi uchun siz javobgarsiz.
+            - listitem [ref=f23e27]: Xavfsizlikni oshirish uchun ixtiyoriy ikki bosqichli autentifikatsiya (2FA) mavjud — uni yoqishni tavsiya qilamiz.
+            - listitem [ref=f23e28]: 13 yoshdan kichik shaxslar Xizmatdan foydalanishi mumkin emas.
+        - generic [ref=f23e29]:
+          - heading "3. Obuna va to'lovlar" [level=2] [ref=f23e30]
+          - paragraph [ref=f23e32]: Metrix bepul (Free) va pullik tarif rejalarini taklif qiladi. Pullik rejaga o'tganingizda, tanlangan davr uchun to'lov amalga oshiriladi. Obunani istalgan vaqtda bekor qilishingiz mumkin — bekor qilingan obuna joriy to'langan davr oxirigacha kuchda qoladi. To'lovlar, agar qonun talab qilmasa, qaytarilmaydi.
+        - generic [ref=f23e33]:
+          - heading "4. Ruxsat etilgan foydalanish" [level=2] [ref=f23e34]
+          - generic [ref=f23e35]:
+            - paragraph [ref=f23e36]: "Xizmatdan foydalanganda quyidagilarga yo'l qo'yilmaydi:"
+            - list [ref=f23e37]:
+              - listitem [ref=f23e38]: Boshqa foydalanuvchilarning ma'lumotlariga ruxsatsiz kirishga urinish;
+              - listitem [ref=f23e39]: Xizmat infratuzilmasiga ortiqcha yuk tushiradigan avtomatlashtirilgan so'rovlar yuborish;
+              - listitem [ref=f23e40]: Kuzatuv skriptidan (track.js) qonuniy tashrifchi statistikasidan tashqari maqsadlarda foydalanish;
+              - listitem [ref=f23e41]: API kalitlaringizni uchinchi shaxslarga ruxsatsiz uzatish;
+              - listitem [ref=f23e42]: Xizmatni noqonuniy, firibgarlik yoki zararli faoliyat uchun ishlatish.
+        - generic [ref=f23e43]:
+          - heading "5. Uchinchi tomon integratsiyalari" [level=2] [ref=f23e44]
+          - paragraph [ref=f23e46]: Ijtimoiy tarmoq hisobingizni (YouTube, Instagram, Discord va h.k.) OAuth orqali ulaganingizda, siz shu platformaning o'z foydalanish shartlariga ham bo'ysunasiz. Metrix faqat sizning ushbu platformalardagi ochiq statistikangizni o'qish uchun ruxsat so'raydi.
+        - generic [ref=f23e47]:
+          - heading "6. Ma'lumotlar egaligi" [level=2] [ref=f23e48]
+          - paragraph [ref=f23e50]:
+            - text: Siz ulagan saytlar va hisoblar orqali yig'ilgan barcha statistika ma'lumotlariga egalik huquqi sizda qoladi. Batafsil ma'lumot uchun
+            - link "Maxfiylik siyosati" [ref=f23e51] [cursor=pointer]:
+              - /url: /privacy
+            - text: ga qarang.
+        - generic [ref=f23e52]:
+          - heading "7. Kafolatlarning yo'qligi" [level=2] [ref=f23e53]
+          - paragraph [ref=f23e55]: Xizmat "bor holicha" (as is) taqdim etiladi. Biz uzluksiz, xatosiz ishlashni yoki barcha ijtimoiy tarmoq statistikasining 100% aniqligini kafolatlamaymiz — ba'zi ko'rsatkichlar uchinchi tomon platformalarining ochiq API cheklovlariga bog'liq.
+        - generic [ref=f23e56]:
+          - heading "8. Javobgarlikni cheklash" [level=2] [ref=f23e57]
+          - paragraph [ref=f23e59]: Qonun ruxsat bergan darajada, Metrix Xizmatdan foydalanish natijasida yuzaga kelgan bilvosita, tasodifiy yoki oqibatdagi zararlar uchun javobgar emas.
+        - generic [ref=f23e60]:
+          - heading "9. Hisobni to'xtatish" [level=2] [ref=f23e61]
+          - paragraph [ref=f23e63]: Hisobingizni istalgan vaqtda Sozlamalar bo'limidan o'chirishingiz mumkin — ma'lumotlaringiz 6 oy davomida tiklash uchun saqlanadi, so'ngra butunlay o'chiriladi. Biz ham ushbu Shartlarni buzgan hisoblarni to'xtatib qo'yish huquqini saqlab qolamiz.
+        - generic [ref=f23e64]:
+          - heading "10. Shartlarga o'zgartirish" [level=2] [ref=f23e65]
+          - paragraph [ref=f23e67]: Ushbu Shartlarni vaqti-vaqti bilan yangilashimiz mumkin. Muhim o'zgarishlar haqida sizga email orqali yoki dashboard ichida xabar beramiz.
+        - generic [ref=f23e68]:
+          - heading "11. Bog'lanish" [level=2] [ref=f23e69]
+          - paragraph [ref=f23e71]:
+            - text: Savollaringiz bo'lsa,
+            - link "hello@metrix.io" [ref=f23e72] [cursor=pointer]:
+              - /url: mailto:hello@metrix.io
+            - text: orqali murojaat qiling.
+  - alert [ref=f23e73]

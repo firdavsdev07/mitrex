@@ -1,0 +1,76 @@
+- generic [active] [ref=f5e1]:
+  - generic [ref=f5e2]:
+    - complementary [ref=f5e14]:
+      - link "Metrix" [ref=f5e16] [cursor=pointer]:
+        - /url: /dashboard
+      - navigation [ref=f5e21]:
+        - link "Dashboard" [ref=f5e22] [cursor=pointer]:
+          - /url: /dashboard
+        - link "Saytlar" [ref=f5e28] [cursor=pointer]:
+          - /url: /websites
+        - link "Ulashlar" [ref=f5e32] [cursor=pointer]:
+          - /url: /connections
+        - link "Postlar" [ref=f5e36] [cursor=pointer]:
+          - /url: /posts
+        - link "AI Insights" [ref=f5e40] [cursor=pointer]:
+          - /url: /insights
+        - link "Alertlar" [ref=f5e44] [cursor=pointer]:
+          - /url: /alerts
+        - link "Sozlamalar" [ref=f5e48] [cursor=pointer]:
+          - /url: /settings
+      - button "T Test Foydalanuvchi browsertest_1@example.com" [ref=f5e53]:
+        - generic [ref=f5e54]: T
+        - generic [ref=f5e55]:
+          - paragraph [ref=f5e56]: Test Foydalanuvchi
+          - paragraph [ref=f5e57]: browsertest_1@example.com
+    - main [ref=f5e61]:
+      - generic [ref=f5e62]:
+        - generic [ref=f5e63]:
+          - generic [ref=f5e64]: Metrix
+          - generic [ref=f5e67]: settings
+        - button "Bildirishnomalar" [ref=f5e70]
+      - generic [ref=f5e75]:
+        - generic [ref=f5e76]:
+          - paragraph [ref=f5e77]: Hisob
+          - heading "Sozlamalar" [level=1] [ref=f5e78]
+        - generic [ref=f5e79]:
+          - button "Profil" [ref=f5e80]
+          - button "Parol" [ref=f5e84]
+          - button "Xavfsizlik" [ref=f5e88]
+          - button "Foydalanish" [ref=f5e92]
+          - button "Xavfli" [ref=f5e94]
+        - generic [ref=f5e112]:
+          - generic [ref=f5e113]:
+            - generic [ref=f5e115]:
+              - generic [ref=f5e116]:
+                - heading "Ikki bosqichli autentifikatsiya (2FA)" [level=3] [ref=f5e117]
+                - paragraph [ref=f5e118]: Autentifikator ilova (Google Authenticator, Authy) orqali qo'shimcha himoya
+              - generic [ref=f5e119]: Yoqilgan
+            - button "2FA'ni o'chirish" [ref=f5e181]
+          - generic [ref=f5e122]:
+            - generic [ref=f5e123]:
+              - heading "Haftalik AI hisobot" [level=3] [ref=f5e124]
+              - paragraph [ref=f5e125]: Har dushanba ertalab email orqali AI tomonidan tayyorlangan haftalik tahlil
+            - button "Haftalik hisobotni yoqish/o'chirish" [pressed] [ref=f5e127]
+          - generic [ref=f5e129]:
+            - generic [ref=f5e130]:
+              - heading "Kirish tarixi" [level=3] [ref=f5e131]
+              - paragraph [ref=f5e136]: Hisobingizga so'nggi kirish urinishlari
+            - generic [ref=f5e138]:
+              - generic [ref=f5e139]:
+                - generic [ref=f5e143]:
+                  - paragraph [ref=f5e144]: LOCAL · ::1
+                  - paragraph [ref=f5e145]: 2026-07-14 20:15:55
+                - generic [ref=f5e146]: Muvaffaqiyatli
+              - generic [ref=f5e147]:
+                - generic [ref=f5e151]:
+                  - paragraph [ref=f5e152]: LOCAL · ::1
+                  - paragraph [ref=f5e153]: 2026-07-14 20:09:52
+                - generic [ref=f5e154]: Muvaffaqiyatli
+          - generic [ref=f5e155]:
+            - generic [ref=f5e156]:
+              - heading "Barcha qurilmalardan chiqish" [level=3] [ref=f5e157]
+              - paragraph [ref=f5e161]: Boshqa qurilma/brauzerlarda ochiq bo'lgan barcha sessiyalarni yopadi
+            - button "Hammasidan chiqish" [ref=f5e163]
+  - button "Open Next.js Dev Tools" [ref=f5e9] [cursor=pointer]
+  - alert [ref=f5e13]

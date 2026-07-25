@@ -14,10 +14,7 @@ const redisConnection = {
 @Module({
   imports: [
     BullModule.forRoot(redisConnection),
-    BullModule.registerQueue(
-      { name: QUEUE_TRACKING },
-      { name: QUEUE_SYNC },
-    ),
+    BullModule.registerQueue({ name: QUEUE_TRACKING }, { name: QUEUE_SYNC }),
   ],
   providers: [QueueService, TrackingProcessor],
   exports: [QueueService, BullModule],

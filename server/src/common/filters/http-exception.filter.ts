@@ -7,6 +7,7 @@ import {
   Logger,
 } from '@nestjs/common';
 import { Request, Response } from 'express';
+import * as Sentry from '@sentry/nestjs';
 
 @Catch()
 export class AllExceptionsFilter implements ExceptionFilter {
@@ -17,7 +18,7 @@ export class AllExceptionsFilter implements ExceptionFilter {
     const response = ctx.getResponse<Response>();
     const request = ctx.getRequest<Request>();
 
-    let status = HttpStatus.INTERNAL_SERVER_ERROR;
+    let status: number = HttpStatus.INTERNAL_SERVER_ERROR;
     let message: string | string[] = 'Internal server error';
     let error = 'Internal Server Error';
 
@@ -28,12 +29,15 @@ export class AllExceptionsFilter implements ExceptionFilter {
         message = res;
         error = exception.name;
       } else {
-        const body = res as Record<string, any>;
+        const body = res as { message?: string | string[]; error?: string };
         message = body.message ?? exception.message;
         error = body.error ?? exception.name;
       }
     } else if (exception instanceof Error) {
-      message = exception.message;
+      message =
+        process.env.NODE_ENV === 'production'
+          ? 'Internal server error'
+          : exception.message;
     }
 
     if (status >= 500) {
@@ -41,6 +45,9 @@ export class AllExceptionsFilter implements ExceptionFilter {
         `${request.method} ${request.url} → ${status}`,
         exception instanceof Error ? exception.stack : String(exception),
       );
+      // SENTRY_DSN o'rnatilmagan bo'lsa SDK bu chaqiruvni jimgina e'tiborsiz
+      // qoldiradi (no-op) — productionda kuzatuv uchun ishlaydi.
+      Sentry.captureException(exception);
     }
 
     response.status(status).json({

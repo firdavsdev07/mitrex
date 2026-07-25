@@ -1,15 +1,20 @@
-import Link from "next/link";
-import { Zap } from "lucide-react";
+import Link from 'next/link';
+import { Zap } from 'lucide-react';
 
-export default function AuthLayout({ children }: { children: React.ReactNode }) {
+export default function AuthLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
     <div className="min-h-screen bg-zinc-950 flex flex-col">
       {/* Dot grid background */}
       <div
         className="fixed inset-0 opacity-[0.12] pointer-events-none"
         style={{
-          backgroundImage: "radial-gradient(circle, #52525b 1px, transparent 1px)",
-          backgroundSize: "28px 28px",
+          backgroundImage:
+            'radial-gradient(circle, #52525b 1px, transparent 1px)',
+          backgroundSize: '28px 28px',
         }}
       />
 
@@ -22,7 +27,9 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
           <div className="w-6 h-6 rounded-md bg-orange-500/10 border border-orange-500/20 flex items-center justify-center">
             <Zap className="w-3.5 h-3.5 text-orange-500" />
           </div>
-          <span className="text-sm font-semibold text-zinc-100 tracking-tight">Metrix</span>
+          <span className="text-sm font-semibold text-zinc-100 tracking-tight">
+            Metrix
+          </span>
         </Link>
       </header>
 

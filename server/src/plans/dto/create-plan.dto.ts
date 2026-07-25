@@ -5,7 +5,7 @@ import {
   IsOptional,
   Min,
 } from 'class-validator';
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional, PartialType } from '@nestjs/swagger';
 
 export class CreatePlanDto {
   @ApiProperty({ example: 'Starter' })
@@ -62,3 +62,9 @@ export class CreatePlanDto {
   @IsNumber()
   sortOrder?: number;
 }
+
+// `Partial<CreatePlanDto>` emas — Nest ValidationPipe bunday reflect
+// bo'lmagan (runtime'da Object) parametrlarni tekshirmaydi, ya'ni
+// masalan manfiy `price`/`maxWebsites` kabi noto'g'ri qiymatlar
+// filtrlarsiz to'g'ridan-to'g'ri Prisma'ga yetib borardi.
+export class UpdatePlanDto extends PartialType(CreatePlanDto) {}

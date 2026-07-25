@@ -1,14 +1,14 @@
-"use client";
+'use client';
 
-import { Zap } from "lucide-react";
-import Link from "next/link";
-import { useState, useEffect } from "react";
-import { cn } from "@/lib/utils";
+import { Zap } from 'lucide-react';
+import Link from 'next/link';
+import { useState, useEffect } from 'react';
+import { cn } from '@/lib/utils';
 
 const navLinks = [
-  { label: "Imkoniyatlar", href: "#imkoniyatlar" },
-  { label: "Narxlar", href: "#narxlar" },
-  { label: "Haqida", href: "#haqida" },
+  { label: 'Imkoniyatlar', href: '#imkoniyatlar' },
+  { label: 'Narxlar', href: '#narxlar' },
+  { label: 'Haqida', href: '#haqida' },
 ];
 
 export default function Navbar() {
@@ -16,17 +16,17 @@ export default function Navbar() {
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 10);
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
   return (
     <header
       className={cn(
-        "fixed top-0 left-0 right-0 z-50 h-12 flex items-center transition-all duration-200",
+        'fixed top-0 left-0 right-0 z-50 h-12 flex items-center transition-all duration-200',
         scrolled
-          ? "border-b border-zinc-800/80 bg-zinc-950/90 backdrop-blur-md"
-          : "bg-transparent"
+          ? 'border-b border-zinc-800/80 bg-zinc-950/90 backdrop-blur-md'
+          : 'bg-transparent',
       )}
     >
       <div className="mx-auto w-full max-w-6xl px-4 flex items-center justify-between">

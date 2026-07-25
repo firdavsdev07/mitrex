@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
@@ -27,19 +31,36 @@ export class PlansService {
   }
 
   create(data: {
-    name: string; slug: string; price: number; currency?: string;
-    maxWebsites: number; maxPlatforms: number; maxMonthlyViews: number;
-    hasAiInsights?: boolean; hasWeeklyReport?: boolean; hasCustomAlerts?: boolean;
+    name: string;
+    slug: string;
+    price: number;
+    currency?: string;
+    maxWebsites: number;
+    maxPlatforms: number;
+    maxMonthlyViews: number;
+    hasAiInsights?: boolean;
+    hasWeeklyReport?: boolean;
+    hasCustomAlerts?: boolean;
     sortOrder?: number;
   }) {
-    return this.prisma.plan.create({ data: data as any });
+    return this.prisma.plan.create({ data });
   }
 
-  async update(id: string, data: Partial<{
-    name: string; price: number; maxWebsites: number; maxPlatforms: number;
-    maxMonthlyViews: number; hasAiInsights: boolean; hasWeeklyReport: boolean;
-    hasCustomAlerts: boolean; isActive: boolean; sortOrder: number;
-  }>) {
+  async update(
+    id: string,
+    data: Partial<{
+      name: string;
+      price: number;
+      maxWebsites: number;
+      maxPlatforms: number;
+      maxMonthlyViews: number;
+      hasAiInsights: boolean;
+      hasWeeklyReport: boolean;
+      hasCustomAlerts: boolean;
+      isActive: boolean;
+      sortOrder: number;
+    }>,
+  ) {
     const plan = await this.prisma.plan.findUnique({ where: { id } });
     if (!plan) throw new NotFoundException('Plan not found');
     return this.prisma.plan.update({ where: { id }, data });
@@ -49,7 +70,10 @@ export class PlansService {
     const plan = await this.prisma.plan.findUnique({ where: { id } });
     if (!plan) throw new NotFoundException('Plan not found');
     // Soft delete — isActive = false
-    return this.prisma.plan.update({ where: { id }, data: { isActive: false } });
+    return this.prisma.plan.update({
+      where: { id },
+      data: { isActive: false },
+    });
   }
 
   // Foydalanuvchi subscription
@@ -68,7 +92,8 @@ export class PlansService {
 
   async changePlan(userId: string, planSlug: string) {
     const plan = await this.findBySlug(planSlug);
-    if (!plan || !plan.isActive) throw new BadRequestException('Plan not found yoki aktiv emas');
+    if (!plan || !plan.isActive)
+      throw new BadRequestException('Plan not found yoki aktiv emas');
 
     return this.prisma.userSubscription.upsert({
       where: { userId },
@@ -91,8 +116,9 @@ export class PlansService {
   // Foydalanuvchining hozirgi plan limitlarini olish
   async getUserLimits(userId: string) {
     const sub = await this.getUserSubscription(userId);
-    const plan = (sub as any).plan;
-    if (!plan) return { maxWebsites: 1, maxPlatforms: 2, maxMonthlyViews: 5000 };
+    const plan = sub.plan;
+    if (!plan)
+      return { maxWebsites: 1, maxPlatforms: 2, maxMonthlyViews: 5000 };
     return {
       maxWebsites: plan.maxWebsites,
       maxPlatforms: plan.maxPlatforms,

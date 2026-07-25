@@ -1,0 +1,4 @@
+[  900502ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost:3000/notifications/count:0
+[ 1647069ms] [ERROR] Failed to load resource: net::ERR_INCOMPLETE_CHUNKED_ENCODING @ http://localhost:3000/websites/a2709d44-f928-4118-9e01-1f9f1cccd922/realtime/stream?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI4NmY3YzUzMy1kZmNkLTQwMjUtOTkwYS02ZDdkNjFmMzlhNzgiLCJlbWFpbCI6ImFrYmFyYWxpc2hlcm9ub0BnbWFpbC5jb20iLCJpYXQiOjE3ODQxMTk1MDAsImV4cCI6MTc4NDEyMDQwMH0.8FH93VAynE4-zjq_dfL_qBP-mU_7Gr1BjPscdiPS4tQ:0
+[ 1800503ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost:3000/notifications/count:0
+[ 2700501ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost:3000/notifications/count:0

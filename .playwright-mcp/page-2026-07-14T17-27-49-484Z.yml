@@ -1,0 +1,78 @@
+- generic [active] [ref=f8e1]:
+  - generic [ref=f8e2]:
+    - complementary [ref=f8e5]:
+      - link "Metrix" [ref=f8e7] [cursor=pointer]:
+        - /url: /dashboard
+      - navigation [ref=f8e12]:
+        - link "Dashboard" [ref=f8e13] [cursor=pointer]:
+          - /url: /dashboard
+        - link "Saytlar" [ref=f8e19] [cursor=pointer]:
+          - /url: /websites
+        - link "Ulashlar" [ref=f8e23] [cursor=pointer]:
+          - /url: /connections
+        - link "Postlar" [ref=f8e27] [cursor=pointer]:
+          - /url: /posts
+        - link "AI Insights" [ref=f8e31] [cursor=pointer]:
+          - /url: /insights
+        - link "Alertlar" [ref=f8e35] [cursor=pointer]:
+          - /url: /alerts
+        - link "Sozlamalar" [ref=f8e39] [cursor=pointer]:
+          - /url: /settings
+      - button "B Bot Demo botdemo_check@example.com" [ref=f8e44]:
+        - generic [ref=f8e45]: B
+        - generic [ref=f8e46]:
+          - paragraph [ref=f8e47]: Bot Demo
+          - paragraph [ref=f8e48]: botdemo_check@example.com
+    - main [ref=f8e52]:
+      - generic [ref=f8e53]:
+        - generic [ref=f8e54]:
+          - generic [ref=f8e55]: Metrix
+          - generic [ref=f8e58]: connections
+        - button "Bildirishnomalar" [ref=f8e61]
+      - generic [ref=f8e66]:
+        - generic [ref=f8e67]:
+          - paragraph [ref=f8e68]: Ulashlar
+          - heading "Platformalar" [level=1] [ref=f8e69]
+          - paragraph [ref=f8e70]: Platformalarni ulang — statistika avtomatik yangilanib turadi
+        - generic [ref=f8e71]:
+          - generic [ref=f8e74]:
+            - generic [ref=f8e78]:
+              - paragraph [ref=f8e80]: YouTube
+              - paragraph [ref=f8e81]: Ulanmagan
+            - button "Ulash" [ref=f8e83]
+          - generic [ref=f8e85]:
+            - generic [ref=f8e86]:
+              - generic [ref=f8e90]:
+                - generic [ref=f8e91]:
+                  - paragraph [ref=f8e92]: Telegram
+                  - generic [ref=f8e93]: Ulangan
+                - paragraph [ref=f8e94]: "@telegram"
+              - generic [ref=f8e95]:
+                - button "Yangilash" [ref=f8e96]
+                - button "Uzish" [ref=f8e102]
+            - generic [ref=f8e106]:
+              - generic [ref=f8e107]: 👥 10,082,379 obunachi
+              - generic [ref=f8e108]: 2026-07-13
+            - link "Batafsil statistika" [ref=f8e109] [cursor=pointer]:
+              - /url: /connections/TELEGRAM
+          - generic [ref=f8e114]:
+            - generic [ref=f8e118]:
+              - paragraph [ref=f8e120]: Instagram
+              - paragraph [ref=f8e121]: Ulanmagan
+            - button "Ulash" [ref=f8e123]
+          - generic [ref=f8e126]:
+            - generic [ref=f8e130]:
+              - paragraph [ref=f8e132]: Discord
+              - paragraph [ref=f8e133]: Ulanmagan
+            - button "Ulash" [ref=f8e135]
+          - generic [ref=f8e138]:
+            - generic [ref=f8e142]:
+              - paragraph [ref=f8e144]: Bluesky
+              - paragraph [ref=f8e145]: Ulanmagan
+            - button "Ulash" [ref=f8e147]
+          - generic [ref=f8e150]:
+            - generic [ref=f8e154]:
+              - paragraph [ref=f8e156]: Reddit
+              - paragraph [ref=f8e157]: Ulanmagan
+            - button "Ulash" [ref=f8e159]
+  - alert [ref=f8e4]

@@ -1,0 +1,130 @@
+- generic [ref=f8e3]:
+  - button [ref=f8e44] [cursor=pointer]
+  - generic [ref=f8e48]:
+    - generic [ref=f8e52]:
+      - heading "Metrix API 1.0 OAS 3.0" [level=1] [ref=f8e54]:
+        - text: Metrix API
+        - generic [ref=f8e55]:
+          - generic [ref=f8e56]: "1.0"
+          - generic [ref=f8e58]: OAS 3.0
+      - paragraph [ref=f8e62]: Unified analytics dashboard API
+    - button "Authorize" [ref=f8e66] [cursor=pointer]
+    - textbox "Filter by tag" [ref=f8e73]
+    - generic [ref=f8e76]:
+      - heading [level=3] [ref=f8e79] [cursor=pointer]:
+        - link "admin" [ref=f8e80]:
+          - /url: "#/admin"
+        - paragraph [ref=f8e83]: Admin panel — users, plans, platform toggles
+        - button "Expand operation" [ref=f8e84]
+      - heading [level=3] [ref=f8e89] [cursor=pointer]:
+        - link "ai" [ref=f8e90]:
+          - /url: "#/ai"
+        - paragraph [ref=f8e93]: AI-generated insights
+        - button "Expand operation" [ref=f8e94]
+      - heading [level=3] [ref=f8e99] [cursor=pointer]:
+        - link "alerts" [ref=f8e100]:
+          - /url: "#/alerts"
+        - paragraph [ref=f8e103]: Alert rules for traffic/follower spikes and drops
+        - button "Expand operation" [ref=f8e104]
+      - heading [level=3] [ref=f8e109] [cursor=pointer]:
+        - link "api-keys" [ref=f8e110]:
+          - /url: "#/api-keys"
+        - paragraph [ref=f8e113]: Public API key management
+        - button "Expand operation" [ref=f8e114]
+      - heading [level=3] [ref=f8e119] [cursor=pointer]:
+        - link "auth" [ref=f8e120]:
+          - /url: "#/auth"
+        - paragraph [ref=f8e123]: Authentication — register, login, OAuth, password reset
+        - button "Expand operation" [ref=f8e124]
+      - heading [level=3] [ref=f8e129] [cursor=pointer]:
+        - link "billing" [ref=f8e130]:
+          - /url: "#/billing"
+        - paragraph [ref=f8e133]: Subscription checkout & invoices
+        - button "Expand operation" [ref=f8e134]
+      - heading [level=3] [ref=f8e139] [cursor=pointer]:
+        - link "bluesky" [ref=f8e140]:
+          - /url: "#/bluesky"
+        - paragraph [ref=f8e143]: Bluesky App Password connection
+        - button "Expand operation" [ref=f8e144]
+      - heading [level=3] [ref=f8e149] [cursor=pointer]:
+        - link "connections" [ref=f8e150]:
+          - /url: "#/connections"
+        - paragraph [ref=f8e153]: Platform connections — list, sync, disconnect
+        - button "Expand operation" [ref=f8e154]
+      - heading [level=3] [ref=f8e159] [cursor=pointer]:
+        - link "dashboard" [ref=f8e160]:
+          - /url: "#/dashboard"
+        - paragraph [ref=f8e163]: Aggregated overview & history
+        - button "Expand operation" [ref=f8e164]
+      - heading [level=3] [ref=f8e169] [cursor=pointer]:
+        - link "discord" [ref=f8e170]:
+          - /url: "#/discord"
+        - paragraph [ref=f8e173]: Discord OAuth connection
+        - button "Expand operation" [ref=f8e174]
+      - heading [level=3] [ref=f8e179] [cursor=pointer]:
+        - link "export" [ref=f8e180]:
+          - /url: "#/export"
+        - paragraph [ref=f8e183]: CSV / JSON data export
+        - button "Expand operation" [ref=f8e184]
+      - heading [level=3] [ref=f8e189] [cursor=pointer]:
+        - link "health" [ref=f8e190]:
+          - /url: "#/health"
+        - paragraph [ref=f8e193]: Service health check
+        - button "Expand operation" [ref=f8e194]
+      - heading [level=3] [ref=f8e199] [cursor=pointer]:
+        - link "instagram" [ref=f8e200]:
+          - /url: "#/instagram"
+        - paragraph [ref=f8e203]: Instagram / Meta OAuth connection
+        - button "Expand operation" [ref=f8e204]
+      - heading [level=3] [ref=f8e209] [cursor=pointer]:
+        - link "notifications" [ref=f8e210]:
+          - /url: "#/notifications"
+        - paragraph [ref=f8e213]: In-app notifications
+        - button "Expand operation" [ref=f8e214]
+      - heading [level=3] [ref=f8e219] [cursor=pointer]:
+        - link "plans" [ref=f8e220]:
+          - /url: "#/plans"
+        - paragraph [ref=f8e223]: Available subscription plans
+        - button "Expand operation" [ref=f8e224]
+      - heading [level=3] [ref=f8e229] [cursor=pointer]:
+        - link "platforms" [ref=f8e230]:
+          - /url: "#/platforms"
+        - paragraph [ref=f8e233]: Platform registry (available integrations)
+        - button "Expand operation" [ref=f8e234]
+      - heading [level=3] [ref=f8e239] [cursor=pointer]:
+        - link "posts" [ref=f8e240]:
+          - /url: "#/posts"
+        - paragraph [ref=f8e243]: Social media post stats per platform
+        - button "Expand operation" [ref=f8e244]
+      - heading [level=3] [ref=f8e249] [cursor=pointer]:
+        - link "telegram" [ref=f8e250]:
+          - /url: "#/telegram"
+        - paragraph [ref=f8e253]: Telegram Bot connection
+        - button "Expand operation" [ref=f8e254]
+      - heading [level=3] [ref=f8e259] [cursor=pointer]:
+        - link "tracking" [ref=f8e260]:
+          - /url: "#/tracking"
+        - paragraph [ref=f8e263]: Public page-view & event tracking endpoints (used by track.js)
+        - button "Expand operation" [ref=f8e264]
+      - heading [level=3] [ref=f8e269] [cursor=pointer]:
+        - link "users" [ref=f8e270]:
+          - /url: "#/users"
+        - paragraph [ref=f8e273]: User profile & settings
+        - button "Expand operation" [ref=f8e274]
+      - heading [level=3] [ref=f8e279] [cursor=pointer]:
+        - link "websites" [ref=f8e280]:
+          - /url: "#/websites"
+        - paragraph [ref=f8e283]: Website management & analytics
+        - button "Expand operation" [ref=f8e284]
+      - heading [level=3] [ref=f8e289] [cursor=pointer]:
+        - link "workspaces" [ref=f8e290]:
+          - /url: "#/workspaces"
+        - paragraph [ref=f8e293]: Team workspaces — members & invites
+        - button "Expand operation" [ref=f8e294]
+      - heading [level=3] [ref=f8e299] [cursor=pointer]:
+        - link "youtube" [ref=f8e300]:
+          - /url: "#/youtube"
+        - paragraph [ref=f8e303]: YouTube OAuth connection
+        - button "Expand operation" [ref=f8e304]
+    - heading [level=4] [ref=f8e310] [cursor=pointer]:
+      - button "Schemas" [ref=f8e311]

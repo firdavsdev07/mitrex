@@ -1,0 +1,73 @@
+- generic [active] [ref=f31e1]:
+  - generic [ref=f31e2]:
+    - complementary [ref=f31e5]:
+      - link "Metrix" [ref=f31e7] [cursor=pointer]:
+        - /url: /dashboard
+      - navigation [ref=f31e12]:
+        - link "Dashboard" [ref=f31e13] [cursor=pointer]:
+          - /url: /dashboard
+        - link "Saytlar" [ref=f31e19] [cursor=pointer]:
+          - /url: /websites
+        - link "Ulashlar" [ref=f31e23] [cursor=pointer]:
+          - /url: /connections
+        - link "Postlar" [ref=f31e27] [cursor=pointer]:
+          - /url: /posts
+        - link "AI Insights" [ref=f31e31] [cursor=pointer]:
+          - /url: /insights
+        - link "Alertlar" [ref=f31e35] [cursor=pointer]:
+          - /url: /alerts
+        - link "Sozlamalar" [ref=f31e39] [cursor=pointer]:
+          - /url: /settings
+      - button "F Full Check fullcheck@example.com" [ref=f31e44]:
+        - generic [ref=f31e45]: F
+        - generic [ref=f31e46]:
+          - paragraph [ref=f31e47]: Full Check
+          - paragraph [ref=f31e48]: fullcheck@example.com
+    - main [ref=f31e52]:
+      - generic [ref=f31e53]:
+        - generic [ref=f31e54]:
+          - generic [ref=f31e55]: Metrix
+          - generic [ref=f31e58]: insights
+        - button "Bildirishnomalar" [ref=f31e61]
+      - generic [ref=f31e66]:
+        - generic [ref=f31e67]:
+          - button "Yangi tahlil" [ref=f31e69]
+          - generic [ref=f31e119]:
+            - paragraph [ref=f31e120]: Bugun
+            - button [ref=f31e121]:
+              - generic [ref=f31e123]:
+                - paragraph [ref=f31e124]: Haftalik tahlil
+                - paragraph [ref=f31e125]: 22:00
+        - generic [ref=f31e126]:
+          - generic [ref=f31e127]:
+            - generic [ref=f31e130]:
+              - paragraph [ref=f31e131]: Haftalik tahlil
+              - paragraph [ref=f31e132]: 2026 M07 14 · 22:00 · GROQ · 719 token
+            - button "O'chirish" [ref=f31e133]
+          - generic [ref=f31e138]:
+            - heading "📊 Hafta xulosasi (2-3 jumla)" [level=3] [ref=f31e139]
+            - paragraph [ref=f31e140]: Bu hafta hech qanday platforma ulanmagan, shuningdek, hech qanday sayt qo'shilmagan. Bu hafta uchun aniq natijalar yo'q.
+            - heading "✅ Bu hafta nima yaxshi bo'ldi?" [level=3] [ref=f31e142]
+            - generic [ref=f31e143]:
+              - generic [ref=f31e144]: ●
+              - generic [ref=f31e145]: Hech qanday ma'lumot yo'q, chunki hech qanday platforma yoki sayt qo'shilmagan.
+            - heading "⚠️ Diqqat talab qiladigan narsalar" [level=3] [ref=f31e147]
+            - generic [ref=f31e148]:
+              - generic [ref=f31e149]: ●
+              - generic [ref=f31e150]: Platforma va sayt qo'shish zarur, chunki ularning yo'qligi tahlil qilish va o'sishni kuzatish imkoniyatini cheklaydi.
+            - generic [ref=f31e151]:
+              - generic [ref=f31e152]: ●
+              - generic [ref=f31e153]: Ma'lumotlar to'plash va tahlil qilish uchun zarur bo'lgan vositalar yo'q.
+            - heading "🎯 Keyingi hafta uchun 3 ta vazifa" [level=3] [ref=f31e155]
+            - generic [ref=f31e156]:
+              - generic [ref=f31e157]: "1."
+              - generic [ref=f31e158]: Kamida bitta platforma ulash.
+            - generic [ref=f31e159]:
+              - generic [ref=f31e160]: "2."
+              - generic [ref=f31e161]: Kamida bitta sayt qo'shish.
+            - generic [ref=f31e162]:
+              - generic [ref=f31e163]: "3."
+              - generic [ref=f31e164]: Sayt va platformalardan ma'lumotlar to'plashni boshlash.
+            - heading "💡 Bir fikr" [level=3] [ref=f31e166]
+            - paragraph [ref=f31e167]: Tahlil qilish va o'sishni kuzatish uchun zarur bo'lgan vositalarni tezda o'rnatish va foydalanishni boshlash kerak, chunki bu biznes uchun muhimdir.
+  - alert [ref=f31e4]

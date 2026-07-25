@@ -1,0 +1,86 @@
+- generic [ref=e1]:
+  - generic [ref=e2]:
+    - complementary [ref=e13]:
+      - link "Metrix" [ref=e15] [cursor=pointer]:
+        - /url: /dashboard
+      - navigation [ref=e20]:
+        - link "Dashboard" [ref=e21] [cursor=pointer]:
+          - /url: /dashboard
+        - link "Saytlar" [ref=e27] [cursor=pointer]:
+          - /url: /websites
+        - link "Ulashlar" [ref=e31] [cursor=pointer]:
+          - /url: /connections
+        - link "Postlar" [ref=e35] [cursor=pointer]:
+          - /url: /posts
+        - link "AI Insights" [ref=e39] [cursor=pointer]:
+          - /url: /insights
+        - link "Alertlar" [ref=e43] [cursor=pointer]:
+          - /url: /alerts
+        - link "Sozlamalar" [ref=e47] [cursor=pointer]:
+          - /url: /settings
+      - button "A Akbarali Sheronov sheronovakbarali2706@gmail.com" [ref=e52]:
+        - generic [ref=e53]: A
+        - generic [ref=e54]:
+          - paragraph [ref=e55]: Akbarali Sheronov
+          - paragraph [ref=e56]: sheronovakbarali2706@gmail.com
+    - main [ref=e60]:
+      - generic [ref=e61]:
+        - generic [ref=e62]:
+          - generic [ref=e63]: Metrix
+          - generic [ref=e66]: connections
+        - button "Bildirishnomalar" [ref=e69]
+      - generic [ref=e74]:
+        - generic [ref=e75]:
+          - paragraph [ref=e76]: Ulashlar
+          - heading "Platformalar" [level=1] [ref=e77]
+          - paragraph [ref=e78]: Platformalarni ulang — statistika avtomatik yangilanib turadi
+        - generic [ref=e79]:
+          - generic [ref=e82]:
+            - generic [ref=e86]:
+              - paragraph [ref=e88]: YouTube
+              - paragraph [ref=e89]: Ulanmagan
+            - button "Ulash" [active] [ref=e91]
+          - generic [ref=e94]:
+            - generic [ref=e98]:
+              - paragraph [ref=e100]: Telegram
+              - paragraph [ref=e101]: Ulanmagan
+            - button "Ulash" [ref=e103]
+          - generic [ref=e106]:
+            - generic [ref=e110]:
+              - paragraph [ref=e112]: Instagram
+              - paragraph [ref=e113]: Ulanmagan
+            - button "Ulash" [ref=e115]
+          - generic [ref=e118]:
+            - generic [ref=e122]:
+              - paragraph [ref=e124]: Discord
+              - paragraph [ref=e125]: Ulanmagan
+            - button "Ulash" [ref=e127]
+          - generic [ref=e130]:
+            - generic [ref=e134]:
+              - paragraph [ref=e136]: Bluesky
+              - paragraph [ref=e137]: Ulanmagan
+            - button "Ulash" [ref=e139]
+          - generic [ref=e142]:
+            - generic [ref=e146]:
+              - paragraph [ref=e148]: Reddit
+              - paragraph [ref=e149]: Ulanmagan
+            - button "Ulash" [ref=e151]
+        - generic [ref=e155]:
+          - generic [ref=e156]:
+            - heading "YouTube ulash" [level=3] [ref=e157]
+            - button "Yopish" [ref=e158]
+          - paragraph [ref=e162]: OAuth talab qilinmaydi — faqat kanal handle yoki URL kiriting.
+          - generic [ref=e163]:
+            - generic [ref=e164]:
+              - generic [ref=e165]: Kanal handle yoki URL
+              - textbox "Kanal handle yoki URL" [ref=e166]:
+                - /placeholder: "@MrBeast yoki youtube.com/c/MrBeast"
+              - paragraph [ref=e167]: "@handle, to'liq URL yoki Channel ID bo'lishi mumkin"
+            - generic [ref=e168]:
+              - button "Bekor" [ref=e169]
+              - button "Ulash" [ref=e170]
+          - generic [ref=e171]:
+            - paragraph [ref=e172]: "Bu FAQAT o'zingiz egalik qiladigan kanal uchun: har bir video qancha yangi obunachi olib kelganini ham ko'rish uchun Google orqali ulang."
+            - button "Google orqali ulash (obunachi statistikasi bilan)" [ref=e173]
+  - button "Open Next.js Dev Tools" [ref=e9] [cursor=pointer]
+  - alert [ref=e152]

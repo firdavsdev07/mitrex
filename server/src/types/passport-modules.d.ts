@@ -1,2 +1,2 @@
-declare module 'passport-discord';
 declare module 'passport-apple';
+declare module 'input';

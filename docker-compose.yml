@@ -1,0 +1,66 @@
+services:
+  postgres:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: mitrex
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U postgres']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    ports:
+      - '6379:6379'
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  server:
+    build:
+      context: ./server
+    restart: unless-stopped
+    # Barcha maxfiy/OAuth kalitlar server/.env orqali beriladi (server/.env.example
+    # ga qarang) — bu yerda faqat compose ichidagi boshqa xizmatlarga (Postgres,
+    # Redis) ulanish manzillari override qilinadi.
+    env_file:
+      - ./server/.env
+    environment:
+      DATABASE_URL: postgresql://postgres:password@postgres:5432/mitrex?schema=public
+      REDIS_URL: redis://redis:6379
+      PORT: 3000
+    ports:
+      - '3000:3000'
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  web:
+    build:
+      context: ./web
+      args:
+        NEXT_PUBLIC_API_URL: http://localhost:3000
+        NEXT_PUBLIC_TELEGRAM_BOT: mitrizss_bot
+    restart: unless-stopped
+    environment:
+      PORT: 3001
+    ports:
+      - '3001:3001'
+    depends_on:
+      - server
+
+volumes:
+  postgres_data:

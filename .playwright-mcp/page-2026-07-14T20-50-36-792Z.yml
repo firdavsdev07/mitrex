@@ -1,0 +1,67 @@
+- generic [active] [ref=f47e1]:
+  - generic [ref=f47e2]:
+    - complementary [ref=f47e5]:
+      - link "Metrix" [ref=f47e7] [cursor=pointer]:
+        - /url: /dashboard
+      - navigation [ref=f47e12]:
+        - link "Dashboard" [ref=f47e13] [cursor=pointer]:
+          - /url: /dashboard
+        - link "Saytlar" [ref=f47e19] [cursor=pointer]:
+          - /url: /websites
+        - link "Ulashlar" [ref=f47e23] [cursor=pointer]:
+          - /url: /connections
+        - link "Postlar" [ref=f47e27] [cursor=pointer]:
+          - /url: /posts
+        - link "AI Insights" [ref=f47e31] [cursor=pointer]:
+          - /url: /insights
+        - link "Alertlar" [ref=f47e35] [cursor=pointer]:
+          - /url: /alerts
+        - link "Sozlamalar" [ref=f47e39] [cursor=pointer]:
+          - /url: /settings
+      - button "R Reddit Check reddit_ui_check@example.com" [ref=f47e44]:
+        - generic [ref=f47e45]: R
+        - generic [ref=f47e46]:
+          - paragraph [ref=f47e47]: Reddit Check
+          - paragraph [ref=f47e48]: reddit_ui_check@example.com
+    - main [ref=f47e52]:
+      - generic [ref=f47e53]:
+        - generic [ref=f47e54]:
+          - generic [ref=f47e55]: Metrix
+          - generic [ref=f47e58]: 3c3b35ed-c949-4107-9a23-803904510760
+        - button "Bildirishnomalar" [ref=f47e61]
+      - generic [ref=f47e251]:
+        - generic [ref=f47e252]:
+          - generic [ref=f47e253]:
+            - link [ref=f47e254] [cursor=pointer]:
+              - /url: /connections
+            - generic [ref=f47e260]:
+              - paragraph [ref=f47e261]: Telegram
+              - heading "@durov" [level=1] [ref=f47e262]
+          - generic [ref=f47e263]:
+            - button "Bugun" [ref=f47e264]
+            - button "Bu hafta" [ref=f47e265]
+            - button "Bu oy" [ref=f47e266]
+        - generic [ref=f47e267]:
+          - generic [ref=f47e268]:
+            - generic [ref=f47e269]: A'zolar / obunachilar
+            - paragraph [ref=f47e276]: 11.7M
+          - generic [ref=f47e277]:
+            - generic [ref=f47e278]: Ko'rishlar
+            - paragraph [ref=f47e283]: —
+          - generic [ref=f47e284]:
+            - generic [ref=f47e285]: Bu oydagi o'sish
+            - paragraph [ref=f47e290]: "+0"
+            - paragraph [ref=f47e291]: +0.0%
+        - generic [ref=f47e293]:
+          - paragraph [ref=f47e294]: A'zolar soni dinamikasi
+          - paragraph [ref=f47e299]: Bu davrda yetarli ma'lumot yo'q
+        - generic [ref=f47e300]:
+          - paragraph [ref=f47e302]: Barcha kontent
+          - generic [ref=f47e303]: Post-ko'rishlar faqat kanal turidagi ulanishlarda ishlaydi (guruhlarda Telegram bu ma'lumotni umuman kuzatmaydi). Yangi ulangan kanallarda birinchi sinxronizatsiyadan so'ng paydo bo'ladi.
+          - generic [ref=f47e307]:
+            - paragraph [ref=f47e308]: Hali post topilmadi
+            - paragraph [ref=f47e309]:
+              - link "Sinxronlashtirib" [ref=f47e310] [cursor=pointer]:
+                - /url: /connections
+              - text: ko'ring
+  - alert [ref=f47e4]

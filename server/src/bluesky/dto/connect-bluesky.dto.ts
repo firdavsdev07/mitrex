@@ -6,7 +6,10 @@ export class ConnectBlueskyDto {
   @IsString()
   handle: string;
 
-  @ApiProperty({ example: 'xxxx-xxxx-xxxx-xxxx', description: 'App Password from Bluesky settings (not your login password)' })
+  @ApiProperty({
+    example: 'xxxx-xxxx-xxxx-xxxx',
+    description: 'App Password from Bluesky settings (not your login password)',
+  })
   @IsString()
   appPassword: string;
 }

@@ -17,8 +17,14 @@ export class PlatformsController {
   constructor(private readonly platformsService: PlatformsService) {}
 
   @Get()
-  @ApiOperation({ summary: 'List all platforms with enabled/comingSoon status and user connection state' })
-  @ApiResponse({ status: 200, description: 'Array of platform configs enriched with connection status' })
+  @ApiOperation({
+    summary:
+      'List all platforms with enabled/comingSoon status and user connection state',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Array of platform configs enriched with connection status',
+  })
   findAll(@CurrentUser('id') userId: string) {
     return this.platformsService.findAll(userId);
   }

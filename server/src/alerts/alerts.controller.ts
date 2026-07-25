@@ -1,4 +1,14 @@
-import { Controller, Get, Post, Patch, Delete, Body, Param, Query, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Patch,
+  Delete,
+  Body,
+  Param,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import {
   ApiTags,
   ApiBearerAuth,
@@ -8,7 +18,7 @@ import {
   ApiQuery,
 } from '@nestjs/swagger';
 import { AlertsService } from './alerts.service';
-import { CreateAlertDto } from './dto/create-alert.dto';
+import { CreateAlertDto, UpdateAlertDto } from './dto/create-alert.dto';
 import { JwtGuard } from '../auth/guards/jwt.guard';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 
@@ -34,13 +44,15 @@ export class AlertsController {
   }
 
   @Patch(':id')
-  @ApiOperation({ summary: 'Update an alert rule (enable/disable/change threshold)' })
+  @ApiOperation({
+    summary: 'Update an alert rule (enable/disable/change threshold)',
+  })
   @ApiParam({ name: 'id', description: 'Alert ID' })
   @ApiResponse({ status: 200, description: 'Updated alert' })
   update(
     @CurrentUser('id') userId: string,
     @Param('id') id: string,
-    @Body() dto: Partial<CreateAlertDto>,
+    @Body() dto: UpdateAlertDto,
   ) {
     return this.alertsService.update(userId, id, dto);
   }
@@ -63,7 +75,12 @@ export class NotificationsController {
 
   @Get()
   @ApiOperation({ summary: 'List in-app notifications' })
-  @ApiQuery({ name: 'unread', required: false, type: 'boolean', description: 'Filter to unread only' })
+  @ApiQuery({
+    name: 'unread',
+    required: false,
+    type: 'boolean',
+    description: 'Filter to unread only',
+  })
   @ApiResponse({ status: 200, description: 'Array of notifications' })
   getAll(@CurrentUser('id') userId: string, @Query('unread') unread?: string) {
     return this.alertsService.getNotifications(userId, unread === 'true');

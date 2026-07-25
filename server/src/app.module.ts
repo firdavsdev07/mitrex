@@ -17,6 +17,7 @@ import { TelegramModule } from './telegram/telegram.module';
 import { DiscordModule } from './discord/discord.module';
 import { BlueskyModule } from './bluesky/bluesky.module';
 import { InstagramModule } from './instagram/instagram.module';
+import { RedditModule } from './reddit/reddit.module';
 import { ConnectionsModule } from './connections/connections.module';
 import { SyncModule } from './sync/sync.module';
 import { DashboardModule } from './dashboard/dashboard.module';
@@ -36,9 +37,9 @@ import { WorkspacesModule } from './workspaces/workspaces.module';
     ScheduleModule.forRoot(),
     QueueModule,
     ThrottlerModule.forRoot([
-      { name: 'short',  ttl: 1000,  limit: 10  },
-      { name: 'medium', ttl: 10000, limit: 50  },
-      { name: 'long',   ttl: 60000, limit: 200 },
+      { name: 'short', ttl: 1000, limit: 10 },
+      { name: 'medium', ttl: 10000, limit: 50 },
+      { name: 'long', ttl: 60000, limit: 200 },
     ]),
     PrismaModule,
     EmailModule,
@@ -55,6 +56,7 @@ import { WorkspacesModule } from './workspaces/workspaces.module';
     DiscordModule,
     BlueskyModule,
     InstagramModule,
+    RedditModule,
     ConnectionsModule,
     SyncModule,
     DashboardModule,
@@ -67,8 +69,6 @@ import { WorkspacesModule } from './workspaces/workspaces.module';
     ExportModule,
     WorkspacesModule,
   ],
-  providers: [
-    { provide: APP_GUARD, useClass: ThrottlerGuard },
-  ],
+  providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],
 })
 export class AppModule {}

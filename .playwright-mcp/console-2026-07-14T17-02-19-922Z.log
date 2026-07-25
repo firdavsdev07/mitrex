@@ -1,0 +1,7 @@
+[  601076ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3982/admin/platforms?_rsc=Nw9Ecr9_lH43QIro:0
+[  601361ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3982/admin/plans?_rsc=Nw9Ecr9_lH43QIro:0
+[  601975ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3982/admin/plans?_rsc=RO7CUQ6iSj9puXLS:0
+[  601976ms] [ERROR] Failed to fetch RSC payload for http://localhost:3982/admin/plans. Falling back to browser navigation. TypeError: Failed to fetch
+    at T (http://localhost:3982/_next/static/chunks/1i_rrpdov0x9q.js:1:95365)
+    at async m (http://localhost:3982/_next/static/chunks/1i_rrpdov0x9q.js:1:93501)
+    at async m (http://localhost:3982/_next/static/chunks/1i_rrpdov0x9q.js:1:115292) @ http://localhost:3982/_next/static/chunks/1i_rrpdov0x9q.js:0

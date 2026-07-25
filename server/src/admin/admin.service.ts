@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { Platform } from '@metrix/prisma-client';
+import { Platform, Prisma } from '@metrix/prisma-client';
+import { CreatePlanDto, UpdatePlanDto } from '../plans/dto/create-plan.dto';
 
 @Injectable()
 export class AdminService {
@@ -12,26 +13,44 @@ export class AdminService {
     const now = new Date();
     const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
 
-    const [totalUsers, newUsersThisMonth, activeConnections, totalWebsites, totalViews] =
-      await Promise.all([
-        this.prisma.user.count({ where: { deletedAt: null } as any }),
-        this.prisma.user.count({ where: { createdAt: { gte: monthStart }, deletedAt: null } as any }),
-        this.prisma.connection.count({ where: { isActive: true } }),
-        this.prisma.website.count(),
-        this.prisma.pageView.count({ where: { createdAt: { gte: monthStart } } }),
-      ]);
+    const [
+      totalUsers,
+      newUsersThisMonth,
+      activeConnections,
+      totalWebsites,
+      totalViews,
+    ] = await Promise.all([
+      this.prisma.user.count({ where: { deletedAt: null } }),
+      this.prisma.user.count({
+        where: { createdAt: { gte: monthStart }, deletedAt: null },
+      }),
+      this.prisma.connection.count({ where: { isActive: true } }),
+      this.prisma.website.count(),
+      this.prisma.pageView.count({ where: { createdAt: { gte: monthStart } } }),
+    ]);
 
-    return { totalUsers, newUsersThisMonth, activeConnections, totalWebsites, totalViews };
+    return {
+      totalUsers,
+      newUsersThisMonth,
+      activeConnections,
+      totalWebsites,
+      totalViews,
+    };
   }
 
   // ─── Users ────────────────────────────────────────────────────────────────
 
-  async getUsers(params: { page?: number; limit?: number; search?: string; deleted?: boolean }) {
+  async getUsers(params: {
+    page?: number;
+    limit?: number;
+    search?: string;
+    deleted?: boolean;
+  }) {
     const page = params.page || 1;
     const limit = params.limit || 20;
     const skip = (page - 1) * limit;
 
-    const where: any = {};
+    const where: Prisma.UserWhereInput = {};
     if (!params.deleted) where.deletedAt = null;
     if (params.search) {
       where.OR = [
@@ -47,9 +66,17 @@ export class AdminService {
         take: limit,
         orderBy: { createdAt: 'desc' },
         select: {
-          id: true, email: true, name: true, avatar: true,
-          role: true, provider: true, deletedAt: true, createdAt: true,
-          subscription: { select: { plan: { select: { name: true, slug: true } } } },
+          id: true,
+          email: true,
+          name: true,
+          avatar: true,
+          role: true,
+          provider: true,
+          deletedAt: true,
+          createdAt: true,
+          subscription: {
+            select: { plan: { select: { name: true, slug: true } } },
+          },
           _count: { select: { connections: true, websites: true } },
         },
       }),
@@ -64,7 +91,9 @@ export class AdminService {
       where: { id },
       include: {
         subscription: { include: { plan: true } },
-        connections: { select: { platform: true, platformUsername: true, isActive: true } },
+        connections: {
+          select: { platform: true, platformUsername: true, isActive: true },
+        },
         websites: { select: { id: true, name: true, domain: true } },
         _count: { select: { connections: true, websites: true } },
       },
@@ -79,18 +108,28 @@ export class AdminService {
     // Ban = deletedAt set (admin tomonidan)
     return this.prisma.user.update({
       where: { id },
-      data: { deletedAt: banned ? new Date() : null, deleteReason: banned ? 'Blocked by admin' : null } as any,
+      data: {
+        deletedAt: banned ? new Date() : null,
+        deleteReason: banned ? 'Blocked by admin' : null,
+      },
       select: { id: true, email: true, deletedAt: true },
     });
   }
 
   async changeUserPlan(userId: string, planSlug: string) {
-    const plan = await (this.prisma as any).plan.findUnique({ where: { slug: planSlug } });
+    const plan = await this.prisma.plan.findUnique({
+      where: { slug: planSlug },
+    });
     if (!plan) throw new NotFoundException('Plan not found');
 
-    return (this.prisma as any).userSubscription.upsert({
+    return this.prisma.userSubscription.upsert({
       where: { userId },
-      create: { userId, planId: plan.id, status: 'ACTIVE', currentPeriodStart: new Date() },
+      create: {
+        userId,
+        planId: plan.id,
+        status: 'ACTIVE',
+        currentPeriodStart: new Date(),
+      },
       update: { planId: plan.id, status: 'ACTIVE', canceledAt: null },
       include: { plan: true },
     });
@@ -99,30 +138,40 @@ export class AdminService {
   // ─── Platforms ────────────────────────────────────────────────────────────
 
   async getPlatforms() {
-    return (this.prisma as any).platformConfig.findMany({ orderBy: { sortOrder: 'asc' } });
+    return this.prisma.platformConfig.findMany({
+      orderBy: { sortOrder: 'asc' },
+    });
   }
 
-  async togglePlatform(slug: Platform, data: { enabled?: boolean; comingSoon?: boolean }) {
-    const config = await (this.prisma as any).platformConfig.findUnique({ where: { slug } });
+  async togglePlatform(
+    slug: Platform,
+    data: { enabled?: boolean; comingSoon?: boolean },
+  ) {
+    const config = await this.prisma.platformConfig.findUnique({
+      where: { slug },
+    });
     if (!config) throw new NotFoundException('Platform not found');
-    return (this.prisma as any).platformConfig.update({ where: { slug }, data });
+    return this.prisma.platformConfig.update({ where: { slug }, data });
   }
 
   // ─── Plans ────────────────────────────────────────────────────────────────
 
   async getPlans() {
-    return (this.prisma as any).plan.findMany({ orderBy: { sortOrder: 'asc' } });
+    return this.prisma.plan.findMany({ orderBy: { sortOrder: 'asc' } });
   }
 
-  async createPlan(data: any) {
-    return (this.prisma as any).plan.create({ data });
+  async createPlan(data: CreatePlanDto) {
+    return this.prisma.plan.create({ data });
   }
 
-  async updatePlan(id: string, data: any) {
-    return (this.prisma as any).plan.update({ where: { id }, data });
+  async updatePlan(id: string, data: UpdatePlanDto) {
+    return this.prisma.plan.update({ where: { id }, data });
   }
 
   async deletePlan(id: string) {
-    return (this.prisma as any).plan.update({ where: { id }, data: { isActive: false } });
+    return this.prisma.plan.update({
+      where: { id },
+      data: { isActive: false },
+    });
   }
 }

@@ -1,0 +1,87 @@
+- generic [active] [ref=f4e1]:
+  - button "Open Next.js Dev Tools" [ref=f4e51] [cursor=pointer]
+  - alert [ref=f4e55]
+  - generic [ref=f4e56]:
+    - complementary [ref=f4e57]:
+      - link "Metrix" [ref=f4e59] [cursor=pointer]:
+        - /url: /dashboard
+      - navigation [ref=f4e64]:
+        - link "Dashboard" [ref=f4e65] [cursor=pointer]:
+          - /url: /dashboard
+        - link "Saytlar" [ref=f4e71] [cursor=pointer]:
+          - /url: /websites
+        - link "Ulashlar" [ref=f4e75] [cursor=pointer]:
+          - /url: /connections
+        - link "Postlar" [ref=f4e79] [cursor=pointer]:
+          - /url: /posts
+        - link "AI Insights" [ref=f4e83] [cursor=pointer]:
+          - /url: /insights
+        - link "Alertlar" [ref=f4e87] [cursor=pointer]:
+          - /url: /alerts
+        - link "Sozlamalar" [ref=f4e91] [cursor=pointer]:
+          - /url: /settings
+      - button "T Test Foydalanuvchi browsertest_1@example.com" [ref=f4e96]:
+        - generic [ref=f4e97]: T
+        - generic [ref=f4e98]:
+          - paragraph [ref=f4e99]: Test Foydalanuvchi
+          - paragraph [ref=f4e100]: browsertest_1@example.com
+    - main [ref=f4e104]:
+      - generic [ref=f4e105]:
+        - generic [ref=f4e106]:
+          - generic [ref=f4e107]: Metrix
+          - generic [ref=f4e110]: Dashboard
+        - button "Bildirishnomalar" [ref=f4e113]
+      - generic [ref=f4e118]:
+        - generic [ref=f4e119]:
+          - generic [ref=f4e120]:
+            - paragraph [ref=f4e121]: Umumiy ko'rinish
+            - heading "Xush kelibsiz, Test" [level=1] [ref=f4e122]
+          - generic [ref=f4e123]:
+            - generic [ref=f4e124]:
+              - button "Bugun" [ref=f4e125]
+              - button "Bu hafta" [ref=f4e126]
+              - button "Bu oy" [ref=f4e127]
+            - button "Yangilash" [ref=f4e128]
+        - generic [ref=f4e134]:
+          - generic [ref=f4e135]:
+            - generic [ref=f4e136]: Ulangan platformalar
+            - paragraph [ref=f4e141]: "0"
+          - generic [ref=f4e142]:
+            - generic [ref=f4e143]: Saytlar
+            - paragraph [ref=f4e148]: "0"
+          - generic [ref=f4e149]:
+            - generic [ref=f4e150]: Sayt tashriflari
+            - paragraph [ref=f4e155]: "0"
+        - generic [ref=f4e157]:
+          - generic [ref=f4e158]:
+            - paragraph [ref=f4e160]: Sayt tashriflari
+            - generic [ref=f4e161]:
+              - button "7 kun" [ref=f4e162]
+              - button "14 kun" [ref=f4e163]
+              - button "30 kun" [ref=f4e164]
+          - generic [ref=f4e165]:
+            - paragraph [ref=f4e169]: Ma'lumot yo'q
+            - paragraph [ref=f4e170]: Sayt qo'shing va tracking skriptini joylashtiring
+        - generic [ref=f4e171]:
+          - generic [ref=f4e172]:
+            - generic [ref=f4e173]:
+              - heading "Platformalar" [level=2] [ref=f4e174]
+              - link "Barchasi →" [ref=f4e175] [cursor=pointer]:
+                - /url: /connections
+            - generic [ref=f4e176]:
+              - paragraph [ref=f4e180]: Hali platforma ulanmagan
+              - paragraph [ref=f4e181]: YouTube, Telegram va boshqalarni ulang
+              - link [ref=f4e182] [cursor=pointer]:
+                - /url: /connections
+                - button "Platforma ulash" [ref=f4e183]
+          - generic [ref=f4e185]:
+            - generic [ref=f4e186]:
+              - heading "Saytlar" [level=2] [ref=f4e187]
+              - link "Barchasi →" [ref=f4e188] [cursor=pointer]:
+                - /url: /websites
+            - generic [ref=f4e189]:
+              - paragraph [ref=f4e193]: Hali sayt qo'shilmagan
+              - paragraph [ref=f4e194]: Saytingizni qo'shing va statistika kuzating
+              - link [ref=f4e195] [cursor=pointer]:
+                - /url: /websites
+                - button "Sayt qo'shish" [ref=f4e196]

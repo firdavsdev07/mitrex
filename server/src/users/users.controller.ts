@@ -1,4 +1,13 @@
-import { Controller, Get, Patch, Delete, Post, Body, Query, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Patch,
+  Delete,
+  Post,
+  Body,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import {
   ApiTags,
   ApiBearerAuth,
@@ -39,21 +48,39 @@ export class UsersController {
   @ApiOperation({ summary: 'Change password' })
   @ApiResponse({ status: 200, description: 'Password changed' })
   @ApiResponse({ status: 400, description: 'Wrong current password' })
-  changePassword(@CurrentUser('id') userId: string, @Body() dto: ChangePasswordDto) {
+  changePassword(
+    @CurrentUser('id') userId: string,
+    @Body() dto: ChangePasswordDto,
+  ) {
     return this.usersService.changePassword(userId, dto);
   }
 
   @Get('usage')
-  @ApiOperation({ summary: 'Get plan usage stats (websites, views, platforms)' })
+  @ApiOperation({
+    summary: 'Get plan usage stats (websites, views, platforms)',
+  })
   @ApiResponse({ status: 200, description: 'Usage stats' })
   getUsage(@CurrentUser('id') userId: string) {
     return this.usersService.getUsage(userId);
   }
 
+  @Patch('digest')
+  @ApiOperation({ summary: 'Toggle the weekly AI email digest' })
+  @ApiResponse({ status: 200, description: '{ weeklyDigest: boolean }' })
+  setWeeklyDigest(
+    @CurrentUser('id') userId: string,
+    @Body('enabled') enabled: boolean,
+  ) {
+    return this.usersService.setWeeklyDigest(userId, enabled);
+  }
+
   @Delete()
   @ApiOperation({ summary: 'Soft-delete account (restorable for 30 days)' })
   @ApiResponse({ status: 200, description: 'Account scheduled for deletion' })
-  deleteAccount(@CurrentUser('id') userId: string, @Body() dto: DeleteAccountDto) {
+  deleteAccount(
+    @CurrentUser('id') userId: string,
+    @Body() dto: DeleteAccountDto,
+  ) {
     return this.usersService.deleteAccount(userId, dto);
   }
 }
@@ -68,7 +95,11 @@ export class UsersPublicController {
 
   @Post('restore')
   @ApiOperation({ summary: 'Restore deleted account using token from email' })
-  @ApiQuery({ name: 'token', type: 'string', description: 'Restore token from email' })
+  @ApiQuery({
+    name: 'token',
+    type: 'string',
+    description: 'Restore token from email',
+  })
   @ApiResponse({ status: 201, description: 'Account restored' })
   @ApiResponse({ status: 400, description: 'Token invalid or expired' })
   restoreAccount(@Query('token') token: string) {

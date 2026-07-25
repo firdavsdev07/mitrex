@@ -1,7 +1,26 @@
 import { Injectable, Logger } from '@nestjs/common';
 import axios from 'axios';
 import { PrismaService } from '../prisma/prisma.service';
-import { Platform } from '@metrix/prisma-client';
+import { Platform, Prisma } from '@metrix/prisma-client';
+import { signOAuthState } from '../common/utils/oauth-state.util';
+import { encrypt } from '../common/utils/crypto.util';
+import { todayUtcDate } from '../common/utils/date.util';
+import { withRetry } from '../common/utils/http-retry.util';
+import { getErrorMessage } from '../common/utils/error.util';
+
+interface DiscordOAuthTokenResponse {
+  access_token: string;
+  refresh_token: string;
+  expires_in: number;
+}
+interface DiscordGuild {
+  id: string;
+  name: string;
+  approximate_member_count?: number;
+}
+interface DiscordGuildPreview {
+  approximate_member_count?: number;
+}
 
 @Injectable()
 export class DiscordService {
@@ -10,8 +29,9 @@ export class DiscordService {
   private readonly clientId = process.env.DISCORD_CLIENT_ID;
   private readonly clientSecret = process.env.DISCORD_CLIENT_SECRET;
   // Platform uchun alohida redirect (login dan farqli)
-  private readonly redirectUri = process.env.DISCORD_PLATFORM_REDIRECT_URI
-    || 'http://localhost:3000/discord/callback';
+  private readonly redirectUri =
+    process.env.DISCORD_PLATFORM_REDIRECT_URI ||
+    'http://localhost:3000/discord/callback';
 
   constructor(private readonly prisma: PrismaService) {}
 
@@ -22,13 +42,13 @@ export class DiscordService {
       response_type: 'code',
       scope: 'bot guilds',
       permissions: '8',
-      state: String(userId),
+      state: signOAuthState(userId),
     });
     return { url: `https://discord.com/oauth2/authorize?${params}` };
   }
 
   async handleCallback(code: string, guildId: string, userId: string) {
-    const tokenRes = await axios.post(
+    const tokenRes = await axios.post<DiscordOAuthTokenResponse>(
       `${this.apiBase}/oauth2/token`,
       new URLSearchParams({
         client_id: this.clientId!,
@@ -45,20 +65,28 @@ export class DiscordService {
 
     const guildInfo = await this.getGuildInfo(guildId, access_token);
 
+    // Bir nechta Discord serveri ulash imkoniyati uchun guildId bilan birga
+    // upsert qilinadi.
     await this.prisma.connection.upsert({
-      where: { userId_platform: { userId, platform: Platform.DISCORD } },
+      where: {
+        userId_platform_platformUserId: {
+          userId,
+          platform: Platform.DISCORD,
+          platformUserId: guildId,
+        },
+      },
       create: {
         userId,
         platform: Platform.DISCORD,
-        accessToken: access_token,
-        refreshToken: refresh_token,
+        accessToken: encrypt(access_token),
+        refreshToken: encrypt(refresh_token),
         tokenExpiresAt: expiresAt,
         platformUserId: guildId,
         platformUsername: guildInfo?.name || guildId,
       },
       update: {
-        accessToken: access_token,
-        refreshToken: refresh_token,
+        accessToken: encrypt(access_token),
+        refreshToken: encrypt(refresh_token),
         tokenExpiresAt: expiresAt,
         platformUserId: guildId,
         platformUsername: guildInfo?.name || guildId,
@@ -70,7 +98,9 @@ export class DiscordService {
   }
 
   async fetchAndSaveStats(connectionId: string) {
-    const conn = await this.prisma.connection.findUnique({ where: { id: connectionId } });
+    const conn = await this.prisma.connection.findUnique({
+      where: { id: connectionId },
+    });
     if (!conn || !conn.platformUserId || !conn.accessToken) return;
 
     try {
@@ -78,34 +108,69 @@ export class DiscordService {
       const headers = { Authorization: `Bot ${process.env.DISCORD_BOT_TOKEN}` };
 
       const [guildRes, membersRes] = await Promise.allSettled([
-        axios.get(`${this.apiBase}/guilds/${guildId}`, { headers }),
-        axios.get(`${this.apiBase}/guilds/${guildId}/preview`, { headers }),
+        // with_counts bo'lmasa Discord approximate_member_count qaytarmaydi
+        withRetry(() =>
+          axios.get<DiscordGuild>(`${this.apiBase}/guilds/${guildId}`, {
+            headers,
+            params: { with_counts: true },
+          }),
+        ),
+        withRetry(() =>
+          axios.get<DiscordGuildPreview>(
+            `${this.apiBase}/guilds/${guildId}/preview`,
+            { headers },
+          ),
+        ),
       ]);
 
-      const guild = guildRes.status === 'fulfilled' ? guildRes.value.data : null;
-      const preview = membersRes.status === 'fulfilled' ? membersRes.value.data : null;
-      const memberCount = guild?.approximate_member_count || preview?.approximate_member_count || 0;
+      const guild =
+        guildRes.status === 'fulfilled' ? guildRes.value.data : null;
+      const preview =
+        membersRes.status === 'fulfilled' ? membersRes.value.data : null;
+      const memberCount =
+        guild?.approximate_member_count ||
+        preview?.approximate_member_count ||
+        0;
 
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
+      const today = todayUtcDate();
 
       await this.prisma.platformStat.upsert({
         where: { connectionId_date: { connectionId, date: today } },
-        create: { connectionId, date: today, followers: memberCount, raw: { guild, memberCount } as any },
-        update: { followers: memberCount, raw: { guild, memberCount } as any },
+        create: {
+          connectionId,
+          date: today,
+          followers: memberCount,
+          raw: { guild, memberCount } as unknown as Prisma.InputJsonValue,
+        },
+        update: {
+          followers: memberCount,
+          raw: { guild, memberCount } as unknown as Prisma.InputJsonValue,
+        },
       });
-    } catch (err) {
-      this.logger.error(`Discord stat xatosi connectionId=${connectionId}: ${err.message}`);
+    } catch (err: unknown) {
+      this.logger.error(
+        `Discord stat xatosi connectionId=${connectionId}: ${getErrorMessage(err)}`,
+      );
+      // sync.service.ts#syncOne bu xatoni Connection.lastSyncError'ga
+      // yozishi uchun yuqoriga uzatiladi — bu yerda yutib qo'yilsa, UI'da
+      // "ulanish buzilgan" holati ko'rinmay qoladi.
+      throw err;
     }
   }
 
   private async getGuildInfo(guildId: string, accessToken: string) {
     try {
-      const res = await axios.get(`${this.apiBase}/users/@me/guilds`, {
-        headers: { Authorization: `Bearer ${accessToken}` },
-      });
-      return res.data?.find((g: any) => g.id === guildId);
-    } catch {
+      const res = await axios.get<DiscordGuild[]>(
+        `${this.apiBase}/users/@me/guilds`,
+        {
+          headers: { Authorization: `Bearer ${accessToken}` },
+        },
+      );
+      return res.data?.find((g) => g.id === guildId);
+    } catch (err: unknown) {
+      this.logger.warn(
+        `Discord guild info olinmadi guildId=${guildId}: ${getErrorMessage(err)}`,
+      );
       return null;
     }
   }

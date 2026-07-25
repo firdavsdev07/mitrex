@@ -1,0 +1,17 @@
+[     503ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://localhost:3981/_next/static/chunks/16jc_next_dist_1otos7v._.js:2477
+[     561ms] [LOG] [HMR] connected @ http://localhost:3981/_next/static/chunks/16jc_next_dist_1otos7v._.js:2477
+[     679ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost:3976/notifications/count:0
+[     683ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost:3976/dashboard?period=week:0
+[     684ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost:3976/dashboard/web-trend?days=14:0
+[     687ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost:3976/auth/me:0
+[   70075ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3981/_next/static/chunks/16jc_next_dist_1otos7v._.js:2477
+[   70330ms] [LOG] [Fast Refresh] done in 331ms @ http://localhost:3981/_next/static/chunks/16jc_next_dist_1otos7v._.js:2477
+[   75777ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3981/_next/static/chunks/16jc_next_dist_1otos7v._.js:2477
+[   75798ms] [LOG] [Fast Refresh] done in 121ms @ http://localhost:3981/_next/static/chunks/16jc_next_dist_1otos7v._.js:2477
+[   75894ms] [WARNING] Detected `scroll-behavior: smooth` on the `<html>` element. To disable smooth scrolling during route transitions, add `data-scroll-behavior="smooth"` to your <html> element. Learn more: https://nextjs.org/docs/messages/missing-data-scroll-behavior @ http://localhost:3981/_next/static/chunks/16jc_next_dist_1otos7v._.js:2477
+[   85533ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3981/_next/static/chunks/16jc_next_dist_1otos7v._.js:2477
+[   85966ms] [LOG] [Fast Refresh] done in 490ms @ http://localhost:3981/_next/static/chunks/16jc_next_dist_1otos7v._.js:2477
+[  111028ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3981/_next/static/chunks/16jc_next_dist_1otos7v._.js:2477
+[  111354ms] [LOG] [Fast Refresh] done in 426ms @ http://localhost:3981/_next/static/chunks/16jc_next_dist_1otos7v._.js:2477
+[  124071ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3981/_next/static/chunks/16jc_next_dist_1otos7v._.js:2477
+[  124401ms] [LOG] [Fast Refresh] done in 431ms @ http://localhost:3981/_next/static/chunks/16jc_next_dist_1otos7v._.js:2477

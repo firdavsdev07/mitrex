@@ -1,0 +1,821 @@
+- generic [active] [ref=f22e1]:
+  - banner [ref=f22e2]:
+    - generic [ref=f22e3]:
+      - link "Metrix" [ref=f22e4] [cursor=pointer]:
+        - /url: /
+      - navigation [ref=f22e9]:
+        - link "Imkoniyatlar" [ref=f22e10] [cursor=pointer]:
+          - /url: "#imkoniyatlar"
+        - link "Narxlar" [ref=f22e11] [cursor=pointer]:
+          - /url: "#narxlar"
+        - link "Haqida" [ref=f22e12] [cursor=pointer]:
+          - /url: "#haqida"
+      - generic [ref=f22e13]:
+        - link "Kirish" [ref=f22e14] [cursor=pointer]:
+          - /url: /login
+        - link "Bepul boshlash" [ref=f22e15] [cursor=pointer]:
+          - /url: /register
+  - main [ref=f22e16]:
+    - generic [ref=f22e20]:
+      - generic [ref=f22e21]:
+        - generic [ref=f22e25]: Beta versiyada
+        - generic [ref=f22e26]: ·
+        - generic [ref=f22e27]: Bepul boshlash
+      - heading "Barcha raqamlar, bitta joyda." [level=1] [ref=f22e28]:
+        - generic [ref=f22e29]: Barcha raqamlar,
+        - generic [ref=f22e30]: bitta joyda.
+      - paragraph [ref=f22e31]: YouTube, Telegram, Instagram va saytingiz — hammasi bitta minimalist dashboardda. Ertalab 1 daqiqada hamma narsa ko'z oldingizda. AI raqamlarni oddiy tilda tushuntiradi.
+      - generic [ref=f22e32]:
+        - link "Bepul boshlash" [ref=f22e33] [cursor=pointer]:
+          - /url: /register
+        - link "Demoni ko'rish" [ref=f22e38] [cursor=pointer]:
+          - /url: "#demo"
+      - generic [ref=f22e39]:
+        - generic [ref=f22e40]: Bepul plan bor
+        - generic [ref=f22e43]: Karta kerak emas
+        - generic [ref=f22e46]: 2 daqiqada
+      - generic [ref=f22e49]:
+        - generic [ref=f22e50]:
+          - generic [ref=f22e51]:
+            - generic [ref=f22e57]: 500+
+            - generic [ref=f22e58]: kreator
+          - generic [ref=f22e59]:
+            - generic [ref=f22e63]: "8"
+            - generic [ref=f22e64]: platforma
+          - generic [ref=f22e65]:
+            - generic [ref=f22e68]: Real
+            - generic [ref=f22e69]: vaqt
+        - generic [ref=f22e70]:
+          - paragraph [ref=f22e71]: Qo'llab-quvvatlanadigan platformalar
+          - generic [ref=f22e72]:
+            - generic "YouTube" [ref=f22e73]
+            - generic "Telegram" [ref=f22e76]
+            - generic "Instagram" [ref=f22e79]
+            - generic "Discord" [ref=f22e82]
+            - generic "Bluesky" [ref=f22e85]
+            - generic "Web" [ref=f22e88]
+            - generic [ref=f22e92]: +4 ta
+    - generic [ref=f22e94]:
+      - generic [ref=f22e95]:
+        - paragraph [ref=f22e96]: Muammo
+        - heading "Har kuni sabah 5 ta login, 5 ta parol..." [level=2] [ref=f22e97]: Har kuni sabah5 ta login,5 ta parol...
+        - paragraph [ref=f22e98]: Ko'pchilik solopreneurlar va kreatorlar har kuni bir xil muammo bilan kurashadi. Vaqt, chalkashlik va yagona ko'rinishning yo'qligi.
+      - generic [ref=f22e99]:
+        - generic [ref=f22e100]:
+          - generic [ref=f22e103]: "01"
+          - generic [ref=f22e109]:
+            - generic [ref=f22e114]:
+              - paragraph [ref=f22e115]: Google Analytics
+              - paragraph [ref=f22e116]: analytics.google.com
+            - generic [ref=f22e121]:
+              - paragraph [ref=f22e122]: YouTube Studio
+              - paragraph [ref=f22e123]: studio.youtube.com
+            - generic [ref=f22e128]:
+              - paragraph [ref=f22e129]: Telegram
+              - paragraph [ref=f22e130]: web.telegram.org
+            - generic [ref=f22e135]:
+              - paragraph [ref=f22e136]: Instagram
+              - paragraph [ref=f22e137]: instagram.com
+            - generic [ref=f22e142]:
+              - paragraph [ref=f22e143]: Discord
+              - paragraph [ref=f22e144]: discord.com/channels
+            - generic [ref=f22e146]:
+              - generic [ref=f22e150]: 30 daqiqa / kun
+              - generic [ref=f22e151]: = 180 soat/yil
+          - generic [ref=f22e152]:
+            - heading "Vaqt ketadi" [level=3] [ref=f22e153]
+            - paragraph [ref=f22e154]: Google Analytics, YouTube Studio, Telegram, Instagram — har birida alohida login, alohida grafik. Kuniga 30 daqiqa faqat raqam yig'ishga ketadi.
+        - generic [ref=f22e155]:
+          - generic [ref=f22e158]: "02"
+          - generic [ref=f22e183]:
+            - generic [ref=f22e184]: Sessions vs Visits?
+            - generic [ref=f22e188]: Bounce rate nima?
+            - generic [ref=f22e192]: CTR vs CPC?
+            - generic [ref=f22e196]: DAU/MAU nima?
+          - generic [ref=f22e200]:
+            - heading "Murakkab interfeys" [level=3] [ref=f22e201]
+            - paragraph [ref=f22e202]: Google Analytics o'rganish uchun kurs kerak. Boshqalari ham undan kam emas. Siz biznesingiz bilan shug'ullanishingiz kerak, analytics bilan emas.
+        - generic [ref=f22e203]:
+          - generic [ref=f22e206]: "03"
+          - generic [ref=f22e212]:
+            - generic [ref=f22e213]:
+              - generic [ref=f22e214]: YouTube
+              - generic [ref=f22e220]: Telegram
+              - generic [ref=f22e226]: Instagram
+              - generic [ref=f22e232]: Discord
+              - generic [ref=f22e238]: Bluesky
+              - generic [ref=f22e244]: Sayt
+            - generic [ref=f22e251]: Platformalar bir-biriga ulanmagan
+          - generic [ref=f22e256]:
+            - heading "Umumiy rasm yo'q" [level=3] [ref=f22e257]
+            - paragraph [ref=f22e258]: Saytingiz va sotsial tarmoqlaringiz o'rtasidagi bog'liqlikni ko'rishning hech qanday oddiy usuli yo'q. Hamma narsa alohida, hech narsa birlashmagan.
+      - paragraph [ref=f22e261]: Metrix bularning barchasini hal qiladi
+    - generic [ref=f22e263]:
+      - generic [ref=f22e264]:
+        - paragraph [ref=f22e265]: Yechim
+        - heading "Hammasi bitta joyda. Chiroyli. Tez. Aqlli." [level=2] [ref=f22e266]: Hammasi bitta joyda.Chiroyli. Tez. Aqlli.
+        - paragraph [ref=f22e267]: Bitta login, bitta dashboard. Barcha platformalaringiz real vaqtda sinxronlashadi. AI haftalik hisobotlar yuboradi. Jamoa bilan birga ishlaysiz.
+      - generic [ref=f22e269]:
+        - generic [ref=f22e271]:
+          - generic [ref=f22e275]: app.metrix.io/dashboard
+          - generic [ref=f22e277]: Live
+        - generic [ref=f22e282]:
+          - generic [ref=f22e283]:
+            - generic [ref=f22e284]: Metrix
+            - generic [ref=f22e288]: Dashboard
+            - generic [ref=f22e289]: Saytlar
+            - generic [ref=f22e290]: Platformalar
+            - generic [ref=f22e291]: Postlar
+            - generic [ref=f22e292]: AI Insights
+            - generic [ref=f22e293]: Alertlar
+            - generic [ref=f22e294]:
+              - text: Workspace
+              - generic [ref=f22e295]: NEW
+            - generic [ref=f22e297]:
+              - paragraph [ref=f22e298]: Jamoa
+              - generic [ref=f22e299]:
+                - generic [ref=f22e300]: F
+                - generic [ref=f22e301]: A
+                - generic [ref=f22e302]: S
+                - generic [ref=f22e303]: "+2"
+          - generic [ref=f22e304]:
+            - generic [ref=f22e305]:
+              - generic [ref=f22e306]:
+                - paragraph [ref=f22e307]: Umumiy ko'rinish
+                - paragraph [ref=f22e308]: Bu hafta
+              - generic [ref=f22e310]:
+                - generic [ref=f22e311]: Bugun
+                - generic [ref=f22e312]: Hafta
+                - generic [ref=f22e313]: Oy
+            - generic [ref=f22e320]:
+              - generic [ref=f22e321]:
+                - paragraph [ref=f22e322]: Jami tashrif
+                - paragraph [ref=f22e323]: 1,247
+                - paragraph [ref=f22e328]: +12%
+              - generic [ref=f22e329]:
+                - paragraph [ref=f22e330]: Jami obunachi
+                - paragraph [ref=f22e331]: 7,783
+                - paragraph [ref=f22e336]: +8%
+              - generic [ref=f22e337]:
+                - paragraph [ref=f22e338]: Jami a'zolar
+                - paragraph [ref=f22e339]: "892"
+                - paragraph [ref=f22e344]: +5%
+              - generic [ref=f22e345]:
+                - paragraph [ref=f22e346]: Ko'rishlar
+                - paragraph [ref=f22e347]: 2,100
+                - paragraph [ref=f22e352]: +23%
+            - generic [ref=f22e353]:
+              - generic [ref=f22e354]:
+                - generic [ref=f22e355]:
+                  - paragraph [ref=f22e356]: Haftalik tashrif
+                  - generic [ref=f22e357]: ↑ 23%
+                - generic [ref=f22e359]:
+                  - generic [ref=f22e360]: Du
+                  - generic [ref=f22e361]: Se
+                  - generic [ref=f22e362]: Ch
+                  - generic [ref=f22e363]: Pa
+                  - generic [ref=f22e364]: Ju
+                  - generic [ref=f22e365]: Sh
+                  - generic [ref=f22e366]: Ya
+              - generic [ref=f22e367]:
+                - paragraph [ref=f22e369]: Platformalar
+                - generic [ref=f22e370]:
+                  - generic [ref=f22e373]: YouTube
+                  - generic [ref=f22e374]: 3,891
+                  - generic [ref=f22e377]: "+145"
+                - generic [ref=f22e378]:
+                  - generic [ref=f22e381]: Telegram
+                  - generic [ref=f22e382]: "892"
+                  - generic [ref=f22e385]: "+67"
+                - generic [ref=f22e386]:
+                  - generic [ref=f22e389]: Instagram
+                  - generic [ref=f22e390]: 2,100
+                  - generic [ref=f22e393]: "+203"
+                - generic [ref=f22e394]:
+                  - generic [ref=f22e398]: Sayt
+                  - generic [ref=f22e399]: 1,247
+                  - generic [ref=f22e402]: "+312"
+            - generic [ref=f22e410]:
+              - paragraph [ref=f22e411]: AI haftalik tahlil
+              - paragraph [ref=f22e412]: "Bu hafta Instagram kanalingiz 23% o'sdi. Shanba kuni eng yuqori ko'rsatkichga erishildi. Keyingi haftaga maslahat: rasm formatida 3 ta post."
+      - generic [ref=f22e416]:
+        - generic [ref=f22e417]:
+          - heading "1 daqiqa ertalab" [level=3] [ref=f22e423]
+          - paragraph [ref=f22e424]: Kofengizni ichib, Metrixni ochib — hamma narsa ko'z oldingizda.
+          - generic [ref=f22e425]:
+            - generic [ref=f22e426]: "1"
+            - generic [ref=f22e427]:
+              - paragraph [ref=f22e428]: daqiqa
+              - paragraph [ref=f22e429]: har kuni ertasi
+        - generic [ref=f22e433]:
+          - heading "AI tushuntiradi" [level=3] [ref=f22e440]
+          - paragraph [ref=f22e441]: Raqamlar nima demoqda? AI oddiy tilda tushuntiradi, maslahat beradi.
+          - generic [ref=f22e442]:
+            - paragraph [ref=f22e447]: YouTube kanalingiz bu hafta 8% o'sdi. Asosiy sabab — Chorshanba kuni yuklangan video.
+            - paragraph [ref=f22e449]: "Tavsiya: yana 1 ta qisqa video yozing"
+        - generic [ref=f22e450]:
+          - heading "Aqlli alertlar" [level=3] [ref=f22e457]
+          - paragraph [ref=f22e458]: Traffic 2x oshsa yoki tushsa — darhol bildirishnoma olasiz.
+          - generic [ref=f22e459]:
+            - generic [ref=f22e464]:
+              - paragraph [ref=f22e465]: Traffic spike!
+              - paragraph [ref=f22e466]: Sayt trafigi 2x oshdi
+            - generic [ref=f22e471]:
+              - paragraph [ref=f22e472]: Yangi manbadan
+              - paragraph [ref=f22e473]: Twitter orqali 45 ta tashrif
+      - generic [ref=f22e476]:
+        - generic [ref=f22e477]:
+          - heading "Jamoa bilan birgalikda ishlang" [level=3] [ref=f22e484]: Jamoa bilanbirgalikda ishlang
+          - paragraph [ref=f22e485]: Workspace yarating, jamoa a'zolarini taklif qiling. Har bir a'zoga alohida ruxsat darajasi bering — Owner, Admin, Editor yoki Viewer.
+          - list [ref=f22e486]:
+            - listitem [ref=f22e487]:
+              - generic [ref=f22e494]: Umumiy dashboard — hamma bir joyda ko'radi
+            - listitem [ref=f22e495]:
+              - generic [ref=f22e500]: Alohida ruxsatlar — kim nima ko'ra olishini belgilang
+            - listitem [ref=f22e501]:
+              - generic [ref=f22e506]: Invite link — email orqali taklif qiling
+          - link "Workspace yaratish" [ref=f22e507] [cursor=pointer]:
+            - /url: /register
+        - generic [ref=f22e511]:
+          - generic [ref=f22e512]:
+            - generic [ref=f22e513]: M
+            - generic [ref=f22e515]:
+              - paragraph [ref=f22e516]: Metrix Workspace
+              - paragraph [ref=f22e517]: 4 a'zo · 3 sayt · 8 platforma
+            - generic [ref=f22e518]: Faol
+          - generic [ref=f22e519]:
+            - generic [ref=f22e520]:
+              - generic [ref=f22e521]: F
+              - generic [ref=f22e524]:
+                - paragraph [ref=f22e525]: Firdavs N.
+                - paragraph [ref=f22e526]: ● Online
+              - generic [ref=f22e527]: Owner
+            - generic [ref=f22e528]:
+              - generic [ref=f22e529]: A
+              - generic [ref=f22e532]:
+                - paragraph [ref=f22e533]: Aziz K.
+                - paragraph [ref=f22e534]: ● Online
+              - generic [ref=f22e535]: Admin
+            - generic [ref=f22e536]:
+              - generic [ref=f22e537]: S
+              - generic [ref=f22e540]:
+                - paragraph [ref=f22e541]: Shirin M.
+                - paragraph [ref=f22e542]: ○ Offline
+              - generic [ref=f22e543]: Editor
+            - generic [ref=f22e544]:
+              - generic [ref=f22e545]: D
+              - generic [ref=f22e548]:
+                - paragraph [ref=f22e549]: Dilnoza T.
+                - paragraph [ref=f22e550]: ○ Offline
+              - generic [ref=f22e551]: Viewer
+          - button "+ A'zo taklif qilish" [ref=f22e552]:
+            - generic [ref=f22e553]: +
+            - text: A'zo taklif qilish
+    - generic [ref=f22e555]:
+      - generic [ref=f22e556]:
+        - paragraph [ref=f22e557]: Imkoniyatlar
+        - heading "Hamma kerakli narsa bitta platformada." [level=2] [ref=f22e558]: Hamma kerakli narsabitta platformada.
+        - paragraph [ref=f22e559]: Murakkab sozlash yo'q. Bir necha daqiqada ulang va barcha imkoniyatlardan foydalaning.
+      - generic [ref=f22e560]:
+        - generic [ref=f22e561]:
+          - generic [ref=f22e565]:
+            - paragraph [ref=f22e566]: Web analitika
+            - heading "Cookie-siz web analitika" [level=3] [ref=f22e567]
+          - paragraph [ref=f22e572]: "Bitta `<script>` qatori qo'shing — tashrif, sahifalar, qurilmalar, manbalar real vaqtda ko'rinadi. GDPR-ga to'liq mos."
+          - generic [ref=f22e573]:
+            - generic [ref=f22e574]:
+              - generic [ref=f22e575]:
+                - generic [ref=f22e576]: Tashrif dinamikasi
+                - generic [ref=f22e577]: ↑ 23%
+              - generic [ref=f22e581]:
+                - generic [ref=f22e582]: Du
+                - generic [ref=f22e583]: Se
+                - generic [ref=f22e584]: Ch
+                - generic [ref=f22e585]: Pa
+                - generic [ref=f22e586]: Ju
+                - generic [ref=f22e587]: Sh
+                - generic [ref=f22e588]: Ya
+            - generic [ref=f22e589]:
+              - generic [ref=f22e590]:
+                - generic [ref=f22e591]: Top sahifalar
+                - generic [ref=f22e592]: Ko'rishlar
+              - generic [ref=f22e594]:
+                - generic [ref=f22e595]: /blog/analytics
+                - generic [ref=f22e596]: "342"
+              - generic [ref=f22e600]:
+                - generic [ref=f22e601]: /pricing
+                - generic [ref=f22e602]: "218"
+              - generic [ref=f22e606]:
+                - generic [ref=f22e607]: /
+                - generic [ref=f22e608]: "187"
+              - generic [ref=f22e612]:
+                - generic [ref=f22e613]: /docs/quickstart
+                - generic [ref=f22e614]: "143"
+              - generic [ref=f22e618]:
+                - generic [ref=f22e619]: /features
+                - generic [ref=f22e620]: "98"
+            - generic [ref=f22e623]:
+              - generic [ref=f22e627]:
+                - paragraph [ref=f22e628]: 62%
+                - paragraph [ref=f22e629]: Desktop
+              - generic [ref=f22e633]:
+                - paragraph [ref=f22e634]: 38%
+                - paragraph [ref=f22e635]: Mobile
+        - generic [ref=f22e636]:
+          - generic [ref=f22e640]:
+            - paragraph [ref=f22e641]: AI
+            - heading "AI Haftalik hisobot" [level=3] [ref=f22e642]
+          - paragraph [ref=f22e647]: "Har dushanba emailingizga: nima yaxshi, nima yomon, keyingi hafta nima qilish kerak."
+          - generic [ref=f22e648]:
+            - generic [ref=f22e649]:
+              - generic [ref=f22e650]: ai@metrix.io
+              - paragraph [ref=f22e656]: Haftalik tahlil — 16-22 Iyun
+            - generic [ref=f22e657]:
+              - generic [ref=f22e658]:
+                - generic [ref=f22e659]: ↑
+                - paragraph [ref=f22e660]: Saytga 1,247 tashrif — o'tgan haftadan +12%
+              - generic [ref=f22e661]:
+                - generic [ref=f22e662]: ↑
+                - paragraph [ref=f22e663]: "YouTube: +145 yangi obunachi"
+              - generic [ref=f22e664]:
+                - generic [ref=f22e665]: "!"
+                - paragraph [ref=f22e666]: Bounce rate 68% — landing page ni optimallashtiring
+              - generic [ref=f22e667]:
+                - paragraph [ref=f22e668]: "Keyingi hafta uchun maslahat:"
+                - paragraph [ref=f22e669]: Chorshanba va Shanba kuni post yuboring — bu kunlar eng faol
+        - generic [ref=f22e670]:
+          - generic [ref=f22e674]:
+            - paragraph [ref=f22e675]: Real vaqt
+            - heading "Jonli monitoring" [level=3] [ref=f22e676]
+          - paragraph [ref=f22e680]: Hozir saytingizda nechta odam bor, qaysi sahifada — bir nazar bilan.
+          - generic [ref=f22e681]:
+            - generic [ref=f22e682]:
+              - generic [ref=f22e683]: "12"
+              - generic [ref=f22e688]:
+                - paragraph [ref=f22e689]: Faol tashrif
+                - paragraph [ref=f22e690]: Hozir onlayn
+            - generic [ref=f22e691]:
+              - generic [ref=f22e692]:
+                - generic [ref=f22e694]: /pricing
+                - generic [ref=f22e695]: "5"
+              - generic [ref=f22e696]:
+                - generic [ref=f22e698]: /blog
+                - generic [ref=f22e699]: "4"
+              - generic [ref=f22e700]:
+                - generic [ref=f22e702]: /
+                - generic [ref=f22e703]: "3"
+        - generic [ref=f22e704]:
+          - generic [ref=f22e708]:
+            - paragraph [ref=f22e709]: Track.js
+            - heading "2 qatorlik integratsiya" [level=3] [ref=f22e710]
+          - paragraph [ref=f22e716]: Murakkab sozlash yo'q. Script tag qo'shing — ishlaydi.
+          - generic [ref=f22e717]:
+            - generic [ref=f22e718]:
+              - generic [ref=f22e719]:
+                - generic [ref=f22e720]: index.html
+                - generic [ref=f22e726]: HTML
+              - generic [ref=f22e727]:
+                - generic [ref=f22e728]:
+                  - generic [ref=f22e729]: "1"
+                  - generic [ref=f22e730]: "2"
+                  - generic [ref=f22e731]: "3"
+                  - generic [ref=f22e732]: "4"
+                  - generic [ref=f22e733]: "5"
+                - generic [ref=f22e734]:
+                  - generic [ref=f22e735]: <script
+                  - generic [ref=f22e736]: src="https://app.metrix.io/track.js"
+                  - generic [ref=f22e737]: data-site="mk_live_abc123"
+                  - generic [ref=f22e738]: defer
+                  - generic [ref=f22e739]: "></script>"
+            - generic [ref=f22e740]:
+              - generic [ref=f22e741]: Cookie-siz
+              - generic [ref=f22e743]: GDPR
+              - generic [ref=f22e745]: 2 qator
+        - generic [ref=f22e747]:
+          - generic [ref=f22e751]:
+            - paragraph [ref=f22e752]: Alertlar
+            - heading "Aqlli bildirishnomalar" [level=3] [ref=f22e753]
+          - paragraph [ref=f22e758]: Traffic oshsa, tushsa, yangi manba paydo bo'lsa — darhol xabar olasiz.
+          - generic [ref=f22e759]:
+            - generic [ref=f22e762]:
+              - generic [ref=f22e763]:
+                - paragraph [ref=f22e764]: Traffic spike!
+                - generic [ref=f22e765]: hozir
+              - paragraph [ref=f22e766]: Saytingiz trafigi 2x oshdi — 847 tashrif/soat
+            - generic [ref=f22e769]:
+              - generic [ref=f22e770]:
+                - paragraph [ref=f22e771]: Yangi manba
+                - generic [ref=f22e772]: 5 min
+              - paragraph [ref=f22e773]: Twitter orqali 45 ta tashrif kelyapti
+            - generic [ref=f22e776]:
+              - generic [ref=f22e777]:
+                - paragraph [ref=f22e778]: Traffic drop
+                - generic [ref=f22e779]: 1 soat
+              - paragraph [ref=f22e780]: Telegram kanalida faollik 40% kamaydi
+        - generic [ref=f22e781]:
+          - generic [ref=f22e785]:
+            - paragraph [ref=f22e786]: Eksport
+            - heading "CSV eksport" [level=3] [ref=f22e787]
+          - paragraph [ref=f22e792]: Barcha ma'lumotlarni Excel yoki Google Sheets ga bir tugma bilan eksport qiling.
+          - generic [ref=f22e793]:
+            - generic [ref=f22e794]:
+              - generic [ref=f22e795]:
+                - generic [ref=f22e796]: date
+                - generic [ref=f22e797]: path
+                - generic [ref=f22e798]: views
+                - generic [ref=f22e799]: device
+              - generic [ref=f22e800]:
+                - generic [ref=f22e801]: 2025-06-22
+                - generic [ref=f22e802]: /blog
+                - generic [ref=f22e803]: "342"
+                - generic [ref=f22e804]: desktop
+              - generic [ref=f22e805]:
+                - generic [ref=f22e806]: 2025-06-22
+                - generic [ref=f22e807]: /pricing
+                - generic [ref=f22e808]: "218"
+                - generic [ref=f22e809]: mobile
+              - generic [ref=f22e810]:
+                - generic [ref=f22e811]: 2025-06-21
+                - generic [ref=f22e812]: /
+                - generic [ref=f22e813]: "187"
+                - generic [ref=f22e814]: desktop
+            - generic [ref=f22e815]:
+              - generic [ref=f22e816]: Excel
+              - generic [ref=f22e817]: Google Sheets
+              - generic [ref=f22e818]: CSV
+    - generic [ref=f22e820]:
+      - generic [ref=f22e821]:
+        - paragraph [ref=f22e822]: Integratsiyalar
+        - heading "Qaysi platforma, istalgan framework." [level=2] [ref=f22e823]: Qaysi platforma,istalgan framework.
+        - paragraph [ref=f22e824]: 8 ta platforma bilan ishlaydi. Saytingizni istalgan texnologiyada ulashingiz mumkin — faqat bir necha qator kod.
+      - generic [ref=f22e825]:
+        - generic [ref=f22e829]:
+          - paragraph [ref=f22e830]: YouTube
+          - paragraph [ref=f22e831]: Obunachi, video statistika
+        - generic [ref=f22e837]:
+          - paragraph [ref=f22e838]: Telegram
+          - paragraph [ref=f22e839]: Kanal a'zolari, o'sish
+        - generic [ref=f22e845]:
+          - paragraph [ref=f22e846]: Instagram
+          - paragraph [ref=f22e847]: Kuzatuvchilar, reach
+        - generic [ref=f22e853]:
+          - paragraph [ref=f22e854]: Discord
+          - paragraph [ref=f22e855]: Server a'zolari, faollik
+        - generic [ref=f22e861]:
+          - paragraph [ref=f22e862]: Bluesky
+          - paragraph [ref=f22e863]: Followers, postlar
+        - generic [ref=f22e869]:
+          - paragraph [ref=f22e870]: Facebook
+          - paragraph [ref=f22e871]: Sahifa statistikasi
+        - generic [ref=f22e877]:
+          - paragraph [ref=f22e878]: Threads
+          - paragraph [ref=f22e879]: Instagram bilan birga
+        - generic [ref=f22e886]:
+          - paragraph [ref=f22e887]: Web sayt
+          - paragraph [ref=f22e888]: Tashrif, sessiya, sahifalar
+      - generic [ref=f22e891]:
+        - generic [ref=f22e892]: "Tez kunda:"
+        - generic [ref=f22e893]: Pinterest
+        - generic [ref=f22e894]: Reddit
+        - generic [ref=f22e895]: TikTok
+        - generic [ref=f22e896]: LinkedIn
+        - generic [ref=f22e897]: X (Twitter)
+      - generic [ref=f22e898]:
+        - generic [ref=f22e899]:
+          - generic [ref=f22e900]:
+            - paragraph [ref=f22e901]: Saytingizni ulang
+            - paragraph [ref=f22e902]: Framework tanlang — kod avtomatik o'zgaradi
+          - generic [ref=f22e903]: 2 daqiqada tayyor
+        - generic [ref=f22e905]:
+          - generic [ref=f22e906]:
+            - button [ref=f22e907]:
+              - generic [ref=f22e909]:
+                - paragraph [ref=f22e910]: HTML
+                - paragraph [ref=f22e911]: index.html
+            - button [ref=f22e912]:
+              - generic [ref=f22e914]:
+                - paragraph [ref=f22e915]: React
+                - paragraph [ref=f22e916]: src/App.tsx
+            - button [ref=f22e917]:
+              - generic [ref=f22e919]:
+                - paragraph [ref=f22e920]: Next.js
+                - paragraph [ref=f22e921]: app/layout.tsx
+            - button [ref=f22e922]:
+              - generic [ref=f22e924]:
+                - paragraph [ref=f22e925]: Vue
+                - paragraph [ref=f22e926]: src/main.ts
+            - button [ref=f22e927]:
+              - generic [ref=f22e929]:
+                - paragraph [ref=f22e930]: cURL
+                - paragraph [ref=f22e931]: terminal
+          - generic [ref=f22e932]:
+            - generic [ref=f22e933]:
+              - generic [ref=f22e934]: index.html
+              - generic [ref=f22e940]:
+                - generic [ref=f22e941]: HTML
+                - button "Copy" [ref=f22e942]
+            - generic [ref=f22e947]:
+              - generic [ref=f22e948]:
+                - generic [ref=f22e949]: "1"
+                - generic [ref=f22e950]: <!-- Metrix tracking -->
+              - generic [ref=f22e951]:
+                - generic [ref=f22e952]: "2"
+                - generic [ref=f22e953]: <script
+              - generic [ref=f22e954]:
+                - generic [ref=f22e955]: "3"
+                - generic [ref=f22e956]: src="https://app.metrix.io/track.js"
+              - generic [ref=f22e957]:
+                - generic [ref=f22e958]: "4"
+                - generic [ref=f22e959]: data-site="mk_live_abc123"
+              - generic [ref=f22e960]:
+                - generic [ref=f22e961]: "5"
+                - generic [ref=f22e962]: defer
+              - generic [ref=f22e963]:
+                - generic [ref=f22e964]: "6"
+                - generic [ref=f22e965]: "></script>"
+            - generic [ref=f22e967]:
+              - generic [ref=f22e968]: "data-site:"
+              - generic [ref=f22e969]: mk_live_abc123
+              - generic [ref=f22e970]: ← o'zingizniki bilan almashtiring
+    - generic [ref=f22e972]:
+      - generic [ref=f22e973]:
+        - paragraph [ref=f22e974]: Narxlar
+        - heading "Sodda narxlar. Yashirin to'lovlar yo'q." [level=2] [ref=f22e975]: Sodda narxlar.Yashirin to'lovlar yo'q.
+        - paragraph [ref=f22e976]: Bepul boshlab, o'sgach yangilaysiz. Istalgan vaqt bekor qilish mumkin.
+      - generic [ref=f22e977]:
+        - generic [ref=f22e978]:
+          - generic [ref=f22e979]:
+            - paragraph [ref=f22e980]: Sinab ko'rish uchun
+            - heading "Free" [level=3] [ref=f22e981]
+            - generic [ref=f22e982]: $0
+            - paragraph [ref=f22e984]: har doim bepul
+            - paragraph [ref=f22e985]: 5 ta imkoniyat kiradi
+          - generic [ref=f22e987]:
+            - generic [ref=f22e988]:
+              - paragraph [ref=f22e989]: Tracking
+              - list [ref=f22e990]:
+                - listitem [ref=f22e991]:
+                  - generic [ref=f22e995]: 1 ta sayt
+                - listitem [ref=f22e996]:
+                  - generic [ref=f22e1000]: 5,000 tashrif / oy
+                - listitem [ref=f22e1001]:
+                  - generic [ref=f22e1005]: Real vaqt monitoring
+            - generic [ref=f22e1006]:
+              - paragraph [ref=f22e1007]: Analitika
+              - list [ref=f22e1008]:
+                - listitem [ref=f22e1009]:
+                  - generic [ref=f22e1013]: Asosiy web analitika
+                - listitem [ref=f22e1014]:
+                  - generic [ref=f22e1018]: 30 kunlik ma'lumot
+            - generic [ref=f22e1019]:
+              - paragraph [ref=f22e1020]: AI & Alertlar
+              - list [ref=f22e1021]:
+                - listitem [ref=f22e1022]:
+                  - generic [ref=f22e1026]: AI haftalik hisobot
+                - listitem [ref=f22e1027]:
+                  - generic [ref=f22e1031]: Email alertlar
+            - generic [ref=f22e1032]:
+              - paragraph [ref=f22e1033]: Jamoa & Eksport
+              - list [ref=f22e1034]:
+                - listitem [ref=f22e1035]:
+                  - generic [ref=f22e1039]: Workspace
+                - listitem [ref=f22e1040]:
+                  - generic [ref=f22e1044]: CSV eksport
+                - listitem [ref=f22e1045]:
+                  - generic [ref=f22e1049]: API access
+          - link "Bepul boshlash" [ref=f22e1051] [cursor=pointer]:
+            - /url: /register
+        - generic [ref=f22e1052]:
+          - generic [ref=f22e1055]:
+            - generic [ref=f22e1056]: Eng mashhur
+            - paragraph [ref=f22e1058]: Faol kreatorlar uchun
+            - heading "Starter" [level=3] [ref=f22e1059]
+            - generic [ref=f22e1060]:
+              - generic [ref=f22e1061]: $9
+              - generic [ref=f22e1062]: / oyiga
+            - paragraph [ref=f22e1063]: 8 ta imkoniyat kiradi
+          - generic [ref=f22e1065]:
+            - generic [ref=f22e1066]:
+              - paragraph [ref=f22e1067]: Tracking
+              - list [ref=f22e1068]:
+                - listitem [ref=f22e1069]:
+                  - generic [ref=f22e1073]: 3 ta sayt
+                - listitem [ref=f22e1074]:
+                  - generic [ref=f22e1078]: 50,000 tashrif / oy
+                - listitem [ref=f22e1079]:
+                  - generic [ref=f22e1083]: Real vaqt monitoring
+            - generic [ref=f22e1084]:
+              - paragraph [ref=f22e1085]: Platformalar
+              - list [ref=f22e1086]:
+                - listitem [ref=f22e1087]:
+                  - generic [ref=f22e1091]: Barcha 8 ta platforma
+                - listitem [ref=f22e1092]:
+                  - generic [ref=f22e1096]: 1 yillik ma'lumot tarixi
+            - generic [ref=f22e1097]:
+              - paragraph [ref=f22e1098]: AI & Alertlar
+              - list [ref=f22e1099]:
+                - listitem [ref=f22e1100]:
+                  - generic [ref=f22e1104]: AI haftalik hisobot (email)
+                - listitem [ref=f22e1105]:
+                  - generic [ref=f22e1109]: Email alertlar
+            - generic [ref=f22e1110]:
+              - paragraph [ref=f22e1111]: Jamoa & Eksport
+              - list [ref=f22e1112]:
+                - listitem [ref=f22e1113]:
+                  - generic [ref=f22e1117]: Workspace
+                - listitem [ref=f22e1118]:
+                  - generic [ref=f22e1122]: CSV eksport
+                - listitem [ref=f22e1123]:
+                  - generic [ref=f22e1127]: API access
+          - link "Boshlash" [ref=f22e1129] [cursor=pointer]:
+            - /url: /register?plan=starter
+        - generic [ref=f22e1130]:
+          - generic [ref=f22e1131]:
+            - generic [ref=f22e1132]: To'liq imkoniyat
+            - paragraph [ref=f22e1134]: Jamoa va agentliklar uchun
+            - heading "Pro" [level=3] [ref=f22e1135]
+            - generic [ref=f22e1136]:
+              - generic [ref=f22e1137]: $19
+              - generic [ref=f22e1138]: / oyiga
+            - paragraph [ref=f22e1139]: 10 ta imkoniyat kiradi
+          - generic [ref=f22e1141]:
+            - generic [ref=f22e1142]:
+              - paragraph [ref=f22e1143]: Tracking
+              - list [ref=f22e1144]:
+                - listitem [ref=f22e1145]:
+                  - generic [ref=f22e1149]: Cheksiz sayt
+                - listitem [ref=f22e1150]:
+                  - generic [ref=f22e1154]: Cheksiz tashrif
+                - listitem [ref=f22e1155]:
+                  - generic [ref=f22e1159]: Real vaqt monitoring
+            - generic [ref=f22e1160]:
+              - paragraph [ref=f22e1161]: Platformalar
+              - list [ref=f22e1162]:
+                - listitem [ref=f22e1163]:
+                  - generic [ref=f22e1167]: Barcha 8 ta platforma
+                - listitem [ref=f22e1168]:
+                  - generic [ref=f22e1172]: Cheksiz ma'lumot tarixi
+            - generic [ref=f22e1173]:
+              - paragraph [ref=f22e1174]: AI & Alertlar
+              - list [ref=f22e1175]:
+                - listitem [ref=f22e1176]:
+                  - generic [ref=f22e1180]: AI haftalik + custom hisobot
+                - listitem [ref=f22e1181]:
+                  - generic [ref=f22e1185]: Custom alertlar
+            - generic [ref=f22e1186]:
+              - paragraph [ref=f22e1187]: Jamoa & Eksport
+              - list [ref=f22e1188]:
+                - listitem [ref=f22e1189]:
+                  - generic [ref=f22e1193]: Workspace + ruxsatlar
+                - listitem [ref=f22e1194]:
+                  - generic [ref=f22e1198]: CSV eksport
+                - listitem [ref=f22e1199]:
+                  - generic [ref=f22e1203]: API access
+          - link "Boshlash" [ref=f22e1205] [cursor=pointer]:
+            - /url: /register?plan=pro
+      - generic [ref=f22e1206]:
+        - generic [ref=f22e1207]: Kredit karta kerak emas
+        - generic [ref=f22e1210]: Istalgan vaqt bekor qilish
+        - generic [ref=f22e1213]: Ma'lumotlar xavfsiz
+      - paragraph [ref=f22e1216]:
+        - text: Savol bormi?
+        - link "hello@metrix.io" [ref=f22e1217] [cursor=pointer]:
+          - /url: mailto:hello@metrix.io
+        - text: ga yozing
+    - generic [ref=f22e1219]:
+      - generic [ref=f22e1220]:
+        - paragraph [ref=f22e1221]: FAQ
+        - heading "Savol bormi? Javob bor." [level=2] [ref=f22e1222]: Savol bormi?Javob bor.
+        - paragraph [ref=f22e1223]: Eng ko'p so'raladigan savollarni kategoriyalar bo'yicha topishingiz mumkin.
+      - generic [ref=f22e1224]:
+        - generic [ref=f22e1225]:
+          - button [ref=f22e1226]:
+            - generic [ref=f22e1230]:
+              - paragraph [ref=f22e1231]: Umumiy
+              - paragraph [ref=f22e1232]: 4 ta savol
+          - button [ref=f22e1234]:
+            - generic [ref=f22e1238]:
+              - paragraph [ref=f22e1239]: Narxlar
+              - paragraph [ref=f22e1240]: 4 ta savol
+          - button [ref=f22e1241]:
+            - generic [ref=f22e1247]:
+              - paragraph [ref=f22e1248]: Texnik
+              - paragraph [ref=f22e1249]: 4 ta savol
+          - button [ref=f22e1250]:
+            - generic [ref=f22e1255]:
+              - paragraph [ref=f22e1256]: Xavfsizlik
+              - paragraph [ref=f22e1257]: 4 ta savol
+          - generic [ref=f22e1258]:
+            - paragraph [ref=f22e1259]: Javob topa olmadingizmi?
+            - paragraph [ref=f22e1260]: Bizga to'g'ridan-to'g'ri yozing
+            - link "hello@metrix.io" [ref=f22e1261] [cursor=pointer]:
+              - /url: mailto:hello@metrix.io
+        - generic [ref=f22e1264]:
+          - generic [ref=f22e1266]:
+            - generic [ref=f22e1267]: "01"
+            - generic [ref=f22e1268]:
+              - heading "Metrix nima va kim uchun?" [level=3] [ref=f22e1269]
+              - paragraph [ref=f22e1270]: Metrix — solopreneur, indie hacker, kichik startaplar va kreatorlar uchun yagona analytics dashboard. YouTube, Telegram, Instagram va boshqa platformalaringizni bitta joyda ko'rasiz. Har kuni 5 ta ilovaga kirish o'rniga — bitta Metrix.
+          - generic [ref=f22e1272]:
+            - generic [ref=f22e1273]: "02"
+            - generic [ref=f22e1274]:
+              - heading "Bepul plan doim bepulmi?" [level=3] [ref=f22e1275]
+              - paragraph [ref=f22e1276]: Ha, to'liq bepul. Kredit karta talab qilinmaydi, vaqt cheklovlari yo'q. 1 ta sayt, 2 ta platforma va 5,000 tashrif/oyga cheksiz foydalanishingiz mumkin.
+          - generic [ref=f22e1278]:
+            - generic [ref=f22e1279]: "03"
+            - generic [ref=f22e1280]:
+              - heading "Qanday platformalar bilan ishlaydi?" [level=3] [ref=f22e1281]
+              - paragraph [ref=f22e1282]: "Hozir: YouTube, Telegram, Instagram, Facebook, Threads, Discord, Bluesky va o'z web saytingiz — 8 ta platforma. Tez kunda: Pinterest, Reddit, TikTok, LinkedIn."
+          - generic [ref=f22e1284]:
+            - generic [ref=f22e1285]: "04"
+            - generic [ref=f22e1286]:
+              - heading "Ma'lumotlar qanchalik tez yangilanadi?" [level=3] [ref=f22e1287]
+              - paragraph [ref=f22e1288]: Web sayt statistikasi real vaqtda ko'rinadi. Platforma statistikasi (YouTube, Telegram va h.k.) har 6 soatda avtomatik sinxronlanadi. Qo'lda ham sync qilishingiz mumkin.
+    - generic [ref=f22e1296]:
+      - generic [ref=f22e1297]: Bugun boshlang — bepul
+      - heading "Barcha analitikangiz bitta joyda." [level=2] [ref=f22e1299]:
+        - generic [ref=f22e1300]: Barcha analitikangiz
+        - generic [ref=f22e1301]: bitta joyda.
+      - paragraph [ref=f22e1302]: 2 daqiqada ro'yxatdan o'ting, birinchi platformangizni ulang. Hech qanday murakkablik yo'q.
+      - generic [ref=f22e1303]:
+        - generic [ref=f22e1304]:
+          - generic [ref=f22e1305]: 500+
+          - generic [ref=f22e1312]: kreator
+        - generic [ref=f22e1313]:
+          - generic [ref=f22e1314]: "8"
+          - generic [ref=f22e1319]: platforma
+        - generic [ref=f22e1320]:
+          - generic [ref=f22e1321]: $0
+          - generic [ref=f22e1325]: boshlash uchun
+      - generic [ref=f22e1326]:
+        - link "Bepul boshlash" [ref=f22e1327] [cursor=pointer]:
+          - /url: /register
+        - link "Demo ko'rish" [ref=f22e1330] [cursor=pointer]:
+          - /url: "#demo"
+      - generic [ref=f22e1331]:
+        - generic [ref=f22e1332]: Kredit karta kerak emas
+        - generic [ref=f22e1335]: 2 daqiqada sozlanadi
+        - generic [ref=f22e1338]: Istalgan vaqt bekor qilish
+      - generic [ref=f22e1342]:
+        - paragraph [ref=f22e1343]: Barcha platformalar bilan ishlaydi
+        - generic [ref=f22e1344]:
+          - generic "YouTube" [ref=f22e1345]
+          - generic "Telegram" [ref=f22e1348]
+          - generic "Instagram" [ref=f22e1351]
+          - generic "Discord" [ref=f22e1354]
+          - generic "Bluesky" [ref=f22e1357]
+          - generic "Facebook" [ref=f22e1360]
+          - generic "Threads" [ref=f22e1363]
+          - generic "Web sayt" [ref=f22e1366]
+  - contentinfo [ref=f22e1370]:
+    - generic [ref=f22e1371]:
+      - generic [ref=f22e1372]:
+        - generic [ref=f22e1373]:
+          - generic [ref=f22e1374]: Metrix
+          - paragraph [ref=f22e1379]: Barcha analitikangiz bitta minimalist dashboardda.
+        - generic [ref=f22e1380]:
+          - paragraph [ref=f22e1381]: Mahsulot
+          - list [ref=f22e1382]:
+            - listitem [ref=f22e1383]:
+              - link "Imkoniyatlar" [ref=f22e1384] [cursor=pointer]:
+                - /url: "#imkoniyatlar"
+            - listitem [ref=f22e1385]:
+              - link "Narxlar" [ref=f22e1386] [cursor=pointer]:
+                - /url: "#narxlar"
+            - listitem [ref=f22e1387]:
+              - link "Integratsiyalar" [ref=f22e1388] [cursor=pointer]:
+                - /url: "#"
+            - listitem [ref=f22e1389]:
+              - link "Changelog" [ref=f22e1390] [cursor=pointer]:
+                - /url: "#"
+        - generic [ref=f22e1391]:
+          - paragraph [ref=f22e1392]: Kompaniya
+          - list [ref=f22e1393]:
+            - listitem [ref=f22e1394]:
+              - link "Haqida" [ref=f22e1395] [cursor=pointer]:
+                - /url: "#haqida"
+            - listitem [ref=f22e1396]:
+              - link "Blog" [ref=f22e1397] [cursor=pointer]:
+                - /url: "#"
+            - listitem [ref=f22e1398]:
+              - link "Ish o'rinlari" [ref=f22e1399] [cursor=pointer]:
+                - /url: "#"
+        - generic [ref=f22e1400]:
+          - paragraph [ref=f22e1401]: Qo'llab-quvvatlash
+          - list [ref=f22e1402]:
+            - listitem [ref=f22e1403]:
+              - link "Docs" [ref=f22e1404] [cursor=pointer]:
+                - /url: "#"
+            - listitem [ref=f22e1405]:
+              - link "Status" [ref=f22e1406] [cursor=pointer]:
+                - /url: "#"
+            - listitem [ref=f22e1407]:
+              - link "hello@metrix.io" [ref=f22e1408] [cursor=pointer]:
+                - /url: mailto:hello@metrix.io
+      - generic [ref=f22e1409]:
+        - paragraph [ref=f22e1410]: © 2025 Metrix. Barcha huquqlar himoyalangan.
+        - generic [ref=f22e1411]:
+          - link "Maxfiylik siyosati" [ref=f22e1412] [cursor=pointer]:
+            - /url: "#"
+          - link "Foydalanish shartlari" [ref=f22e1413] [cursor=pointer]:
+            - /url: "#"

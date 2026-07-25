@@ -1,0 +1,86 @@
+- generic [ref=f26e1]:
+  - generic [ref=f26e2]:
+    - complementary [ref=f26e14]:
+      - link "Metrix" [ref=f26e16] [cursor=pointer]:
+        - /url: /dashboard
+      - navigation [ref=f26e21]:
+        - link "Dashboard" [ref=f26e22] [cursor=pointer]:
+          - /url: /dashboard
+        - link "Saytlar" [ref=f26e28] [cursor=pointer]:
+          - /url: /websites
+        - link "Ulashlar" [ref=f26e32] [cursor=pointer]:
+          - /url: /connections
+        - link "Postlar" [ref=f26e36] [cursor=pointer]:
+          - /url: /posts
+        - link "AI Insights" [ref=f26e40] [cursor=pointer]:
+          - /url: /insights
+        - link "Alertlar" [ref=f26e44] [cursor=pointer]:
+          - /url: /alerts
+        - link "Sozlamalar" [ref=f26e48] [cursor=pointer]:
+          - /url: /settings
+      - button "A Akbarali Sheronov sheronovakbarali2706@gmail.com" [ref=f26e53]:
+        - generic [ref=f26e54]: A
+        - generic [ref=f26e55]:
+          - paragraph [ref=f26e56]: Akbarali Sheronov
+          - paragraph [ref=f26e57]: sheronovakbarali2706@gmail.com
+    - main [ref=f26e61]:
+      - generic [ref=f26e62]:
+        - generic [ref=f26e63]:
+          - generic [ref=f26e64]: Metrix
+          - generic [ref=f26e67]: connections
+        - button "Bildirishnomalar" [ref=f26e70]
+      - generic [ref=f26e75]:
+        - generic [ref=f26e76]:
+          - paragraph [ref=f26e77]: Ulashlar
+          - heading "Platformalar" [level=1] [ref=f26e78]
+          - paragraph [ref=f26e79]: Platformalarni ulang — statistika avtomatik yangilanib turadi
+        - generic [ref=f26e80]:
+          - generic [ref=f26e83]:
+            - generic [ref=f26e87]:
+              - paragraph [ref=f26e89]: YouTube
+              - paragraph [ref=f26e90]: Ulanmagan
+            - button "Ulash" [active] [ref=f26e92]
+          - generic [ref=f26e95]:
+            - generic [ref=f26e99]:
+              - paragraph [ref=f26e101]: Telegram
+              - paragraph [ref=f26e102]: Ulanmagan
+            - button "Ulash" [ref=f26e104]
+          - generic [ref=f26e107]:
+            - generic [ref=f26e111]:
+              - paragraph [ref=f26e113]: Instagram
+              - paragraph [ref=f26e114]: Ulanmagan
+            - button "Ulash" [ref=f26e116]
+          - generic [ref=f26e119]:
+            - generic [ref=f26e123]:
+              - paragraph [ref=f26e125]: Discord
+              - paragraph [ref=f26e126]: Ulanmagan
+            - button "Ulash" [ref=f26e128]
+          - generic [ref=f26e131]:
+            - generic [ref=f26e135]:
+              - paragraph [ref=f26e137]: Bluesky
+              - paragraph [ref=f26e138]: Ulanmagan
+            - button "Ulash" [ref=f26e140]
+          - generic [ref=f26e143]:
+            - generic [ref=f26e147]:
+              - paragraph [ref=f26e149]: Reddit
+              - paragraph [ref=f26e150]: Ulanmagan
+            - button "Ulash" [ref=f26e152]
+        - generic [ref=f26e155]:
+          - generic [ref=f26e156]:
+            - heading "YouTube ulash" [level=3] [ref=f26e157]
+            - button "Yopish" [ref=f26e158]
+          - paragraph [ref=f26e162]: OAuth talab qilinmaydi — faqat kanal handle yoki URL kiriting.
+          - generic [ref=f26e163]:
+            - generic [ref=f26e164]:
+              - generic [ref=f26e165]: Kanal handle yoki URL
+              - textbox "Kanal handle yoki URL" [ref=f26e166]:
+                - /placeholder: "@MrBeast yoki youtube.com/c/MrBeast"
+              - paragraph [ref=f26e167]: "@handle, to'liq URL yoki Channel ID bo'lishi mumkin"
+            - generic [ref=f26e168]:
+              - button "Bekor" [ref=f26e169]
+              - button "Ulash" [ref=f26e170]
+          - generic [ref=f26e171]:
+            - paragraph [ref=f26e172]: "Bu FAQAT o'zingiz egalik qiladigan kanal uchun: har bir video qancha yangi obunachi olib kelganini ham ko'rish uchun Google orqali ulang."
+            - button "Google orqali ulash (obunachi statistikasi bilan)" [ref=f26e173]
+  - button "Open Next.js Dev Tools" [ref=f26e9] [cursor=pointer]
+  - alert [ref=f26e13]

@@ -16,7 +16,10 @@ export class PlansController {
 
   @Get()
   @ApiOperation({ summary: 'List all available plans (public)' })
-  @ApiResponse({ status: 200, description: 'Array of plans with pricing and limits' })
+  @ApiResponse({
+    status: 200,
+    description: 'Array of plans with pricing and limits',
+  })
   findAll() {
     return this.plansService.findAll();
   }
@@ -25,7 +28,10 @@ export class PlansController {
   @Get('my')
   @ApiBearerAuth('jwt')
   @ApiOperation({ summary: "Get current user's active subscription" })
-  @ApiResponse({ status: 200, description: 'Active subscription with plan info' })
+  @ApiResponse({
+    status: 200,
+    description: 'Active subscription with plan info',
+  })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   getMySubscription(@CurrentUser('id') userId: string) {
     return this.plansService.getUserSubscription(userId);

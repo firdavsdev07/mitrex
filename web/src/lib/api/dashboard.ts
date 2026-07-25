@@ -1,8 +1,9 @@
-import { apiClient } from "./client";
+import { apiClient } from './client';
 
-export type Period = "today" | "week" | "month";
+export type Period = 'today' | 'week' | 'month';
 
 export interface PlatformWidget {
+  id: string;
   platform: string;
   username: string | null;
   followers: number | null;
@@ -50,19 +51,24 @@ export interface PlatformHistoryPoint {
 }
 
 export const dashboardApi = {
-  overview: (period: Period = "week") =>
-    apiClient.get<DashboardOverview>("/dashboard", { params: { period } }).then((r) => r.data),
-
-  webTrend: (days = 14) =>
-    apiClient.get<TrendPoint[]>("/dashboard/web-trend", { params: { days } }).then((r) => r.data),
-
-  platformHistory: (platform: string, days = 30) =>
+  overview: (period: Period = 'week') =>
     apiClient
-      .get<{ platform: string; username: string | null; history: PlatformHistoryPoint[] }>(
-        `/dashboard/history/${platform}`,
-        { params: { days } }
-      )
+      .get<DashboardOverview>('/dashboard', { params: { period } })
       .then((r) => r.data),
 
-  syncNow: () => apiClient.get("/dashboard/sync").then((r) => r.data),
+  webTrend: (days = 14) =>
+    apiClient
+      .get<TrendPoint[]>('/dashboard/web-trend', { params: { days } })
+      .then((r) => r.data),
+
+  connectionHistory: (connectionId: string, days = 30) =>
+    apiClient
+      .get<{
+        platform: string;
+        username: string | null;
+        history: PlatformHistoryPoint[];
+      }>(`/dashboard/history/${connectionId}`, { params: { days } })
+      .then((r) => r.data),
+
+  syncNow: () => apiClient.get('/dashboard/sync').then((r) => r.data),
 };

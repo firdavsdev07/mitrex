@@ -1,5 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Resend } from 'resend';
+import { getErrorMessage } from '../common/utils/error.util';
 
 @Injectable()
 export class EmailService {
@@ -14,7 +15,10 @@ export class EmailService {
 
   async sendPasswordReset(to: string, resetUrl: string) {
     const client = this.resend;
-    if (!client) { this.logger.warn('RESEND_API_KEY yo\'q — email yuborilmadi'); return; }
+    if (!client) {
+      this.logger.warn("RESEND_API_KEY yo'q — email yuborilmadi");
+      return;
+    }
     try {
       await client.emails.send({
         from: this.from,
@@ -36,8 +40,8 @@ export class EmailService {
           </div>
         `,
       });
-    } catch (err) {
-      this.logger.error(`Email send error: ${err.message}`);
+    } catch (err: unknown) {
+      this.logger.error(`Email send error: ${getErrorMessage(err)}`);
     }
   }
 
@@ -57,8 +61,8 @@ export class EmailService {
           </div>
         `,
       });
-    } catch (err) {
-      this.logger.error(`Welcome email error: ${err.message}`);
+    } catch (err: unknown) {
+      this.logger.error(`Welcome email error: ${getErrorMessage(err)}`);
     }
   }
 
@@ -69,12 +73,12 @@ export class EmailService {
       await client.emails.send({
         from: this.from,
         to,
-        subject: 'Metrix — Hisobingiz o\'chirildi',
+        subject: "Metrix — Hisobingiz o'chirildi",
         html: `
           <div style="font-family:sans-serif;max-width:480px;margin:0 auto">
             <h2 style="color:#08060d">Hello, ${name || 'user'}</h2>
             <p>Your account has been successfully deleted.</p>
-            <p>If you change your mind, <strong>6 months</strong> you can restore your account within 6 months:</p>
+            <p>If you change your mind, you can restore your account within <strong>6 months</strong>:</p>
             <a href="${restoreUrl}"
                style="display:inline-block;padding:12px 24px;background:#aa3bff;
                       color:#fff;border-radius:6px;text-decoration:none;margin:16px 0">
@@ -86,8 +90,8 @@ export class EmailService {
           </div>
         `,
       });
-    } catch (err) {
-      this.logger.error(`Account deleted email error: ${err.message}`);
+    } catch (err: unknown) {
+      this.logger.error(`Account deleted email error: ${getErrorMessage(err)}`);
     }
   }
 
@@ -118,12 +122,17 @@ export class EmailService {
           </div>
         `,
       });
-    } catch (err) {
-      this.logger.error(`Weekly insight email error: ${err.message}`);
+    } catch (err: unknown) {
+      this.logger.error(`Weekly insight email error: ${getErrorMessage(err)}`);
     }
   }
 
-  async sendAlert(to: string, name: string, alertName: string, message: string) {
+  async sendAlert(
+    to: string,
+    name: string,
+    alertName: string,
+    message: string,
+  ) {
     const client = this.resend;
     if (!client) return;
     try {
@@ -146,12 +155,49 @@ export class EmailService {
           </div>
         `,
       });
-    } catch (err) {
-      this.logger.error(`Alert email error: ${err.message}`);
+    } catch (err: unknown) {
+      this.logger.error(`Alert email error: ${getErrorMessage(err)}`);
     }
   }
 
-  async sendWorkspaceInvite(to: string, workspaceName: string, inviteUrl: string) {
+  async sendLimitReached(
+    to: string,
+    name: string,
+    used: number,
+    limit: number,
+  ) {
+    const client = this.resend;
+    if (!client) return;
+    try {
+      await client.emails.send({
+        from: this.from,
+        to,
+        subject: "Metrix — Oylik ko'rishlar limiti tugadi",
+        html: `
+          <div style="font-family:sans-serif;max-width:480px;margin:0 auto">
+            <h2 style="color:#08060d">Salom, ${name || 'foydalanuvchi'}!</h2>
+            <p>Planingizdagi oylik <strong>${limit.toLocaleString()}</strong> ko'rish limiti tugadi
+            (${used.toLocaleString()} ta ishlatildi).</p>
+            <p>Yangi ko'rishlar oy oxirigacha qabul qilinmaydi. Statistika yig'ilishda davom etishi
+            uchun planni yangilang.</p>
+            <a href="${process.env.FRONTEND_URL || 'http://localhost:3001'}/settings"
+               style="display:inline-block;padding:12px 24px;background:#aa3bff;
+                      color:#fff;border-radius:6px;text-decoration:none;margin:16px 0">
+              Planni yangilash
+            </a>
+          </div>
+        `,
+      });
+    } catch (err: unknown) {
+      this.logger.error(`Limit email error: ${getErrorMessage(err)}`);
+    }
+  }
+
+  async sendWorkspaceInvite(
+    to: string,
+    workspaceName: string,
+    inviteUrl: string,
+  ) {
     const client = this.resend;
     if (!client) return;
     try {
@@ -175,8 +221,10 @@ export class EmailService {
           </div>
         `,
       });
-    } catch (err) {
-      this.logger.error(`Workspace invite email error: ${err.message}`);
+    } catch (err: unknown) {
+      this.logger.error(
+        `Workspace invite email error: ${getErrorMessage(err)}`,
+      );
     }
   }
 }

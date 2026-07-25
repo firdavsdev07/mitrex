@@ -8,7 +8,6 @@ import {
   JOB_TRACK_EXIT,
   JOB_TRACK_EVENT,
   JOB_SYNC_CONNECTION,
-  JOB_SYNC_USER,
 } from './queue.constants';
 
 @Injectable()
@@ -61,20 +60,6 @@ export class QueueService {
         backoff: { type: 'exponential', delay: 5000 },
         // Delay 1 second between connection syncs to avoid API rate limits
         delay: 1000,
-      },
-    );
-  }
-
-  async addUserSync(userId: string) {
-    await this.syncQueue.add(
-      JOB_SYNC_USER,
-      { userId },
-      {
-        removeOnComplete: 50,
-        removeOnFail: 20,
-        attempts: 2,
-        // Deduplicate: same user can't have 2 pending sync jobs
-        jobId: `sync-user-${userId}`,
       },
     );
   }
