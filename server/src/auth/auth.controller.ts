@@ -10,7 +10,7 @@ import {
   HttpStatus,
   UnauthorizedException,
 } from '@nestjs/common';
-import { Throttle } from '@nestjs/throttler';
+import { Throttle } from '@nestjs/throttler' ;
 import {
   ApiTags,
   ApiOperation,
