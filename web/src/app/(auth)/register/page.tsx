@@ -65,27 +65,27 @@ export default function RegisterPage() {
   return (
     <div className="w-full max-w-sm">
       <div className="mb-7 text-center">
-        <h1 className="text-xl font-semibold text-zinc-100 mb-1">
+        <h1 className="text-xl font-semibold text-ink mb-1">
           Hisob yaratish
         </h1>
-        <p className="text-sm text-zinc-500">
+        <p className="text-sm text-ink-3">
           Bepul boshlang, karta kerak emas
         </p>
       </div>
 
-      <div className="rounded-xl border border-zinc-800 bg-zinc-900/60 p-6">
+      <div className="rounded-panel border border-line bg-surface p-6">
         {/* Social */}
         <div className="flex flex-col gap-2 mb-5">
           <a
             href={`${API_BASE}/auth/google`}
-            className="flex items-center justify-center gap-2.5 w-full py-2 text-sm text-zinc-300 border border-zinc-700 rounded-md hover:bg-zinc-800 transition-colors"
+            className="flex h-12 items-center justify-center gap-2.5 w-full text-body font-medium text-ink border border-line rounded-control hover:bg-surface-hover transition-colors ease-standard duration-[var(--mx-dur-micro)]"
           >
             <GoogleIcon />
             Google bilan ro&apos;yxatdan o&apos;tish
           </a>
           <a
             href={`${API_BASE}/auth/github`}
-            className="flex items-center justify-center gap-2.5 w-full py-2 text-sm text-zinc-300 border border-zinc-700 rounded-md hover:bg-zinc-800 transition-colors"
+            className="flex h-12 items-center justify-center gap-2.5 w-full text-body font-medium text-ink border border-line rounded-control hover:bg-surface-hover transition-colors ease-standard duration-[var(--mx-dur-micro)]"
           >
             <GithubIcon />
             GitHub bilan ro&apos;yxatdan o&apos;tish
@@ -93,9 +93,9 @@ export default function RegisterPage() {
         </div>
 
         <div className="flex items-center gap-3 mb-5">
-          <div className="flex-1 h-px bg-zinc-800" />
-          <span className="text-xs text-zinc-600">yoki email bilan</span>
-          <div className="flex-1 h-px bg-zinc-800" />
+          <div className="flex-1 h-px bg-surface-sunken" />
+          <span className="text-xs text-ink-3">yoki email bilan</span>
+          <div className="flex-1 h-px bg-surface-sunken" />
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
@@ -117,7 +117,7 @@ export default function RegisterPage() {
           />
 
           <div className="flex flex-col gap-1.5">
-            <label htmlFor="password" className="text-sm text-zinc-300">
+            <label htmlFor="password" className="text-sm text-ink-2">
               Parol
             </label>
             <div className="relative">
@@ -126,7 +126,7 @@ export default function RegisterPage() {
                 type={showPwd ? 'text' : 'password'}
                 placeholder="Kamida 8 ta belgi"
                 autoComplete="new-password"
-                className="w-full px-3 py-2 pr-10 text-sm rounded-md border border-zinc-800 bg-zinc-900 text-zinc-100 placeholder:text-zinc-600 outline-none transition-all focus:border-zinc-600 focus:ring-1 focus:ring-zinc-600/20"
+                className="w-full px-3 py-2 pr-10 text-sm rounded-control border border-line bg-surface text-ink placeholder:text-ink-faint outline-none transition-all focus:border-line-strong focus:ring-1 focus:ring-line-strong"
                 {...register('password')}
               />
               <button
@@ -135,7 +135,7 @@ export default function RegisterPage() {
                 aria-label={
                   showPwd ? 'Parolni yashirish' : "Parolni ko'rsatish"
                 }
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-600 hover:text-zinc-400 transition-colors"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-ink-3 hover:text-ink transition-colors"
               >
                 {showPwd ? (
                   <EyeOff className="w-4 h-4" />
@@ -145,12 +145,12 @@ export default function RegisterPage() {
               </button>
             </div>
             {errors.password && (
-              <p className="text-xs text-red-400">{errors.password.message}</p>
+              <p className="text-xs text-negative-ink">{errors.password.message}</p>
             )}
           </div>
 
           {serverError && (
-            <p className="text-xs text-red-400 bg-red-500/10 border border-red-500/20 rounded-md px-3 py-2">
+            <p className="text-xs text-negative-ink bg-negative-quiet border border-negative-line rounded-control px-3 py-2">
               {serverError}
             </p>
           )}
@@ -166,28 +166,28 @@ export default function RegisterPage() {
         </form>
       </div>
 
-      <p className="mt-5 text-center text-sm text-zinc-600">
+      <p className="mt-5 text-center text-sm text-ink-3">
         Hisob bormi?{' '}
         <Link
           href="/login"
-          className="text-zinc-400 hover:text-zinc-200 transition-colors"
+          className="text-ink-2 hover:text-ink transition-colors"
         >
           Kirish
         </Link>
       </p>
 
-      <p className="mt-3 text-center text-xs text-zinc-700">
+      <p className="mt-3 text-center text-xs text-ink-3">
         Ro&apos;yxatdan o&apos;tish orqali siz{' '}
         <Link
           href="/terms"
-          className="underline underline-offset-2 hover:text-zinc-500"
+          className="underline underline-offset-2 hover:text-ink-3"
         >
           Foydalanish shartlari
         </Link>{' '}
         va{' '}
         <Link
           href="/privacy"
-          className="underline underline-offset-2 hover:text-zinc-500"
+          className="underline underline-offset-2 hover:text-ink-3"
         >
           Maxfiylik siyosati
         </Link>

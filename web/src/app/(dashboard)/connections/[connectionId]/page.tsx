@@ -37,6 +37,7 @@ import { postsApi, type Post, type SortMetric } from '@/lib/api/posts';
 import { connectionsApi } from '@/lib/api/connections';
 import { PostCard } from '@/components/posts/post-card';
 import { Card, CardContent } from '@/components/ui/card';
+import { toast } from '@/components/ui/toast';
 
 type Period = 'today' | 'week' | 'month';
 
@@ -131,8 +132,8 @@ function ChartTooltip({
 }) {
   if (!active || !payload?.length) return null;
   return (
-    <div className="bg-zinc-900 border border-zinc-700 rounded-lg px-3 py-2 text-xs shadow-xl">
-      <p className="text-zinc-500 mb-1.5">{label}</p>
+    <div className="bg-surface border border-line rounded-control px-3 py-2 text-xs shadow-xl">
+      <p className="text-ink-3 mb-1.5">{label}</p>
       {payload.map((p) => (
         <p key={p.name} style={{ color: p.color }} className="font-semibold">
           {p.name}: {fmt(p.value ?? 0)}
@@ -175,7 +176,7 @@ export default function ConnectionDetailPage({
       triggerDownload(blob, `connection-${platform || 'stats'}-${connectionId}.csv`);
     } catch (err) {
       console.error('Export stats error:', err);
-      alert("Ma'lumotlarni eksport qilishda xatolik");
+      toast.error("Statistikani eksport qilib bo'lmadi. Qayta urinib ko'ring.");
     } finally {
       setExportingStats(false);
     }
@@ -188,7 +189,7 @@ export default function ConnectionDetailPage({
       triggerDownload(blob, `posts-${platform || 'stats'}-${connectionId}.csv`);
     } catch (err) {
       console.error('Export posts error:', err);
-      alert("Postlarni eksport qilishda xatolik");
+      toast.error("Postlarni eksport qilib bo'lmadi. Qayta urinib ko'ring.");
     } finally {
       setExportingPosts(false);
     }
@@ -285,10 +286,10 @@ export default function ConnectionDetailPage({
 
   if (notFound) {
     return (
-      <div className="max-w-4xl mx-auto">
-        <div className="rounded-xl border border-zinc-800 border-dashed bg-zinc-900/30 p-12 text-center">
-          <p className="text-sm text-zinc-400 mb-1">Ulanish topilmadi</p>
-          <Link href="/connections" className="text-xs text-orange-400 hover:underline">
+      <div className="max-w-wide mx-auto">
+        <div className="rounded-panel border border-line border-dashed bg-surface p-12 text-center">
+          <p className="text-sm text-ink-2 mb-1">Ulanish topilmadi</p>
+          <Link href="/connections" className="text-xs text-accent-ink hover:underline">
             Ulashlar sahifasiga qaytish
           </Link>
         </div>
@@ -297,24 +298,24 @@ export default function ConnectionDetailPage({
   }
 
   return (
-    <div className="max-w-4xl mx-auto space-y-5">
+    <div className="max-w-wide mx-auto space-y-8">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <Link
             href="/connections"
-            className="text-zinc-600 hover:text-zinc-300 transition-colors"
+            className="text-ink-3 hover:text-ink transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />
           </Link>
-          <div className="w-8 h-8 rounded-lg bg-zinc-800/60 border border-zinc-700/50 flex items-center justify-center shrink-0">
+          <div className="w-8 h-8 rounded-control bg-surface-sunken border border-line flex items-center justify-center shrink-0">
             {Icon && <Icon className="w-4 h-4" />}
           </div>
           <div>
-            <p className="text-xs text-zinc-600 uppercase tracking-wider mb-0.5">
+            <p className="text-xs text-ink-3 uppercase tracking-wider mb-0.5">
               {(platform && PLATFORM_LABELS[platform]) ?? platform ?? ''}
             </p>
-            <h1 className="text-lg font-semibold text-zinc-100">
+            <h1 className="text-lg font-semibold text-ink">
               {username ? `@${username}` : 'Statistika'}
             </h1>
           </div>
@@ -330,15 +331,15 @@ export default function ConnectionDetailPage({
             <Download className="w-3.5 h-3.5" />
             Eksport (CSV)
           </Button>
-          <div className="flex items-center gap-0.5 bg-zinc-900 border border-zinc-800 rounded-lg p-0.5">
+          <div className="flex items-center gap-0.5 bg-surface border border-line rounded-control p-0.5">
             {(['today', 'week', 'month'] as Period[]).map((p) => (
               <button
                 key={p}
                 onClick={() => setPeriod(p)}
-                className={`text-xs px-3 py-1.5 rounded-md transition-all ${
+                className={`text-xs px-3 py-1.5 rounded-control transition-all ${
                   period === p
-                    ? 'bg-orange-500/12 text-orange-400 border border-orange-500/20'
-                    : 'text-zinc-600 hover:text-zinc-300'
+                    ? 'bg-accent-quiet text-accent-ink border border-accent-line'
+                    : 'text-ink-3 hover:text-ink'
                 }`}
               >
                 {PERIOD_LABELS[p]}
@@ -350,66 +351,66 @@ export default function ConnectionDetailPage({
 
       {/* Summary cards */}
       <div className="grid grid-cols-3 gap-3">
-        <div className="rounded-xl border p-4 bg-blue-500/8 border-blue-500/15">
+        <div className="rounded-panel border p-4 bg-info-quiet border-info-line">
           <div className="flex items-center gap-2 mb-2">
-            <Users className="w-4 h-4 text-blue-400" />
-            <span className="text-xs text-zinc-500">
+            <Users className="w-4 h-4 text-info-ink" />
+            <span className="text-xs text-ink-3">
               A&apos;zolar / obunachilar
             </span>
           </div>
           {loading ? (
-            <div className="h-8 w-16 bg-zinc-800/50 rounded animate-pulse" />
+            <div className="h-8 w-16 bg-surface-sunken rounded animate-pulse" />
           ) : (
-            <p className="text-2xl font-bold text-zinc-100 tabular-nums">
+            <p className="text-2xl font-bold text-ink tabular-nums">
               {latest?.followers != null ? fmt(latest.followers) : '—'}
             </p>
           )}
         </div>
 
-        <div className="rounded-xl border p-4 bg-orange-500/8 border-orange-500/15">
+        <div className="rounded-panel border p-4 bg-accent-quiet border-accent-line">
           <div className="flex items-center gap-2 mb-2">
-            <Eye className="w-4 h-4 text-orange-400" />
-            <span className="text-xs text-zinc-500">Ko&apos;rishlar</span>
+            <Eye className="w-4 h-4 text-accent-ink" />
+            <span className="text-xs text-ink-3">Ko&apos;rishlar</span>
           </div>
           {loading ? (
-            <div className="h-8 w-16 bg-zinc-800/50 rounded animate-pulse" />
+            <div className="h-8 w-16 bg-surface-sunken rounded animate-pulse" />
           ) : (
-            <p className="text-2xl font-bold text-zinc-100 tabular-nums">
+            <p className="text-2xl font-bold text-ink tabular-nums">
               {latest?.views != null ? fmt(latest.views) : '—'}
             </p>
           )}
         </div>
 
         <div
-          className={`rounded-xl border p-4 ${
+          className={`rounded-panel border p-4 ${
             growth === null
-              ? 'bg-zinc-500/8 border-zinc-500/15'
+              ? 'bg-surface-sunken border-line'
               : growth >= 0
-                ? 'bg-green-500/8 border-green-500/15'
-                : 'bg-red-500/8 border-red-500/15'
+                ? 'bg-positive-quiet border-positive-line'
+                : 'bg-negative-quiet border-negative-line'
           }`}
         >
           <div className="flex items-center gap-2 mb-2">
             {growth === null || growth >= 0 ? (
-              <TrendingUp className="w-4 h-4 text-green-400" />
+              <TrendingUp className="w-4 h-4 text-positive-ink" />
             ) : (
-              <TrendingDown className="w-4 h-4 text-red-400" />
+              <TrendingDown className="w-4 h-4 text-negative-ink" />
             )}
-            <span className="text-xs text-zinc-500">
+            <span className="text-xs text-ink-3">
               {PERIOD_LABELS[period]}dagi o&apos;sish
             </span>
           </div>
           {loading ? (
-            <div className="h-8 w-16 bg-zinc-800/50 rounded animate-pulse" />
+            <div className="h-8 w-16 bg-surface-sunken rounded animate-pulse" />
           ) : (
             <>
               <p
                 className={`text-2xl font-bold tabular-nums ${
                   growthCount === null
-                    ? 'text-zinc-500'
+                    ? 'text-ink-3'
                     : growthCount >= 0
-                      ? 'text-green-400'
-                      : 'text-red-400'
+                      ? 'text-positive-ink'
+                      : 'text-negative-ink'
                 }`}
               >
                 {growthCount === null
@@ -418,7 +419,7 @@ export default function ConnectionDetailPage({
               </p>
               {growth !== null && (
                 <p
-                  className={`text-xs mt-0.5 ${growth >= 0 ? 'text-green-400' : 'text-red-400'}`}
+                  className={`text-xs mt-0.5 ${growth >= 0 ? 'text-positive-ink' : 'text-negative-ink'}`}
                 >
                   {growth >= 0 ? '+' : ''}
                   {growth.toFixed(1)}%
@@ -432,15 +433,15 @@ export default function ConnectionDetailPage({
       {/* Growth chart */}
       <Card>
         <CardContent className="p-5">
-          <p className="text-sm font-medium text-zinc-200 mb-4">
+          <p className="text-sm font-medium text-ink mb-4">
             A&apos;zolar soni dinamikasi
           </p>
           {loading ? (
-            <div className="h-48 bg-zinc-800/30 rounded-lg animate-pulse" />
+            <div className="h-48 bg-surface-sunken rounded-control animate-pulse" />
           ) : chartData.length < 2 ? (
             <div className="h-48 flex flex-col items-center justify-center gap-2">
-              <TrendingUp className="w-8 h-8 text-zinc-700" />
-              <p className="text-sm text-zinc-600">
+              <TrendingUp className="w-8 h-8 text-ink-3" />
+              <p className="text-sm text-ink-3">
                 Bu davrda yetarli ma&apos;lumot yo&apos;q
               </p>
             </div>
@@ -449,23 +450,23 @@ export default function ConnectionDetailPage({
               <AreaChart data={chartData}>
                 <defs>
                   <linearGradient id="gFollowers" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.2} />
-                    <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
+                    <stop offset="5%" stopColor="var(--mx-info)" stopOpacity={0.2} />
+                    <stop offset="95%" stopColor="var(--mx-info)" stopOpacity={0} />
                   </linearGradient>
                 </defs>
                 <CartesianGrid
                   strokeDasharray="3 3"
-                  stroke="#27272a"
+                  stroke="var(--mx-chart-grid)"
                   vertical={false}
                 />
                 <XAxis
                   dataKey="date"
-                  tick={{ fill: '#52525b', fontSize: 11 }}
+                  tick={{ fill: 'var(--mx-chart-axis)', fontSize: 11 }}
                   axisLine={false}
                   tickLine={false}
                 />
                 <YAxis
-                  tick={{ fill: '#52525b', fontSize: 11 }}
+                  tick={{ fill: 'var(--mx-chart-axis)', fontSize: 11 }}
                   axisLine={false}
                   tickLine={false}
                   width={36}
@@ -476,11 +477,11 @@ export default function ConnectionDetailPage({
                   type="monotone"
                   dataKey="followers"
                   name="Obunachilar"
-                  stroke="#3b82f6"
+                  stroke="var(--mx-info)"
                   strokeWidth={2}
                   fill="url(#gFollowers)"
                   dot={false}
-                  activeDot={{ r: 4, fill: '#3b82f6' }}
+                  activeDot={{ r: 4, fill: 'var(--mx-info)' }}
                 />
               </AreaChart>
             </ResponsiveContainer>
@@ -492,7 +493,7 @@ export default function ConnectionDetailPage({
       {platform && supportsPosts && (
         <div>
           <div className="flex items-center justify-between mb-3">
-            <p className="text-sm font-medium text-zinc-200">
+            <p className="text-sm font-medium text-ink">
               Barcha kontent{postsTotal > 0 ? ` (${postsTotal})` : ''}
             </p>
             <Button
@@ -508,22 +509,22 @@ export default function ConnectionDetailPage({
           </div>
 
           {CAVEATS[platform] && (
-            <div className="mb-3 flex items-start gap-2 text-xs text-zinc-500 bg-zinc-900/60 border border-zinc-800 rounded-lg px-3 py-2.5">
+            <div className="mb-3 flex items-start gap-2 text-xs text-ink-3 bg-surface border border-line rounded-control px-3 py-2.5">
               <Info className="w-3.5 h-3.5 shrink-0 mt-0.5" />
               <span>{CAVEATS[platform]}</span>
             </div>
           )}
 
           {contentTypes.length > 1 && (
-            <div className="flex items-center gap-1 mb-3 bg-zinc-900 border border-zinc-800 rounded-lg p-0.5 w-fit">
+            <div className="flex items-center gap-1 mb-3 bg-surface border border-line rounded-control p-0.5 w-fit">
               {['ALL', ...contentTypes].map((ct) => (
                 <button
                   key={ct}
                   onClick={() => setContentFilter(ct)}
-                  className={`text-xs px-3 py-1.5 rounded-md transition-all ${
+                  className={`text-xs px-3 py-1.5 rounded-control transition-all ${
                     contentFilter === ct
-                      ? 'bg-orange-500/12 text-orange-400 border border-orange-500/20'
-                      : 'text-zinc-600 hover:text-zinc-300'
+                      ? 'bg-accent-quiet text-accent-ink border border-accent-line'
+                      : 'text-ink-3 hover:text-ink'
                   }`}
                 >
                   {ct === 'ALL'
@@ -539,17 +540,17 @@ export default function ConnectionDetailPage({
               {[1, 2, 3].map((i) => (
                 <div
                   key={i}
-                  className="h-24 rounded-xl border border-zinc-800 bg-zinc-900/60 animate-pulse"
+                  className="h-24 rounded-panel border border-line bg-surface animate-pulse"
                 />
               ))}
             </div>
           ) : filteredPosts.length === 0 ? (
-            <div className="rounded-xl border border-zinc-800 border-dashed bg-zinc-900/30 p-8 text-center">
-              <p className="text-sm text-zinc-500">Hali post topilmadi</p>
-              <p className="text-xs text-zinc-700 mt-1">
+            <div className="rounded-panel border border-line border-dashed bg-surface p-8 text-center">
+              <p className="text-sm text-ink-3">Hali post topilmadi</p>
+              <p className="text-xs text-ink-3 mt-1">
                 <Link
                   href="/connections"
-                  className="text-orange-400 hover:underline"
+                  className="text-accent-ink hover:underline"
                 >
                   Sinxronlashtirib
                 </Link>{' '}

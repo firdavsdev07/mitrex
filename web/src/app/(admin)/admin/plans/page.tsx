@@ -87,10 +87,10 @@ export default function AdminPlansPage() {
     <div className="max-w-4xl mx-auto">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <p className="text-xs text-zinc-600 uppercase tracking-wider mb-0.5">
+          <p className="text-xs text-ink-3 uppercase tracking-wider mb-0.5">
             Admin
           </p>
-          <h1 className="text-lg font-semibold text-zinc-100">Planlar</h1>
+          <h1 className="text-lg font-semibold text-ink">Planlar</h1>
         </div>
         <Button
           onClick={() => setModal({ mode: 'create', plan: { ...EMPTY } })}
@@ -102,7 +102,7 @@ export default function AdminPlansPage() {
       </div>
 
       {error && (
-        <p className="text-xs text-red-400 bg-red-500/10 border border-red-500/20 rounded-md px-3 py-2 mb-4">
+        <p className="text-xs text-negative-ink bg-negative-quiet border border-negative-line rounded-control px-3 py-2 mb-4">
           {error}
         </p>
       )}
@@ -112,7 +112,7 @@ export default function AdminPlansPage() {
           {[1, 2, 3].map((i) => (
             <div
               key={i}
-              className="h-20 rounded-xl border border-zinc-800 bg-zinc-900/60 animate-pulse"
+              className="h-20 rounded-panel border border-line bg-surface animate-pulse"
             />
           ))}
         </div>
@@ -124,7 +124,7 @@ export default function AdminPlansPage() {
                 <div className="flex items-center gap-4">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
-                      <p className="text-sm font-semibold text-zinc-100">
+                      <p className="text-sm font-semibold text-ink">
                         {plan.name}
                       </p>
                       <Badge variant="default" className="font-mono text-xs">
@@ -134,10 +134,10 @@ export default function AdminPlansPage() {
                         <Badge variant="default">Nofaol</Badge>
                       )}
                     </div>
-                    <div className="flex items-center gap-4 text-xs text-zinc-500 flex-wrap">
-                      <span className="text-zinc-300 font-semibold">
+                    <div className="flex items-center gap-4 text-xs text-ink-3 flex-wrap">
+                      <span className="text-ink-2 font-semibold">
                         ${plan.price}/{' '}
-                        <span className="text-zinc-500 font-normal">oy</span>
+                        <span className="text-ink-3 font-normal">oy</span>
                       </span>
                       <span>
                         {plan.maxWebsites === -1 ? '∞' : plan.maxWebsites} sayt
@@ -153,13 +153,13 @@ export default function AdminPlansPage() {
                         views/oy
                       </span>
                       {plan.hasAiInsights && (
-                        <span className="text-orange-400">AI insights</span>
+                        <span className="text-accent-ink">AI insights</span>
                       )}
                       {plan.hasWeeklyReport && (
-                        <span className="text-blue-400">Haftalik hisobot</span>
+                        <span className="text-info-ink">Haftalik hisobot</span>
                       )}
                       {plan.hasCustomAlerts && (
-                        <span className="text-green-400">Custom alerts</span>
+                        <span className="text-positive-ink">Custom alerts</span>
                       )}
                     </div>
                   </div>
@@ -168,13 +168,13 @@ export default function AdminPlansPage() {
                       onClick={() =>
                         setModal({ mode: 'edit', plan: { ...plan } })
                       }
-                      className="p-1.5 rounded-md text-zinc-600 hover:text-zinc-200 hover:bg-zinc-800 transition-all"
+                      className="p-1.5 rounded-control text-ink-3 hover:text-ink hover:bg-surface-hover transition-all"
                     >
                       <Pencil className="w-3.5 h-3.5" />
                     </button>
                     <button
                       onClick={() => handleDelete(plan.id)}
-                      className="p-1.5 rounded-md text-zinc-600 hover:text-red-400 hover:bg-red-500/10 transition-all"
+                      className="p-1.5 rounded-control text-ink-3 hover:text-negative-ink hover:bg-negative-quiet transition-all"
                     >
                       <Trash2 className="w-3.5 h-3.5" />
                     </button>
@@ -193,14 +193,14 @@ export default function AdminPlansPage() {
             className="absolute inset-0 bg-black/60 backdrop-blur-sm"
             onClick={() => setModal(null)}
           />
-          <div className="relative w-full max-w-md rounded-xl border border-zinc-800 bg-zinc-900 p-5 shadow-2xl max-h-[90vh] overflow-y-auto">
+          <div className="relative w-full max-w-md rounded-panel border border-line bg-surface p-5 shadow-2xl max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-sm font-semibold text-zinc-100">
+              <h3 className="text-sm font-semibold text-ink">
                 {modal.mode === 'create' ? 'Yangi plan' : 'Planni tahrirlash'}
               </h3>
               <button
                 onClick={() => setModal(null)}
-                className="text-zinc-600 hover:text-zinc-300"
+                className="text-ink-3 hover:text-ink"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -282,15 +282,15 @@ export default function AdminPlansPage() {
                       onClick={() => setField(key, !modal.plan[key])}
                       className={`w-9 h-5 rounded-full border transition-colors flex items-center px-0.5 ${
                         modal.plan[key]
-                          ? 'bg-orange-500 border-orange-500'
-                          : 'bg-zinc-800 border-zinc-700'
+                          ? 'bg-accent border-accent-line'
+                          : 'bg-surface-sunken border-line'
                       }`}
                     >
                       <span
                         className={`w-4 h-4 rounded-full bg-white transition-transform ${modal.plan[key] ? 'translate-x-4' : 'translate-x-0'}`}
                       />
                     </button>
-                    <span className="text-sm text-zinc-300">{label}</span>
+                    <span className="text-sm text-ink-2">{label}</span>
                   </label>
                 ))}
               </div>

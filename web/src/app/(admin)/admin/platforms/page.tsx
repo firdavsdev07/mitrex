@@ -35,11 +35,11 @@ export default function AdminPlatformsPage() {
   return (
     <div className="max-w-3xl mx-auto">
       <div className="mb-6">
-        <p className="text-xs text-zinc-600 uppercase tracking-wider mb-0.5">
+        <p className="text-xs text-ink-3 uppercase tracking-wider mb-0.5">
           Admin
         </p>
-        <h1 className="text-lg font-semibold text-zinc-100">Platformalar</h1>
-        <p className="text-sm text-zinc-500 mt-1">
+        <h1 className="text-lg font-semibold text-ink">Platformalar</h1>
+        <p className="text-sm text-ink-3 mt-1">
           Platformalarni yoqing/o&apos;chiring yoki &quot;Tez kunda&quot; belgisini boshqaring
         </p>
       </div>
@@ -49,19 +49,19 @@ export default function AdminPlatformsPage() {
           {[1, 2, 3, 4].map((i) => (
             <div
               key={i}
-              className="h-16 rounded-xl border border-zinc-800 bg-zinc-900/60 animate-pulse"
+              className="h-16 rounded-panel border border-line bg-surface animate-pulse"
             />
           ))}
         </div>
       ) : platforms.length === 0 ? (
-        <div className="rounded-xl border border-zinc-800 border-dashed p-8 text-center text-sm text-zinc-600">
+        <div className="rounded-panel border border-line border-dashed p-8 text-center text-sm text-ink-3">
           Platform konfiguratsiyasi topilmadi. Seed ishlatib ko&apos;ring.
         </div>
       ) : (
         <Card>
           <CardContent className="p-0">
             {/* Header */}
-            <div className="grid grid-cols-[1fr_100px_110px] gap-4 px-4 py-2 border-b border-zinc-800/60 text-xs text-zinc-600 uppercase tracking-wider">
+            <div className="grid grid-cols-[1fr_100px_110px] gap-4 px-4 py-2 border-b border-line-subtle text-xs text-ink-3 uppercase tracking-wider">
               <span>Platforma</span>
               <span className="text-center">Faol</span>
               <span className="text-center">Tez kunda</span>
@@ -73,14 +73,14 @@ export default function AdminPlatformsPage() {
                 <div
                   key={p.slug}
                   className={`grid grid-cols-[1fr_100px_110px] gap-4 items-center px-4 py-3 ${
-                    !isLast ? 'border-b border-zinc-800/40' : ''
+                    !isLast ? 'border-b border-line-subtle' : ''
                   }`}
                 >
                   <div>
-                    <p className="text-sm font-medium text-zinc-200">
+                    <p className="text-sm font-medium text-ink">
                       {p.displayName}
                     </p>
-                    <p className="text-xs text-zinc-600 font-mono">{p.slug}</p>
+                    <p className="text-xs text-ink-3 font-mono">{p.slug}</p>
                   </div>
 
                   {/* Enabled toggle */}
@@ -90,8 +90,8 @@ export default function AdminPlatformsPage() {
                       disabled={toggling === p.slug + 'enabled'}
                       className={`w-10 h-5.5 rounded-full border transition-colors flex items-center px-0.5 disabled:opacity-50 ${
                         p.enabled
-                          ? 'bg-green-500/80 border-green-500'
-                          : 'bg-zinc-800 border-zinc-700'
+                          ? 'bg-positive-quiet border-positive-line'
+                          : 'bg-surface-sunken border-line'
                       }`}
                       style={{ height: '22px', width: '42px' }}
                     >
@@ -110,8 +110,8 @@ export default function AdminPlatformsPage() {
                       disabled={toggling === p.slug + 'comingSoon'}
                       className={`w-10 rounded-full border transition-colors flex items-center px-0.5 disabled:opacity-50 ${
                         p.comingSoon
-                          ? 'bg-orange-500/80 border-orange-500'
-                          : 'bg-zinc-800 border-zinc-700'
+                          ? 'bg-accent-quiet border-accent-line'
+                          : 'bg-surface-sunken border-line'
                       }`}
                       style={{ height: '22px', width: '42px' }}
                     >
@@ -129,10 +129,10 @@ export default function AdminPlatformsPage() {
         </Card>
       )}
 
-      <div className="mt-4 p-4 rounded-xl border border-zinc-800/60 bg-zinc-900/30">
-        <p className="text-xs text-zinc-600">
-          <span className="text-green-400">Faol</span> — foydalanuvchilar ulana
-          oladi. <span className="text-orange-400">Tez kunda</span> — platforma
+      <div className="mt-4 p-4 rounded-panel border border-line-subtle bg-surface">
+        <p className="text-xs text-ink-3">
+          <span className="text-positive-ink">Faol</span> — foydalanuvchilar ulana
+          oladi. <span className="text-accent-ink">Tez kunda</span> — platforma
           ko&apos;rinadi lekin ulash mumkin emas.
         </p>
       </div>

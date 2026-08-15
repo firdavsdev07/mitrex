@@ -44,6 +44,7 @@ import { getToken } from '@/lib/api/client';
 import { Card, CardContent } from '@/components/ui/card';
 import { Modal } from '@/components/ui/modal';
 import { Button } from '@/components/ui/button';
+import { toast } from '@/components/ui/toast';
 
 type Period = 'today' | 'week' | 'month';
 type Tab = 'pages' | 'sources' | 'audience' | 'funnel' | 'events';
@@ -98,8 +99,8 @@ function ChartTooltip({
 }) {
   if (!active || !payload?.length) return null;
   return (
-    <div className="bg-zinc-900 border border-zinc-700 rounded-lg px-3 py-2 text-xs shadow-xl">
-      <p className="text-zinc-500 mb-1.5">{label}</p>
+    <div className="bg-surface border border-line rounded-control px-3 py-2 text-xs shadow-xl">
+      <p className="text-ink-3 mb-1.5">{label}</p>
       {payload.map((p) => (
         <p key={p.name} style={{ color: p.color }} className="font-semibold">
           {p.name}: {fmt(p.value ?? 0)}
@@ -113,7 +114,7 @@ function ChartTooltip({
 
 function BreakdownList({
   items,
-  barColor = 'bg-orange-500/60',
+  barColor = 'bg-accent-quiet',
   renderName,
 }: {
   items: { name: string; count: number; percentage: number }[];
@@ -122,7 +123,7 @@ function BreakdownList({
 }) {
   if (!items.length)
     return (
-      <p className="py-6 text-center text-sm text-zinc-600">
+      <p className="py-6 text-center text-sm text-ink-3">
         Ma&apos;lumot yo&apos;q
       </p>
     );
@@ -132,19 +133,19 @@ function BreakdownList({
       {items.map((item) => (
         <div key={item.name}>
           <div className="flex items-center justify-between mb-1">
-            <span className="text-sm text-zinc-300 truncate max-w-[60%]">
+            <span className="text-sm text-ink-2 truncate max-w-[60%]">
               {renderName ? renderName(item.name) : item.name}
             </span>
             <div className="flex items-center gap-2 shrink-0">
-              <span className="text-xs text-zinc-500 tabular-nums w-8 text-right">
+              <span className="text-xs text-ink-3 tabular-nums w-8 text-right">
                 {item.percentage.toFixed(1)}%
               </span>
-              <span className="text-sm font-semibold text-zinc-100 tabular-nums w-12 text-right">
+              <span className="text-sm font-semibold text-ink tabular-nums w-12 text-right">
                 {fmt(item.count)}
               </span>
             </div>
           </div>
-          <div className="h-1.5 bg-zinc-800 rounded-full overflow-hidden">
+          <div className="h-1.5 bg-surface-sunken rounded-full overflow-hidden">
             <div
               className={`h-full ${barColor} rounded-full transition-all`}
               style={{ width: `${item.percentage}%` }}
@@ -200,7 +201,7 @@ export default function WebsiteAnalyticsPage({
       triggerDownload(blob, `pageviews-${site?.name || id}-${exportPeriod}.csv`);
     } catch (err) {
       console.error('Export error:', err);
-      alert("Ma'lumotlarni eksport qilishda xato yuz berdi");
+      toast.error("Ma'lumotlarni eksport qilib bo'lmadi. Qayta urinib ko'ring.");
     } finally {
       setExporting(false);
     }
@@ -295,29 +296,29 @@ export default function WebsiteAnalyticsPage({
   const maxExits = exitPages[0]?.exits ?? 1;
 
   return (
-    <div className="max-w-4xl mx-auto space-y-5">
+    <div className="max-w-wide mx-auto space-y-8">
       {/* ── Header ── */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <Link
             href="/websites"
-            className="text-zinc-600 hover:text-zinc-300 transition-colors"
+            className="text-ink-3 hover:text-ink transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />
           </Link>
           <div>
-            <p className="text-xs text-zinc-600 uppercase tracking-wider mb-0.5">
+            <p className="text-xs text-ink-3 uppercase tracking-wider mb-0.5">
               Sayt tahlili
             </p>
-            <h1 className="text-lg font-semibold text-zinc-100">
+            <h1 className="text-lg font-semibold text-ink">
               {site?.name ?? 'Analytics'}
             </h1>
           </div>
         </div>
         <div className="flex items-center gap-2">
           {realtime && (
-            <div className="flex items-center gap-1.5 text-xs text-green-400 bg-green-500/10 border border-green-500/20 rounded-full px-3 py-1">
-              <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
+            <div className="flex items-center gap-1.5 text-xs text-positive-ink bg-positive-quiet border border-positive-line rounded-full px-3 py-1">
+              <span className="w-1.5 h-1.5 rounded-full bg-positive animate-pulse" />
               {realtime.activeVisitors} faol
             </div>
           )}
@@ -350,15 +351,15 @@ export default function WebsiteAnalyticsPage({
             <Download className="w-3.5 h-3.5" />
             Eksport (CSV)
           </Button>
-          <div className="flex items-center gap-0.5 bg-zinc-900 border border-zinc-800 rounded-lg p-0.5">
+          <div className="flex items-center gap-0.5 bg-surface border border-line rounded-control p-0.5">
             {(['today', 'week', 'month'] as Period[]).map((p) => (
               <button
                 key={p}
                 onClick={() => setPeriod(p)}
-                className={`text-xs px-3 py-1.5 rounded-md transition-all ${
+                className={`text-xs px-3 py-1.5 rounded-control transition-all ${
                   period === p
-                    ? 'bg-orange-500/12 text-orange-400 border border-orange-500/20'
-                    : 'text-zinc-600 hover:text-zinc-300'
+                    ? 'bg-accent-quiet text-accent-ink border border-accent-line'
+                    : 'text-ink-3 hover:text-ink'
                 }`}
               >
                 {PERIOD_LABELS[p]}
@@ -381,47 +382,47 @@ export default function WebsiteAnalyticsPage({
       <div className="grid grid-cols-4 gap-3">
         {[
           {
-            icon: <Users className="w-4 h-4 text-blue-400" />,
+            icon: <Users className="w-4 h-4 text-info-ink" />,
             label: 'Tashrifchilar',
             val: overview?.visitors,
             change: overview?.visitorChange,
-            bg: 'bg-blue-500/8 border-blue-500/15',
+            bg: 'bg-info-quiet border-info-line',
           },
           {
-            icon: <Eye className="w-4 h-4 text-orange-400" />,
+            icon: <Eye className="w-4 h-4 text-accent-ink" />,
             label: "Sahifa ko'rishlar",
             val: overview?.pageViews,
             change: overview?.pageViewChange,
-            bg: 'bg-orange-500/8 border-orange-500/15',
+            bg: 'bg-accent-quiet border-accent-line',
           },
           {
-            icon: <TrendingUp className="w-4 h-4 text-red-400" />,
+            icon: <TrendingUp className="w-4 h-4 text-negative-ink" />,
             label: 'Bounce rate',
             val: overview ? `${overview.bounceRate.toFixed(1)}%` : undefined,
-            bg: 'bg-red-500/8 border-red-500/15',
+            bg: 'bg-negative-quiet border-negative-line',
           },
           {
-            icon: <Clock className="w-4 h-4 text-green-400" />,
+            icon: <Clock className="w-4 h-4 text-positive-ink" />,
             label: "O'rtacha vaqt",
             val: overview ? fmtDuration(overview.avgDuration) : undefined,
-            bg: 'bg-green-500/8 border-green-500/15',
+            bg: 'bg-positive-quiet border-positive-line',
           },
         ].map(({ icon, label, val, change, bg }) => (
-          <div key={label} className={`rounded-xl border p-4 ${bg}`}>
+          <div key={label} className={`rounded-panel border p-4 ${bg}`}>
             <div className="flex items-center gap-2 mb-2">
               {icon}
-              <span className="text-xs text-zinc-500">{label}</span>
+              <span className="text-xs text-ink-3">{label}</span>
             </div>
             {loading || val === undefined ? (
-              <div className="h-8 w-16 bg-zinc-800/50 rounded animate-pulse" />
+              <div className="h-8 w-16 bg-surface-sunken rounded animate-pulse" />
             ) : (
               <>
-                <p className="text-2xl font-bold text-zinc-100 tabular-nums">
+                <p className="text-2xl font-bold text-ink tabular-nums">
                   {typeof val === 'number' ? fmt(val) : val}
                 </p>
                 {change !== undefined && change !== null && (
                   <p
-                    className={`text-xs mt-0.5 ${change >= 0 ? 'text-green-400' : 'text-red-400'}`}
+                    className={`text-xs mt-0.5 ${change >= 0 ? 'text-positive-ink' : 'text-negative-ink'}`}
                   >
                     {change >= 0 ? '+' : ''}
                     {change.toFixed(1)}%
@@ -436,15 +437,15 @@ export default function WebsiteAnalyticsPage({
       {/* ── Trend chart ── */}
       <Card>
         <CardContent className="p-5">
-          <p className="text-sm font-medium text-zinc-200 mb-4">
+          <p className="text-sm font-medium text-ink mb-4">
             Tashrifchilar va ko&apos;rishlar dinamikasi
           </p>
           {loading ? (
-            <div className="h-48 bg-zinc-800/30 rounded-lg animate-pulse" />
+            <div className="h-48 bg-surface-sunken rounded-control animate-pulse" />
           ) : trendData.length === 0 ? (
             <div className="h-48 flex flex-col items-center justify-center gap-2">
-              <Globe className="w-8 h-8 text-zinc-700" />
-              <p className="text-sm text-zinc-600">
+              <Globe className="w-8 h-8 text-ink-3" />
+              <p className="text-sm text-ink-3">
                 Bu davrda ma&apos;lumot yo&apos;q
               </p>
             </div>
@@ -453,27 +454,27 @@ export default function WebsiteAnalyticsPage({
               <AreaChart data={trendData}>
                 <defs>
                   <linearGradient id="gVisitors" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.2} />
-                    <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
+                    <stop offset="5%" stopColor="var(--mx-info)" stopOpacity={0.2} />
+                    <stop offset="95%" stopColor="var(--mx-info)" stopOpacity={0} />
                   </linearGradient>
                   <linearGradient id="gViews" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#f97316" stopOpacity={0.2} />
-                    <stop offset="95%" stopColor="#f97316" stopOpacity={0} />
+                    <stop offset="5%" stopColor="var(--mx-accent)" stopOpacity={0.2} />
+                    <stop offset="95%" stopColor="var(--mx-accent)" stopOpacity={0} />
                   </linearGradient>
                 </defs>
                 <CartesianGrid
                   strokeDasharray="3 3"
-                  stroke="#27272a"
+                  stroke="var(--mx-chart-grid)"
                   vertical={false}
                 />
                 <XAxis
                   dataKey="date"
-                  tick={{ fill: '#52525b', fontSize: 11 }}
+                  tick={{ fill: 'var(--mx-chart-axis)', fontSize: 11 }}
                   axisLine={false}
                   tickLine={false}
                 />
                 <YAxis
-                  tick={{ fill: '#52525b', fontSize: 11 }}
+                  tick={{ fill: 'var(--mx-chart-axis)', fontSize: 11 }}
                   axisLine={false}
                   tickLine={false}
                   width={36}
@@ -485,7 +486,7 @@ export default function WebsiteAnalyticsPage({
                   iconSize={8}
                   wrapperStyle={{
                     fontSize: 11,
-                    color: '#71717a',
+                    color: 'var(--mx-ink-3)',
                     paddingTop: 8,
                   }}
                 />
@@ -493,21 +494,21 @@ export default function WebsiteAnalyticsPage({
                   type="monotone"
                   dataKey="visitors"
                   name="Tashrifchilar"
-                  stroke="#3b82f6"
+                  stroke="var(--mx-info)"
                   strokeWidth={2}
                   fill="url(#gVisitors)"
                   dot={false}
-                  activeDot={{ r: 4, fill: '#3b82f6' }}
+                  activeDot={{ r: 4, fill: 'var(--mx-info)' }}
                 />
                 <Area
                   type="monotone"
                   dataKey="views"
                   name="Ko'rishlar"
-                  stroke="#f97316"
+                  stroke="var(--mx-accent)"
                   strokeWidth={2}
                   fill="url(#gViews)"
                   dot={false}
-                  activeDot={{ r: 4, fill: '#f97316' }}
+                  activeDot={{ r: 4, fill: 'var(--mx-accent)' }}
                 />
               </AreaChart>
             </ResponsiveContainer>
@@ -517,7 +518,7 @@ export default function WebsiteAnalyticsPage({
 
       {/* ── Tabs ── */}
       <div>
-        <div className="flex items-center gap-1 mb-3 border-b border-zinc-800">
+        <div className="flex items-center gap-1 mb-3 border-b border-line">
           {[
             { key: 'pages' as Tab, label: 'Top sahifalar' },
             { key: 'sources' as Tab, label: 'Traffic manbalari' },
@@ -533,8 +534,8 @@ export default function WebsiteAnalyticsPage({
               onClick={() => setActiveTab(key)}
               className={`px-4 py-2 text-sm transition-all border-b-2 -mb-px ${
                 activeTab === key
-                  ? 'border-orange-500 text-orange-400'
-                  : 'border-transparent text-zinc-500 hover:text-zinc-300'
+                  ? 'border-accent-line text-accent-ink'
+                  : 'border-transparent text-ink-3 hover:text-ink'
               }`}
             >
               {label}
@@ -547,7 +548,7 @@ export default function WebsiteAnalyticsPage({
           <Card>
             <CardContent className="p-0">
               {/* Subtabs */}
-              <div className="flex items-center gap-1 px-4 pt-3 pb-0 border-b border-zinc-800/60">
+              <div className="flex items-center gap-1 px-4 pt-3 pb-0 border-b border-line-subtle">
                 {[
                   { key: 'all' as PageSubTab, label: 'Barcha' },
                   { key: 'entry' as PageSubTab, label: 'Kirish sahifalari' },
@@ -558,8 +559,8 @@ export default function WebsiteAnalyticsPage({
                     onClick={() => setPageSubTab(key)}
                     className={`px-3 py-2 text-xs transition-all border-b-2 -mb-px ${
                       pageSubTab === key
-                        ? 'border-orange-500 text-orange-400'
-                        : 'border-transparent text-zinc-500 hover:text-zinc-300'
+                        ? 'border-accent-line text-accent-ink'
+                        : 'border-transparent text-ink-3 hover:text-ink'
                     }`}
                   >
                     {label}
@@ -570,7 +571,7 @@ export default function WebsiteAnalyticsPage({
               {/* All pages */}
               {pageSubTab === 'all' && (
                 <>
-                  <div className="grid grid-cols-[1fr_70px_70px_80px] gap-3 px-4 py-2 border-b border-zinc-800/40 text-xs text-zinc-600 uppercase tracking-wider">
+                  <div className="grid grid-cols-[1fr_70px_70px_80px] gap-3 px-4 py-2 border-b border-line-subtle text-xs text-ink-3 uppercase tracking-wider">
                     <span>Sahifa</span>
                     <span className="text-right">Ko&apos;rish</span>
                     <span className="text-right">Unique</span>
@@ -587,34 +588,34 @@ export default function WebsiteAnalyticsPage({
                         scroll === null
                           ? ''
                           : scroll >= 61
-                            ? 'text-green-400'
+                            ? 'text-positive-ink'
                             : scroll >= 31
-                              ? 'text-yellow-400'
-                              : 'text-red-400';
+                              ? 'text-accent-ink'
+                              : 'text-negative-ink';
                       return (
                         <div
                           key={page.path}
-                          className={`px-4 py-3 ${i < pages.length - 1 ? 'border-b border-zinc-800/40' : ''}`}
+                          className={`px-4 py-3 ${i < pages.length - 1 ? 'border-b border-line-subtle' : ''}`}
                         >
                           <div className="grid grid-cols-[1fr_70px_70px_80px] gap-3 items-center mb-1.5">
-                            <p className="text-sm text-zinc-300 font-mono truncate">
+                            <p className="text-sm text-ink-2 font-mono truncate">
                               {page.path}
                             </p>
-                            <p className="text-sm font-semibold text-zinc-100 tabular-nums text-right">
+                            <p className="text-sm font-semibold text-ink tabular-nums text-right">
                               {fmt(page.views)}
                             </p>
-                            <p className="text-sm text-zinc-500 tabular-nums text-right">
+                            <p className="text-sm text-ink-3 tabular-nums text-right">
                               {fmt(page.uniqueVisitors)}
                             </p>
                             <p
-                              className={`text-sm font-medium tabular-nums text-right ${scrollColor || 'text-zinc-700'}`}
+                              className={`text-sm font-medium tabular-nums text-right ${scrollColor || 'text-ink-3'}`}
                             >
                               {scroll !== null ? `↕ ${scroll}%` : '—'}
                             </p>
                           </div>
-                          <div className="h-1 bg-zinc-800 rounded-full overflow-hidden">
+                          <div className="h-1 bg-surface-sunken rounded-full overflow-hidden">
                             <div
-                              className="h-full bg-orange-500/60 rounded-full"
+                              className="h-full bg-accent-quiet rounded-full"
                               style={{
                                 width: `${(page.views / maxViews) * 100}%`,
                               }}
@@ -630,7 +631,7 @@ export default function WebsiteAnalyticsPage({
               {/* Entry pages */}
               {pageSubTab === 'entry' && (
                 <>
-                  <div className="grid grid-cols-[1fr_100px] gap-4 px-4 py-2 border-b border-zinc-800/40 text-xs text-zinc-600 uppercase tracking-wider">
+                  <div className="grid grid-cols-[1fr_100px] gap-4 px-4 py-2 border-b border-line-subtle text-xs text-ink-3 uppercase tracking-wider">
                     <span>Kirish sahifasi</span>
                     <span className="text-right">Kirishlar</span>
                   </div>
@@ -642,19 +643,19 @@ export default function WebsiteAnalyticsPage({
                     entryPages.map((page, i) => (
                       <div
                         key={page.path}
-                        className={`px-4 py-3 ${i < entryPages.length - 1 ? 'border-b border-zinc-800/40' : ''}`}
+                        className={`px-4 py-3 ${i < entryPages.length - 1 ? 'border-b border-line-subtle' : ''}`}
                       >
                         <div className="grid grid-cols-[1fr_100px] gap-4 items-center mb-1.5">
-                          <p className="text-sm text-zinc-300 font-mono truncate">
+                          <p className="text-sm text-ink-2 font-mono truncate">
                             {page.path}
                           </p>
-                          <p className="text-sm font-semibold text-zinc-100 tabular-nums text-right">
+                          <p className="text-sm font-semibold text-ink tabular-nums text-right">
                             {fmt(page.entries)}
                           </p>
                         </div>
-                        <div className="h-1 bg-zinc-800 rounded-full overflow-hidden">
+                        <div className="h-1 bg-surface-sunken rounded-full overflow-hidden">
                           <div
-                            className="h-full bg-blue-500/60 rounded-full"
+                            className="h-full bg-info-quiet rounded-full"
                             style={{
                               width: `${(page.entries / maxEntries) * 100}%`,
                             }}
@@ -669,7 +670,7 @@ export default function WebsiteAnalyticsPage({
               {/* Exit pages */}
               {pageSubTab === 'exit' && (
                 <>
-                  <div className="grid grid-cols-[1fr_80px_90px] gap-4 px-4 py-2 border-b border-zinc-800/40 text-xs text-zinc-600 uppercase tracking-wider">
+                  <div className="grid grid-cols-[1fr_80px_90px] gap-4 px-4 py-2 border-b border-line-subtle text-xs text-ink-3 uppercase tracking-wider">
                     <span>Chiqish sahifasi</span>
                     <span className="text-right">Chiqishlar</span>
                     <span className="text-right">Exit rate</span>
@@ -682,24 +683,24 @@ export default function WebsiteAnalyticsPage({
                     exitPages.map((page, i) => (
                       <div
                         key={page.path}
-                        className={`px-4 py-3 ${i < exitPages.length - 1 ? 'border-b border-zinc-800/40' : ''}`}
+                        className={`px-4 py-3 ${i < exitPages.length - 1 ? 'border-b border-line-subtle' : ''}`}
                       >
                         <div className="grid grid-cols-[1fr_80px_90px] gap-4 items-center mb-1.5">
-                          <p className="text-sm text-zinc-300 font-mono truncate">
+                          <p className="text-sm text-ink-2 font-mono truncate">
                             {page.path}
                           </p>
-                          <p className="text-sm font-semibold text-zinc-100 tabular-nums text-right">
+                          <p className="text-sm font-semibold text-ink tabular-nums text-right">
                             {fmt(page.exits)}
                           </p>
                           <p
-                            className={`text-sm font-semibold tabular-nums text-right ${page.exitRate > 50 ? 'text-red-400' : page.exitRate > 25 ? 'text-yellow-400' : 'text-green-400'}`}
+                            className={`text-sm font-semibold tabular-nums text-right ${page.exitRate > 50 ? 'text-negative-ink' : page.exitRate > 25 ? 'text-accent-ink' : 'text-positive-ink'}`}
                           >
                             {page.exitRate.toFixed(1)}%
                           </p>
                         </div>
-                        <div className="h-1 bg-zinc-800 rounded-full overflow-hidden">
+                        <div className="h-1 bg-surface-sunken rounded-full overflow-hidden">
                           <div
-                            className="h-full bg-red-500/50 rounded-full"
+                            className="h-full bg-negative-quiet rounded-full"
                             style={{
                               width: `${(page.exits / maxExits) * 100}%`,
                             }}
@@ -719,7 +720,7 @@ export default function WebsiteAnalyticsPage({
           <Card>
             <CardContent className="p-0">
               {/* Subtabs */}
-              <div className="flex items-center gap-1 px-4 pt-3 pb-0 border-b border-zinc-800/60">
+              <div className="flex items-center gap-1 px-4 pt-3 pb-0 border-b border-line-subtle">
                 {[
                   { key: 'referrers' as SourceSubTab, label: 'Manbalar' },
                   {
@@ -732,8 +733,8 @@ export default function WebsiteAnalyticsPage({
                     onClick={() => setSourceSubTab(key)}
                     className={`px-3 py-2 text-xs transition-all border-b-2 -mb-px ${
                       sourceSubTab === key
-                        ? 'border-orange-500 text-orange-400'
-                        : 'border-transparent text-zinc-500 hover:text-zinc-300'
+                        ? 'border-accent-line text-accent-ink'
+                        : 'border-transparent text-ink-3 hover:text-ink'
                     }`}
                   >
                     {label}
@@ -744,7 +745,7 @@ export default function WebsiteAnalyticsPage({
               {/* Referrers */}
               {sourceSubTab === 'referrers' && (
                 <>
-                  <div className="grid grid-cols-[1fr_80px_64px] gap-4 px-4 py-2 border-b border-zinc-800/40 text-xs text-zinc-600 uppercase tracking-wider">
+                  <div className="grid grid-cols-[1fr_80px_64px] gap-4 px-4 py-2 border-b border-line-subtle text-xs text-ink-3 uppercase tracking-wider">
                     <span>Manba</span>
                     <span className="text-right">Tashrifchilar</span>
                     <span className="text-right">%</span>
@@ -757,24 +758,24 @@ export default function WebsiteAnalyticsPage({
                     sources.referrers.map((src, i) => (
                       <div
                         key={src.source}
-                        className={`px-4 py-3 ${i < sources.referrers.length - 1 ? 'border-b border-zinc-800/40' : ''}`}
+                        className={`px-4 py-3 ${i < sources.referrers.length - 1 ? 'border-b border-line-subtle' : ''}`}
                       >
                         <div className="grid grid-cols-[1fr_80px_64px] gap-4 items-center mb-1.5">
-                          <p className="text-sm text-zinc-300 truncate">
+                          <p className="text-sm text-ink-2 truncate">
                             {src.source === 'direct'
                               ? "To'g'ridan-to'g'ri"
                               : src.source}
                           </p>
-                          <p className="text-sm font-semibold text-zinc-100 tabular-nums text-right">
+                          <p className="text-sm font-semibold text-ink tabular-nums text-right">
                             {fmt(src.visitors)}
                           </p>
-                          <p className="text-sm text-zinc-500 tabular-nums text-right">
+                          <p className="text-sm text-ink-3 tabular-nums text-right">
                             {src.percentage.toFixed(1)}%
                           </p>
                         </div>
-                        <div className="h-1 bg-zinc-800 rounded-full overflow-hidden">
+                        <div className="h-1 bg-surface-sunken rounded-full overflow-hidden">
                           <div
-                            className="h-full bg-blue-500/60 rounded-full"
+                            className="h-full bg-info-quiet rounded-full"
                             style={{ width: `${src.percentage}%` }}
                           />
                         </div>
@@ -787,7 +788,7 @@ export default function WebsiteAnalyticsPage({
               {/* UTM Campaigns */}
               {sourceSubTab === 'campaigns' && (
                 <>
-                  <div className="grid grid-cols-[1fr_1fr_1fr_70px_56px] gap-3 px-4 py-2 border-b border-zinc-800/40 text-xs text-zinc-600 uppercase tracking-wider">
+                  <div className="grid grid-cols-[1fr_1fr_1fr_70px_56px] gap-3 px-4 py-2 border-b border-line-subtle text-xs text-ink-3 uppercase tracking-wider">
                     <span>Manba</span>
                     <span>Medium</span>
                     <span>Kampaniya</span>
@@ -798,10 +799,10 @@ export default function WebsiteAnalyticsPage({
                     <SkeletonRows count={4} />
                   ) : sources.campaigns.length === 0 ? (
                     <div className="py-10 text-center">
-                      <p className="text-sm text-zinc-600">
+                      <p className="text-sm text-ink-3">
                         UTM parametrli tashrif yo&apos;q
                       </p>
-                      <p className="text-xs text-zinc-700 mt-1">
+                      <p className="text-xs text-ink-3 mt-1">
                         URL ga ?utm_source=... qo&apos;shing
                       </p>
                     </div>
@@ -809,28 +810,28 @@ export default function WebsiteAnalyticsPage({
                     sources.campaigns.map((c, i) => (
                       <div
                         key={`${c.source}-${c.medium}-${c.campaign}`}
-                        className={`px-4 py-3 ${i < sources.campaigns.length - 1 ? 'border-b border-zinc-800/40' : ''}`}
+                        className={`px-4 py-3 ${i < sources.campaigns.length - 1 ? 'border-b border-line-subtle' : ''}`}
                       >
                         <div className="grid grid-cols-[1fr_1fr_1fr_70px_56px] gap-3 items-center mb-1.5">
-                          <p className="text-sm text-zinc-300 truncate font-medium">
+                          <p className="text-sm text-ink-2 truncate font-medium">
                             {c.source || '—'}
                           </p>
-                          <p className="text-xs text-zinc-500 truncate">
+                          <p className="text-xs text-ink-3 truncate">
                             {c.medium || '—'}
                           </p>
-                          <p className="text-xs text-zinc-500 truncate">
+                          <p className="text-xs text-ink-3 truncate">
                             {c.campaign || '—'}
                           </p>
-                          <p className="text-sm font-semibold text-zinc-100 tabular-nums text-right">
+                          <p className="text-sm font-semibold text-ink tabular-nums text-right">
                             {fmt(c.visitors)}
                           </p>
-                          <p className="text-sm text-zinc-500 tabular-nums text-right">
+                          <p className="text-sm text-ink-3 tabular-nums text-right">
                             {c.percentage.toFixed(1)}%
                           </p>
                         </div>
-                        <div className="h-1 bg-zinc-800 rounded-full overflow-hidden">
+                        <div className="h-1 bg-surface-sunken rounded-full overflow-hidden">
                           <div
-                            className="h-full bg-purple-500/60 rounded-full"
+                            className="h-full bg-info-quiet rounded-full"
                             style={{ width: `${c.percentage}%` }}
                           />
                         </div>
@@ -849,7 +850,7 @@ export default function WebsiteAnalyticsPage({
             {/* Qurilmalar */}
             <Card>
               <CardContent className="p-4">
-                <p className="text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-4">
+                <p className="text-xs font-semibold text-ink-2 uppercase tracking-wider mb-4">
                   Qurilmalar
                 </p>
                 {loading ? (
@@ -857,12 +858,12 @@ export default function WebsiteAnalyticsPage({
                 ) : (
                   <BreakdownList
                     items={audience?.devices ?? []}
-                    barColor="bg-orange-500/60"
+                    barColor="bg-accent-quiet"
                     renderName={(name) => {
                       const Icon = deviceIcon(name);
                       return (
                         <span className="flex items-center gap-1.5">
-                          <Icon className="w-3.5 h-3.5 text-zinc-500 shrink-0" />
+                          <Icon className="w-3.5 h-3.5 text-ink-3 shrink-0" />
                           <span className="capitalize">{name}</span>
                         </span>
                       );
@@ -875,7 +876,7 @@ export default function WebsiteAnalyticsPage({
             {/* Brauzerlar */}
             <Card>
               <CardContent className="p-4">
-                <p className="text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-4">
+                <p className="text-xs font-semibold text-ink-2 uppercase tracking-wider mb-4">
                   Brauzerlar
                 </p>
                 {loading ? (
@@ -883,7 +884,7 @@ export default function WebsiteAnalyticsPage({
                 ) : (
                   <BreakdownList
                     items={audience?.browsers ?? []}
-                    barColor="bg-blue-500/60"
+                    barColor="bg-info-quiet"
                   />
                 )}
               </CardContent>
@@ -892,7 +893,7 @@ export default function WebsiteAnalyticsPage({
             {/* Davlatlar */}
             <Card>
               <CardContent className="p-4">
-                <p className="text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-4">
+                <p className="text-xs font-semibold text-ink-2 uppercase tracking-wider mb-4">
                   Davlatlar
                 </p>
                 {loading ? (
@@ -900,7 +901,7 @@ export default function WebsiteAnalyticsPage({
                 ) : (
                   <BreakdownList
                     items={audience?.countries ?? []}
-                    barColor="bg-green-500/60"
+                    barColor="bg-positive-quiet"
                   />
                 )}
               </CardContent>
@@ -983,10 +984,10 @@ function FunnelTab({
     <div className="flex flex-col gap-4">
       <Card>
         <CardContent className="p-4">
-          <p className="text-sm font-medium text-zinc-200 mb-1">
+          <p className="text-sm font-medium text-ink mb-1">
             Konversiya bosqichlarini belgilang
           </p>
-          <p className="text-xs text-zinc-600 mb-3">
+          <p className="text-xs text-ink-3 mb-3">
             Custom event nomlarini tartib bilan kiriting (masalan: Signup → Add
             to cart → Purchase)
           </p>
@@ -996,7 +997,7 @@ function FunnelTab({
               {availableEvents.map((name) => (
                 <span
                   key={name}
-                  className="text-[10px] bg-zinc-800 border border-zinc-700 rounded px-1.5 py-0.5 text-zinc-500 font-mono"
+                  className="text-[10px] bg-surface-sunken border border-line rounded px-1.5 py-0.5 text-ink-3 font-mono"
                 >
                   {name}
                 </span>
@@ -1007,20 +1008,20 @@ function FunnelTab({
           <div className="flex flex-col gap-2">
             {steps.map((step, i) => (
               <div key={i} className="flex items-center gap-2">
-                <span className="text-xs text-zinc-600 w-5 shrink-0 text-right">
+                <span className="text-xs text-ink-3 w-5 shrink-0 text-right">
                   {i + 1}.
                 </span>
                 <input
                   value={step}
                   onChange={(e) => updateStep(i, e.target.value)}
                   placeholder="Event nomi"
-                  className="flex-1 px-3 py-2 text-sm rounded-md border border-zinc-800 bg-zinc-900 text-zinc-100 placeholder:text-zinc-600 outline-none focus:border-zinc-600 focus:ring-1 focus:ring-zinc-600/20"
+                  className="flex-1 px-3 py-2 text-sm rounded-control border border-line bg-surface text-ink placeholder:text-ink-faint outline-none focus:border-line-strong focus:ring-1 focus:ring-line-strong"
                 />
                 {steps.length > 2 && (
                   <button
                     onClick={() => removeStep(i)}
                     aria-label="Bosqichni o'chirish"
-                    className="text-zinc-600 hover:text-red-400 transition-colors shrink-0"
+                    className="text-ink-3 hover:text-negative-ink transition-colors shrink-0"
                   >
                     <X className="w-4 h-4" />
                   </button>
@@ -1040,7 +1041,7 @@ function FunnelTab({
             </Button>
           </div>
 
-          {error && <p className="text-xs text-red-400 mt-2">{error}</p>}
+          {error && <p className="text-xs text-negative-ink mt-2">{error}</p>}
         </CardContent>
       </Card>
 
@@ -1048,10 +1049,10 @@ function FunnelTab({
         <Card>
           <CardContent className="p-5">
             <div className="flex items-center justify-between mb-4">
-              <p className="text-sm font-medium text-zinc-200">Natija</p>
-              <span className="text-xs text-zinc-500">
+              <p className="text-sm font-medium text-ink">Natija</p>
+              <span className="text-xs text-ink-3">
                 Umumiy konversiya:{' '}
-                <span className="text-orange-400 font-semibold">
+                <span className="text-accent-ink font-semibold">
                   {result.overallConversionPct}%
                 </span>
               </span>
@@ -1060,23 +1061,23 @@ function FunnelTab({
               {result.steps.map((s, i) => (
                 <div key={s.step}>
                   <div className="flex items-center justify-between mb-1">
-                    <span className="text-sm text-zinc-300">
+                    <span className="text-sm text-ink-2">
                       {i + 1}. {s.step}
                     </span>
                     <div className="flex items-center gap-2">
                       {i > 0 && s.dropOffPct > 0 && (
-                        <span className="text-xs text-red-400">
+                        <span className="text-xs text-negative-ink">
                           -{s.dropOffPct}%
                         </span>
                       )}
-                      <span className="text-sm font-semibold text-zinc-100 tabular-nums">
+                      <span className="text-sm font-semibold text-ink tabular-nums">
                         {fmt(s.count)}
                       </span>
                     </div>
                   </div>
-                  <div className="h-2.5 bg-zinc-800 rounded-full overflow-hidden">
+                  <div className="h-2.5 bg-surface-sunken rounded-full overflow-hidden">
                     <div
-                      className="h-full bg-orange-500/70 rounded-full transition-all"
+                      className="h-full bg-accent-quiet rounded-full transition-all"
                       style={{
                         width: `${maxCount ? (s.count / maxCount) * 100 : 0}%`,
                       }}
@@ -1144,10 +1145,10 @@ function ShareModal({
   }
 
   return (
-    <Modal title="Ommaviy dashboard havolasi" onClose={onClose}>
+    <Modal size="md" title="Ommaviy dashboard havolasi" onClose={onClose}>
       {!shareId ? (
         <div className="flex flex-col gap-3">
-          <p className="text-sm text-zinc-500">
+          <p className="text-sm text-ink-3">
             Auth&apos;siz kirish mumkin bo&apos;lgan faqat-o&apos;qish uchun
             havola yarating — investorlar yoki jamoadoshlar bilan ulashish uchun
             qulay.
@@ -1158,17 +1159,17 @@ function ShareModal({
         </div>
       ) : (
         <div className="flex flex-col gap-3">
-          <div className="flex items-center gap-2 bg-zinc-950 border border-zinc-800 rounded-md px-3 py-2">
-            <p className="text-xs text-zinc-400 font-mono truncate flex-1">
+          <div className="flex items-center gap-2 bg-canvas border border-line rounded-control px-3 py-2">
+            <p className="text-xs text-ink-2 font-mono truncate flex-1">
               {publicUrl}
             </p>
             <button
               onClick={copy}
               aria-label="Nusxalash"
-              className="text-zinc-500 hover:text-zinc-200 transition-colors shrink-0"
+              className="text-ink-3 hover:text-ink transition-colors shrink-0"
             >
               {copied ? (
-                <Check className="w-3.5 h-3.5 text-green-400" />
+                <Check className="w-3.5 h-3.5 text-positive-ink" />
               ) : (
                 <Copy className="w-3.5 h-3.5" />
               )}
@@ -1229,14 +1230,14 @@ function EventsTab({
 
   if (events.length === 0) {
     return (
-      <div className="rounded-xl border border-zinc-800 border-dashed p-12 text-center">
-        <p className="text-sm text-zinc-500 mb-1">
+      <div className="rounded-panel border border-line border-dashed p-12 text-center">
+        <p className="text-sm text-ink-3 mb-1">
           Hali custom event qayd etilmagan
         </p>
-        <p className="text-xs text-zinc-700 mb-3">
+        <p className="text-xs text-ink-3 mb-3">
           Saytingizda quyidagi kodni chaqiring:
         </p>
-        <pre className="inline-block text-xs text-orange-400 bg-zinc-900 border border-zinc-800 rounded-lg px-4 py-2 font-mono">
+        <pre className="inline-block text-xs text-accent-ink bg-surface border border-line rounded-control px-4 py-2 font-mono">
           {`metrix('Purchase', { price: 49 })`}
         </pre>
       </div>
@@ -1248,7 +1249,7 @@ function EventsTab({
   return (
     <Card>
       <CardContent className="p-0">
-        <div className="grid grid-cols-[1fr_80px_120px] gap-4 px-4 py-2 border-b border-zinc-800/60 text-xs text-zinc-600 uppercase tracking-wider">
+        <div className="grid grid-cols-[1fr_80px_120px] gap-4 px-4 py-2 border-b border-line-subtle text-xs text-ink-3 uppercase tracking-wider">
           <span>Event nomi</span>
           <span className="text-right">Soni</span>
           <span className="text-right">Oxirgi</span>
@@ -1263,73 +1264,73 @@ function EventsTab({
             <div
               key={ev.name}
               className={
-                i < events.length - 1 ? 'border-b border-zinc-800/40' : ''
+                i < events.length - 1 ? 'border-b border-line-subtle' : ''
               }
             >
               {/* Event row */}
               <button
                 onClick={() => toggleEvent(ev.name)}
-                className="w-full grid grid-cols-[1fr_80px_120px] gap-4 items-center px-4 py-3 hover:bg-zinc-800/20 transition-colors text-left"
+                className="w-full grid grid-cols-[1fr_80px_120px] gap-4 items-center px-4 py-3 hover:bg-surface-hover transition-colors text-left"
               >
                 <div className="flex items-center gap-2 min-w-0">
                   <span
-                    className={`w-1.5 h-1.5 rounded-full shrink-0 ${isOpen ? 'bg-orange-500' : 'bg-zinc-600'}`}
+                    className={`w-1.5 h-1.5 rounded-full shrink-0 ${isOpen ? 'bg-accent' : 'bg-ink-faint'}`}
                   />
-                  <span className="text-sm font-medium text-zinc-200 truncate">
+                  <span className="text-sm font-medium text-ink truncate">
                     {ev.name}
                   </span>
                 </div>
                 <div className="text-right">
-                  <span className="text-sm font-bold text-zinc-100 tabular-nums">
+                  <span className="text-sm font-bold text-ink tabular-nums">
                     {fmt(ev.count)}
                   </span>
-                  <div className="mt-1 h-1 bg-zinc-800 rounded-full overflow-hidden">
+                  <div className="mt-1 h-1 bg-surface-sunken rounded-full overflow-hidden">
                     <div
-                      className="h-full bg-orange-500/60 rounded-full"
+                      className="h-full bg-accent-quiet rounded-full"
                       style={{ width: `${(ev.count / maxCount) * 100}%` }}
                     />
                   </div>
                 </div>
-                <p className="text-xs text-zinc-600 text-right">
+                <p className="text-xs text-ink-3 text-right">
                   {ev.lastSeen ? timeAgo(ev.lastSeen) : '—'}
                 </p>
               </button>
 
               {/* Detail rows */}
               {isOpen && (
-                <div className="bg-zinc-950/50 border-t border-zinc-800/40 px-4 py-3">
+                <div className="bg-canvas border-t border-line-subtle px-4 py-3">
                   {isLoading ? (
                     <div className="space-y-2">
                       {[1, 2, 3].map((i) => (
                         <div
                           key={i}
-                          className="h-6 bg-zinc-800/40 rounded animate-pulse"
+                          className="h-6 bg-surface-sunken rounded animate-pulse"
                         />
                       ))}
                     </div>
                   ) : rows.length === 0 ? (
-                    <p className="text-xs text-zinc-600 py-2">
+                    <p className="text-xs text-ink-3 py-2">
                       Ma&apos;lumot topilmadi
                     </p>
                   ) : (
                     <div className="space-y-2">
-                      <p className="text-xs text-zinc-600 mb-2">
+                      <p className="text-xs text-ink-3 mb-2">
                         So&apos;nggi {rows.length} ta hodisa:
                       </p>
                       {rows.map((row) => (
                         <div
                           key={row.id}
-                          className="flex items-start gap-3 py-1.5 border-b border-zinc-800/30 last:border-0"
+                          className="flex items-start gap-3 py-1.5 border-b border-line-subtle last:border-0"
                         >
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2 flex-wrap">
                               {row.path && (
-                                <span className="text-xs text-zinc-500 font-mono">
+                                <span className="text-xs text-ink-3 font-mono">
                                   {row.path}
                                 </span>
                               )}
                               {row.country && (
-                                <span className="text-xs text-zinc-700">
+                                <span className="text-xs text-ink-3">
                                   {row.country}
                                 </span>
                               )}
@@ -1341,10 +1342,10 @@ function EventsTab({
                                     ([k, v]) => (
                                       <span
                                         key={k}
-                                        className="text-[10px] bg-zinc-800 border border-zinc-700 rounded px-1.5 py-0.5 text-zinc-400 font-mono"
+                                        className="text-[10px] bg-surface-sunken border border-line rounded px-1.5 py-0.5 text-ink-2 font-mono"
                                       >
                                         {k}:{' '}
-                                        <span className="text-orange-400">
+                                        <span className="text-accent-ink">
                                           {String(v)}
                                         </span>
                                       </span>
@@ -1353,7 +1354,7 @@ function EventsTab({
                                 </div>
                               )}
                           </div>
-                          <span className="text-[10px] text-zinc-700 shrink-0 mt-0.5">
+                          <span className="text-[10px] text-ink-3 shrink-0 mt-0.5">
                             {timeAgo(row.createdAt)}
                           </span>
                         </div>
@@ -1393,7 +1394,7 @@ function SkeletonRows({
   return (
     <div className={compact ? 'space-y-3' : 'p-4 space-y-3'}>
       {Array.from({ length: count }).map((_, i) => (
-        <div key={i} className="h-7 bg-zinc-800/40 rounded animate-pulse" />
+        <div key={i} className="h-7 bg-surface-sunken rounded animate-pulse" />
       ))}
     </div>
   );
@@ -1401,7 +1402,7 @@ function SkeletonRows({
 
 function EmptyState() {
   return (
-    <div className="py-8 text-center text-sm text-zinc-600">
+    <div className="py-8 text-center text-sm text-ink-3">
       Bu davr uchun ma&apos;lumot yo&apos;q
     </div>
   );

@@ -42,23 +42,23 @@ export default function ForgotPasswordPage() {
   if (sent) {
     return (
       <div className="w-full max-w-sm text-center">
-        <div className="w-12 h-12 rounded-full bg-green-500/10 border border-green-500/20 flex items-center justify-center mx-auto mb-4">
-          <CheckCircle className="w-6 h-6 text-green-400" />
+        <div className="w-12 h-12 rounded-full bg-positive-quiet border border-positive-line flex items-center justify-center mx-auto mb-4">
+          <CheckCircle className="w-6 h-6 text-positive-ink" />
         </div>
-        <h1 className="text-xl font-semibold text-zinc-100 mb-2">
+        <h1 className="text-xl font-semibold text-ink mb-2">
           Xat yuborildi
         </h1>
-        <p className="text-sm text-zinc-500 mb-1">
+        <p className="text-sm text-ink-3 mb-1">
           Parolni tiklash havolasi quyidagi emailga yuborildi:
         </p>
-        <p className="text-sm text-zinc-300 font-medium mb-6">{sentEmail}</p>
-        <p className="text-xs text-zinc-600 mb-6">
+        <p className="text-sm text-ink-2 font-medium mb-6">{sentEmail}</p>
+        <p className="text-xs text-ink-3 mb-6">
           Xat kelmasa spam papkasini tekshiring. Havola 1 soat davomida amal
           qiladi.
         </p>
         <Link
           href="/login"
-          className="text-sm text-zinc-400 hover:text-zinc-200 transition-colors flex items-center justify-center gap-1.5"
+          className="text-sm text-ink-2 hover:text-ink transition-colors flex items-center justify-center gap-1.5"
         >
           <ArrowLeft className="w-3.5 h-3.5" />
           Kirish sahifasiga qaytish
@@ -70,15 +70,15 @@ export default function ForgotPasswordPage() {
   return (
     <div className="w-full max-w-sm">
       <div className="mb-7 text-center">
-        <h1 className="text-xl font-semibold text-zinc-100 mb-1">
+        <h1 className="text-xl font-semibold text-ink mb-1">
           Parolni tiklash
         </h1>
-        <p className="text-sm text-zinc-500">
+        <p className="text-sm text-ink-3">
           Email manzilingizni kiriting, havola yuboramiz
         </p>
       </div>
 
-      <div className="rounded-xl border border-zinc-800 bg-zinc-900/60 p-6">
+      <div className="rounded-panel border border-line bg-surface p-6">
         <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
           <Input
             label="Email"
@@ -90,7 +90,7 @@ export default function ForgotPasswordPage() {
           />
 
           {serverError && (
-            <p className="text-sm text-red-400 -mt-1">{serverError}</p>
+            <p className="text-sm text-negative-ink -mt-1">{serverError}</p>
           )}
 
           <Button
@@ -104,10 +104,10 @@ export default function ForgotPasswordPage() {
         </form>
       </div>
 
-      <p className="mt-5 text-center text-sm text-zinc-600">
+      <p className="mt-5 text-center text-sm text-ink-3">
         <Link
           href="/login"
-          className="text-zinc-400 hover:text-zinc-200 transition-colors flex items-center justify-center gap-1.5"
+          className="text-ink-2 hover:text-ink transition-colors flex items-center justify-center gap-1.5"
         >
           <ArrowLeft className="w-3.5 h-3.5" />
           Kirish sahifasiga qaytish

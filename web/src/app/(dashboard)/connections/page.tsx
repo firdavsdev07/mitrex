@@ -22,6 +22,9 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Modal } from '@/components/ui/modal';
+import { toast } from '@/components/ui/toast';
+import { Select } from '@/components/ui/select';
+import { cn } from '@/lib/utils';
 import { useWorkspaceStore } from '@/store/workspace';
 import {
   YouTubeIcon,
@@ -58,6 +61,20 @@ const ALL_PLATFORMS = [
   'THREADS',
   'PINTEREST',
 ];
+
+// Ulanmagan kartada «nima olasiz» deb aytadi — quruq «Ulanmagan» so'zi
+// foydalanuvchiga hech narsa bermaydi.
+const PLATFORM_PITCH: Record<string, string> = {
+  YOUTUBE: "Obunachilar, ko'rishlar va har bir video statistikasi.",
+  TELEGRAM: "Kanal a'zolari va o'sish dinamikasi.",
+  INSTAGRAM: 'Kuzatuvchilar, reach va post natijalari.',
+  DISCORD: "Server a'zolari va faollik darajasi.",
+  BLUESKY: 'Followerlar va post statistikasi.',
+  REDDIT: "Subreddit a'zolari va faollik.",
+  FACEBOOK: 'Sahifa kuzatuvchilari va reach.',
+  THREADS: 'Threads profil statistikasi.',
+  PINTEREST: "Pinterest profil ko'rsatkichlari.",
+};
 
 const PLATFORM_LABELS: Record<string, string> = {
   youtube: 'YouTube',
@@ -150,7 +167,7 @@ function ConnectionsInner() {
             {name}: Tarifingiz chekloviga yetdingiz. Iltimos,{' '}
             <Link
               href="/settings?billing=true"
-              className="text-orange-400 underline hover:text-orange-300 font-semibold"
+              className="text-accent-ink underline hover:text-accent-ink font-semibold"
             >
               tarifni yangilang
             </Link>
@@ -193,39 +210,90 @@ function ConnectionsInner() {
     setTelegramModal(true);
   }
 
+  // Ilgari jamoa o'zgartirilganda `window.location.reload()` chaqirilardi —
+  // butun sahifa qaytadan yuklanardi, bu esa dropdown o'zgarishiga javoban
+  // buzilgandek ko'rinadi. Endi holat joyida yangilanadi.
+  function handleWorkspaceChange(connectionId: string, workspaceId: string | null) {
+    setConnections((prev) =>
+      prev.map((c) => (c.id === connectionId ? { ...c, workspaceId } : c)),
+    );
+  }
+
+
+  // Ulanishlarni HOLAT bo'yicha guruhlaymiz. Ilgari to'qqizta platforma
+  // bir xil og'irlikdagi qator bo'lib chiqardi va ko'pchiligi «Ulanmagan»
+  // derdi — bitta eskirgan token to'qqizta bir xil qator ichida yo'qolardi.
+  const mine = connections.filter((c) =>
+    activeWorkspace ? c.workspaceId === activeWorkspace.id : !c.workspaceId,
+  );
+
+  const needsAttention = mine.filter(
+    (c) => c.tokenStatus === 'expired' || c.tokenStatus === 'expiring_soon',
+  );
+  const healthy = mine.filter(
+    (c) => c.tokenStatus !== 'expired' && c.tokenStatus !== 'expiring_soon',
+  );
+  const connectedPlatforms = new Set(mine.map((c) => c.platform));
+  const available = ALL_PLATFORMS.filter((p) => !connectedPlatforms.has(p));
+
+  const cardProps = {
+    onSync: handleSync,
+    onDisconnect: handleDisconnect,
+    onYoutube: () => setYoutubeModal(true),
+    onBluesky: () => setBlueskyModal(true),
+    onTelegram: openTelegramModal,
+    onReddit: () => setRedditModal(true),
+    onError: setErrorMsg,
+    onWorkspaceChange: handleWorkspaceChange,
+  };
+
   return (
-    <div className="max-w-3xl mx-auto">
-      <div className="mb-6">
-        <p className="text-xs text-zinc-600 uppercase tracking-wider mb-0.5">
-          Ulashlar
-        </p>
-        <h1 className="text-lg font-semibold text-zinc-100">Platformalar</h1>
-        <p className="text-sm text-zinc-500 mt-1">
-          Platformalarni ulang — statistika avtomatik yangilanib turadi
-        </p>
+    <div className="mx-auto max-w-wide">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div className="min-w-0">
+          <h1 className="text-title text-ink">Kanallar</h1>
+          <p className="mt-1.5 text-body text-ink-3">
+            Platformalarni ulang — statistika o&apos;zi yangilanib turadi.
+          </p>
+        </div>
+        <div className="flex shrink-0 items-center gap-3 rounded-panel border border-line-subtle bg-surface px-4 py-2.5 shadow-card">
+          <div className="text-center">
+            <p className="text-heading font-bold tabular-nums text-ink">
+              {mine.length}
+            </p>
+            <p className="text-eyebrow uppercase text-ink-3">ulangan</p>
+          </div>
+          <div className="h-8 w-px bg-line-subtle" />
+          <div className="text-center">
+            <p
+              className={cn(
+                'text-heading font-bold tabular-nums',
+                needsAttention.length ? 'text-accent-ink' : 'text-ink-3',
+              )}
+            >
+              {needsAttention.length}
+            </p>
+            <p className="text-eyebrow uppercase text-ink-3">e&apos;tibor</p>
+          </div>
+        </div>
       </div>
 
-      {/* Success toast */}
       {successMsg && (
-        <div className="mb-4 flex items-center gap-3 bg-green-500/10 border border-green-500/20 text-green-400 text-sm px-4 py-3 rounded-xl">
-          <CheckCircle className="w-4 h-4 shrink-0" />
+        <div className="mt-5 flex items-center gap-3 rounded-panel border border-positive-line bg-positive-quiet px-4 py-3 text-small text-positive-ink">
+          <CheckCircle className="h-4 w-4 shrink-0" />
           {successMsg}
         </div>
       )}
-
-      {/* Error toast */}
       {errorMsg && (
-        <div className="mb-4 flex items-center gap-3 bg-red-500/10 border border-red-500/20 text-red-400 text-sm px-4 py-3 rounded-xl">
-          <AlertTriangle className="w-4 h-4 shrink-0" />
+        <div className="mt-5 flex items-center gap-3 rounded-panel border border-negative-line bg-negative-quiet px-4 py-3 text-small text-negative-ink">
+          <AlertTriangle className="h-4 w-4 shrink-0" />
           {errorMsg}
         </div>
       )}
-
-      {/* Load error — retry */}
       {loadError && !isLoading && (
-        <div className="mb-4 flex items-center justify-between gap-3 bg-red-500/10 border border-red-500/20 text-red-400 text-sm px-4 py-3 rounded-xl">
+        <div className="mt-5 flex items-center justify-between gap-3 rounded-panel border border-negative-line bg-negative-quiet px-4 py-3 text-small text-negative-ink">
           <span className="flex items-center gap-2">
-            <AlertTriangle className="w-4 h-4 shrink-0" />
+            <AlertTriangle className="h-4 w-4 shrink-0" />
             Ulanishlarni yuklab bo&apos;lmadi. Internetni tekshiring.
           </span>
           <Button variant="secondary" size="sm" onClick={loadConnections}>
@@ -234,90 +302,68 @@ function ConnectionsInner() {
         </div>
       )}
 
-      {isLoading && (
-        <div className="flex flex-col gap-3 mb-3">
-          {[1, 2, 3].map((i) => (
+      {isLoading ? (
+        <div className="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">
+          {[1, 2, 3, 4, 5, 6].map((i) => (
             <div
               key={i}
-              className="h-20 rounded-xl border border-zinc-800 bg-zinc-900/60 animate-pulse"
+              className="h-52 animate-pulse rounded-panel border border-line-subtle bg-surface"
             />
           ))}
         </div>
-      )}
+      ) : (
+        <>
+          {/* 1. E'tibor talab qiladi — faqat bo'lsa ko'rinadi */}
+          {needsAttention.length > 0 && (
+            <Group
+              title="E'tibor talab qiladi"
+              hint="Bu kanallardan ma'lumot kelmayapti."
+              tone="alert"
+            >
+              {needsAttention.map((conn) => (
+                <PlatformCard key={conn.id} conn={conn} {...cardProps} />
+              ))}
+            </Group>
+          )}
 
-      <div className="flex flex-col gap-5">
-        {ALL_PLATFORMS.map((platform) => {
-          const meta = PLATFORM_META[platform];
-          const Icon = PLATFORM_ICONS[platform];
-          const filteredConnections = connections.filter((conn) =>
-            activeWorkspace ? conn.workspaceId === activeWorkspace.id : !conn.workspaceId
-          );
-          const platformConns = filteredConnections.filter(
-            (c) => c.platform === platform,
-          );
-
-          if (platformConns.length === 0) {
-            return (
-              <ConnectionRow
-                key={platform}
-                platform={platform}
-                meta={meta}
-                Icon={Icon}
-                conn={undefined}
-                isSyncing={false}
-                onSync={handleSync}
-                onDisconnect={handleDisconnect}
-                onYoutube={() => setYoutubeModal(true)}
-                onBluesky={() => setBlueskyModal(true)}
-                onTelegram={openTelegramModal}
-                onReddit={() => setRedditModal(true)}
-                onError={setErrorMsg}
-              />
-            );
-          }
-
-          return (
-            <div key={platform} className="flex flex-col gap-2">
-              {platformConns.map((conn) => (
-                <ConnectionRow
+          {/* 2. Ulangan */}
+          {healthy.length > 0 && (
+            <Group title="Ulangan" hint="Ma'lumot muntazam yangilanmoqda.">
+              {healthy.map((conn) => (
+                <PlatformCard
                   key={conn.id}
-                  platform={platform}
-                  meta={meta}
-                  Icon={Icon}
                   conn={conn}
                   isSyncing={syncingId === conn.id}
-                  onSync={handleSync}
-                  onDisconnect={handleDisconnect}
-                  onYoutube={() => setYoutubeModal(true)}
-                  onBluesky={() => setBlueskyModal(true)}
-                  onTelegram={openTelegramModal}
-                  onReddit={() => setRedditModal(true)}
-                  onError={setErrorMsg}
+                  {...cardProps}
                 />
               ))}
+            </Group>
+          )}
 
-              {/* Yana bitta akkaunt qo'shish — har bir platformada bir
-                  nechta ulanish bo'lishi mumkin (masalan 2 ta Telegram
-                  kanal), shuning uchun bu tugma allaqachon ulangan
-                  platformalarda ham doim ko'rinadi. */}
-              <ConnectButton
-                platform={platform}
-                meta={meta}
-                onYoutube={() => setYoutubeModal(true)}
-                onBluesky={() => setBlueskyModal(true)}
-                onTelegram={openTelegramModal}
-                onReddit={() => setRedditModal(true)}
-                onError={setErrorMsg}
-                label={`Yana ${meta.label} akkaunt qo'shish`}
-                icon={<Plus className="w-3.5 h-3.5" />}
-                variant="add"
-              />
-            </div>
-          );
-        })}
-      </div>
+          {/* 3. Ulash mumkin */}
+          {available.length > 0 && (
+            <Group
+              title="Ulash mumkin"
+              hint="Bir bosishda qo'shing — ko'pchiligi uchun parol kerak emas."
+            >
+              {available.map((platform) => (
+                <PlatformCard
+                  key={platform}
+                  platform={platform}
+                  {...cardProps}
+                />
+              ))}
+            </Group>
+          )}
 
-      {/* YouTube modal */}
+          {mine.length === 0 && !isLoading && (
+            <p className="mt-8 text-center text-caption text-ink-3">
+              Hali birorta kanal ulanmagan — yuqoridan birini tanlang.
+            </p>
+          )}
+        </>
+      )}
+
       {youtubeModal && (
         <YoutubeModal
           onClose={() => setYoutubeModal(false)}
@@ -327,8 +373,6 @@ function ConnectionsInner() {
           }}
         />
       )}
-
-      {/* Bluesky modal */}
       {blueskyModal && (
         <BlueskyModal
           onClose={() => setBlueskyModal(false)}
@@ -338,8 +382,6 @@ function ConnectionsInner() {
           }}
         />
       )}
-
-      {/* Telegram modal */}
       {telegramModal && (
         <TelegramModal
           onClose={() => setTelegramModal(false)}
@@ -349,8 +391,6 @@ function ConnectionsInner() {
           }}
         />
       )}
-
-      {/* Reddit modal */}
       {redditModal && (
         <RedditModal
           onClose={() => setRedditModal(false)}
@@ -364,11 +404,46 @@ function ConnectionsInner() {
   );
 }
 
-function ConnectionRow({
-  platform,
-  meta,
-  Icon,
+// ─── Guruh sarlavhasi ────────────────────────────────────────────────────
+// Guruhning o'zi ishni bajaradi: foydalanuvchi «nima buzilgan?» degan
+// savolga sarlavhani o'qibgina javob oladi.
+function Group({
+  title,
+  hint,
+  tone = 'plain',
+  children,
+}: {
+  title: string;
+  hint?: string;
+  tone?: 'plain' | 'alert';
+  children: React.ReactNode;
+}) {
+  return (
+    <section className="mt-10">
+      <div className="flex items-baseline gap-3">
+        <h2
+          className={cn(
+            'text-heading',
+            tone === 'alert' ? 'text-accent-ink' : 'text-ink',
+          )}
+        >
+          {title}
+        </h2>
+        {hint && <p className="text-caption text-ink-3">{hint}</p>}
+      </div>
+      <div className="mt-4 grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">
+        {children}
+      </div>
+    </section>
+  );
+}
+
+// ─── Platforma kartasi ───────────────────────────────────────────────────
+// Bitta karta ikkala holatni ham ko'rsatadi: ulangan bo'lsa `conn`
+// beriladi, aks holda faqat `platform`.
+function PlatformCard({
   conn,
+  platform,
   isSyncing,
   onSync,
   onDisconnect,
@@ -377,220 +452,201 @@ function ConnectionRow({
   onTelegram,
   onReddit,
   onError,
+  onWorkspaceChange,
 }: {
-  platform: string;
-  meta: { label: string; connectType: string };
-  Icon?: React.FC<{ className?: string }>;
-  conn: Connection | undefined;
-  isSyncing: boolean;
-  onSync: (connectionId: string) => void;
-  onDisconnect: (connectionId: string) => void;
+  conn?: Connection;
+  platform?: string;
+  isSyncing?: boolean;
+  onSync: (id: string) => void;
+  onDisconnect: (id: string) => void;
   onYoutube: () => void;
   onBluesky: () => void;
   onTelegram: () => void;
   onReddit: () => void;
   onError: (msg: React.ReactNode) => void;
+  onWorkspaceChange: (id: string, workspaceId: string | null) => void;
 }) {
-  const isConnected = !!conn;
-  const { workspaces } = useWorkspaceStore();
+  const key = conn?.platform ?? platform!;
+  const meta = PLATFORM_META[key];
+  const Icon = PLATFORM_ICONS[key];
+  const expired = conn?.tokenStatus === 'expired';
+  const expiring = conn?.tokenStatus === 'expiring_soon';
+  const stat = conn?.stats?.[0];
 
   return (
-    <Card>
-      <CardContent className="p-4">
-        <div className="flex items-center gap-4">
-          {/* Icon */}
-          <div className="w-10 h-10 rounded-xl bg-zinc-800/60 border border-zinc-700/50 flex items-center justify-center shrink-0">
-            {Icon && <Icon className="w-5 h-5" />}
-          </div>
-
-          {/* Info */}
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2 mb-0.5 flex-wrap">
-              <p className="text-sm font-medium text-zinc-200">
-                {meta.label}
-              </p>
-              {isConnected && conn?.tokenStatus === 'ok' && (
-                <Badge variant="success">Ulangan</Badge>
-              )}
-              {isConnected && conn?.tokenStatus === 'expiring_soon' && (
-                <Badge variant="orange">
-                  <AlertTriangle className="w-3 h-3 mr-1" />
-                  Token tugayapti
-                </Badge>
-              )}
-              {isConnected && conn?.tokenStatus === 'expired' && (
-                <Badge
-                  variant="default"
-                  className="border-red-500/30 bg-red-500/10 text-red-400"
-                >
-                  <AlertTriangle className="w-3 h-3 mr-1" />
-                  Token eskirgan
-                </Badge>
-              )}
-            </div>
-            {conn?.platformUsername && (
-              <div className="flex items-center gap-2 mt-1">
-                <span className="text-xs text-zinc-600">@{conn.platformUsername}</span>
-                <span className="text-zinc-800 text-[10px]">•</span>
-                <select
-                  value={conn.workspaceId ?? 'personal'}
-                  onChange={async (e) => {
-                    const val = e.target.value;
-                    const newWs = val === 'personal' ? null : val;
-                    try {
-                      await connectionsApi.updateWorkspace(conn.id, newWs);
-                      window.location.reload();
-                    } catch {
-                      alert("Ulanish jamoasini o'zgartirishda xatolik yuz berdi");
-                    }
-                  }}
-                  className="text-[10px] bg-zinc-900 border border-zinc-850 rounded px-1.5 py-0.5 text-zinc-500 outline-none hover:text-zinc-355 cursor-pointer transition-colors max-w-28 truncate font-medium"
-                >
-                  <option value="personal">Shaxsiy</option>
-                  {workspaces.map((w) => (
-                    <option key={w.id} value={w.id}>
-                      {w.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            )}
-            {!isConnected && (
-              <p className="text-xs text-zinc-650">Ulanmagan</p>
-            )}
-          </div>
-
-          {/* Actions */}
-          <div className="flex items-center gap-2 shrink-0">
-            {isConnected && conn ? (
-              conn.tokenStatus === 'expired' ? (
-                // Token eskirgan — qayta ulash kerak
-                <>
-                  <ConnectButton
-                    platform={platform}
-                    meta={meta}
-                    onYoutube={onYoutube}
-                    onBluesky={onBluesky}
-                    onTelegram={onTelegram}
-                    onReddit={onReddit}
-                    onError={onError}
-                    label="Qayta ulash"
-                    icon={<RotateCcw className="w-3.5 h-3.5" />}
-                  />
-                  <Button
-                    variant="danger"
-                    size="sm"
-                    onClick={() => onDisconnect(conn.id)}
-                    className="gap-1.5"
-                  >
-                    <Unlink className="w-3.5 h-3.5" />
-                    Uzish
-                  </Button>
-                </>
-              ) : (
-                <>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    loading={isSyncing}
-                    onClick={() => onSync(conn.id)}
-                    className="gap-1.5"
-                  >
-                    <RefreshCw className="w-3.5 h-3.5" />
-                    Yangilash
-                  </Button>
-                  <Button
-                    variant="danger"
-                    size="sm"
-                    onClick={() => onDisconnect(conn.id)}
-                    className="gap-1.5"
-                  >
-                    <Unlink className="w-3.5 h-3.5" />
-                    Uzish
-                  </Button>
-                </>
-              )
-            ) : (
-              <ConnectButton
-                platform={platform}
-                meta={meta}
-                onYoutube={onYoutube}
-                onBluesky={onBluesky}
-                onTelegram={onTelegram}
-                onReddit={onReddit}
-                onError={onError}
-              />
-            )}
-          </div>
+    <div
+      className={cn(
+        'flex flex-col rounded-panel border bg-surface p-5 shadow-card transition-colors',
+        expired
+          ? 'border-negative-line'
+          : expiring
+            ? 'border-accent-line'
+            : 'border-line-subtle hover:border-line',
+      )}
+    >
+      {/* Yuqori qator: ikonka + holat belgisi */}
+      <div className="flex items-start justify-between gap-3">
+        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-control border border-line-subtle bg-surface-sunken">
+          {Icon && <Icon className="h-5 w-5" />}
         </div>
 
-        {/* Stats row */}
-        {conn && conn.stats[0] && (
-          <div className="mt-3 pt-3 border-t border-zinc-800/50 flex items-center gap-4 text-xs text-zinc-600 flex-wrap">
-            {conn.stats[0].followers != null && (
-              <span>
-                👥{' '}
-                <span className="text-zinc-300 font-medium">
-                  {conn.stats[0].followers.toLocaleString()}
-                </span>{' '}
-                obunachi
-              </span>
-            )}
-            {conn.stats[0].views != null && (
-              <span>
-                👁{' '}
-                <span className="text-zinc-300 font-medium">
-                  {conn.stats[0].views.toLocaleString()}
-                </span>{' '}
-                ko&apos;rish
-              </span>
-            )}
-            {conn.stats[0].likes != null && (
-              <span>
-                ❤{' '}
-                <span className="text-zinc-300 font-medium">
-                  {conn.stats[0].likes.toLocaleString()}
-                </span>{' '}
-                like
-              </span>
-            )}
-            {conn.stats[0].comments != null && (
-              <span>
-                💬{' '}
-                <span className="text-zinc-300 font-medium">
-                  {conn.stats[0].comments.toLocaleString()}
-                </span>{' '}
-                izoh
-              </span>
-            )}
-            {conn.stats[0].engagement != null && (
-              <span className="text-orange-400 font-medium">
-                {(conn.stats[0].engagement as number).toFixed(1)}% eng
-              </span>
-            )}
-            <span className="ml-auto" title={new Date(conn.stats[0].updatedAt).toLocaleString('uz-UZ')}>
-              {timeAgo(conn.stats[0].updatedAt)}
-            </span>
-          </div>
+        {expired ? (
+          <Badge variant="danger">Uzilgan</Badge>
+        ) : expiring ? (
+          <Badge variant="warning">Tugayapti</Badge>
+        ) : conn ? (
+          <Badge variant="success">Ulangan</Badge>
+        ) : (
+          <span className="rounded-chip bg-surface-sunken px-2 py-0.5 text-eyebrow font-semibold uppercase tracking-wider text-ink-3">
+            Ulanmagan
+          </span>
         )}
+      </div>
 
-        {/* Batafsil link */}
-        {isConnected && conn && (
-          <Link
-            href={`/connections/${conn.id}`}
-            className={`flex items-center justify-center gap-1 text-xs text-zinc-500 hover:text-orange-400 transition-colors ${
-              conn.stats[0] ? 'mt-2' : 'mt-3 pt-3 border-t border-zinc-800/50'
-            }`}
-          >
-            Batafsil statistika
-            <ChevronRight className="w-3.5 h-3.5" />
-          </Link>
+      {/* Nom */}
+      <h3 className="mt-4 text-heading text-ink">{meta.label}</h3>
+      <p className="mt-1 min-h-[2.5rem] text-caption leading-relaxed text-ink-2">
+        {conn
+          ? expired
+            ? `${meta.label} qayta ulanishi kerak — ma'lumot kelishi to'xtagan.`
+            : expiring
+              ? "Ruxsat tez orada tugaydi. Qayta ulasangiz uzilish bo'lmaydi."
+              : (conn.platformUsername ? `@${conn.platformUsername}` : 'Ulangan')
+          : (PLATFORM_PITCH[key] ?? 'Statistikani avtomatik yig‘adi.')}
+      </p>
+
+      {/* Ulangan bo'lsa — nima yig'ilayotgani */}
+      {conn && stat && !expired && (
+        <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 border-t border-line-subtle pt-3 text-caption text-ink-3">
+          {stat.followers != null && (
+            <span>
+              <span className="font-semibold tabular-nums text-ink">
+                {stat.followers.toLocaleString()}
+              </span>{' '}
+              obunachi
+            </span>
+          )}
+          {stat.views != null && (
+            <span>
+              <span className="font-semibold tabular-nums text-ink">
+                {stat.views.toLocaleString()}
+              </span>{' '}
+              ko&apos;rish
+            </span>
+          )}
+          <span className="ml-auto" title={new Date(stat.updatedAt).toLocaleString('uz-UZ')}>
+            {timeAgo(stat.updatedAt)}
+          </span>
+        </div>
+      )}
+
+      {/* Amallar — har doim kartaning pastida */}
+      <div className="mt-auto flex items-center gap-2 pt-5">
+        {conn ? (
+          expired ? (
+            <ConnectButton
+              platform={key}
+              meta={meta}
+              onYoutube={onYoutube}
+              onBluesky={onBluesky}
+              onTelegram={onTelegram}
+              onReddit={onReddit}
+              onError={onError}
+              label="Qayta ulash"
+              icon={<RotateCcw className="h-3.5 w-3.5" />}
+              fullWidth
+            />
+          ) : (
+            <>
+              <Link href={`/connections/${conn.id}`} className="flex-1">
+                <Button variant="secondary" size="sm" className="w-full gap-1.5">
+                  Batafsil
+                  <ChevronRight className="h-3.5 w-3.5" />
+                </Button>
+              </Link>
+              <Button
+                variant="ghost"
+                size="sm"
+                aria-label="Yangilash"
+                title="Yangilash"
+                loading={isSyncing}
+                onClick={() => onSync(conn.id)}
+              >
+                {!isSyncing && <RefreshCw className="h-3.5 w-3.5" />}
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                aria-label="Uzish"
+                title="Uzish"
+                onClick={() => onDisconnect(conn.id)}
+                className="hover:text-negative-ink"
+              >
+                <Unlink className="h-3.5 w-3.5" />
+              </Button>
+            </>
+          )
+        ) : (
+          <ConnectButton
+            platform={key}
+            meta={meta}
+            onYoutube={onYoutube}
+            onBluesky={onBluesky}
+            onTelegram={onTelegram}
+            onReddit={onReddit}
+            onError={onError}
+            icon={<Plus className="h-3.5 w-3.5" />}
+            fullWidth
+            quiet
+          />
         )}
-      </CardContent>
-    </Card>
+      </div>
+
+      {/* Jamoa tanlash — faqat ulangan va sog'lom bo'lsa */}
+      {conn && !expired && (
+        <div className="mt-3 flex items-center gap-2 border-t border-line-subtle pt-3">
+          <span className="text-eyebrow uppercase text-ink-faint">Jamoa</span>
+          <WorkspacePicker conn={conn} onChange={onWorkspaceChange} />
+        </div>
+      )}
+    </div>
   );
 }
 
+function WorkspacePicker({
+  conn,
+  onChange,
+}: {
+  conn: Connection;
+  onChange: (id: string, workspaceId: string | null) => void;
+}) {
+  const { workspaces } = useWorkspaceStore();
+  return (
+    <Select
+      size="sm"
+      aria-label="Jamoa"
+      className="max-w-40"
+      value={conn.workspaceId ?? 'personal'}
+      onChange={async (e) => {
+        const val = e.target.value;
+        const newWs = val === 'personal' ? null : val;
+        try {
+          await connectionsApi.updateWorkspace(conn.id, newWs);
+          onChange(conn.id, newWs);
+        } catch {
+          toast.error("Jamoani o'zgartirib bo'lmadi. Qayta urinib ko'ring.");
+        }
+      }}
+    >
+      <option value="personal">Shaxsiy</option>
+      {workspaces.map((w) => (
+        <option key={w.id} value={w.id}>
+          {w.name}
+        </option>
+      ))}
+    </Select>
+  );
+}
 function ConnectButton({
   platform,
   meta,
@@ -602,6 +658,8 @@ function ConnectButton({
   label = 'Ulash',
   icon,
   variant = 'default',
+  fullWidth,
+  quiet,
 }: {
   platform: string;
   meta: { connectType: string };
@@ -613,6 +671,10 @@ function ConnectButton({
   label?: string;
   icon?: React.ReactNode;
   variant?: 'default' | 'add';
+  /** Kartaning pastida to'liq kenglikni egallaydi. */
+  fullWidth?: boolean;
+  /** Kontur ko'rinish — sahifada bir nechta bo'lganda. */
+  quiet?: boolean;
 }) {
   const [connecting, setConnecting] = useState(false);
 
@@ -621,7 +683,7 @@ function ConnectButton({
   // farqlanishi uchun).
   if (variant === 'add') {
     const addClassName =
-      'flex items-center justify-center gap-1.5 text-xs text-zinc-500 hover:text-orange-400 border border-dashed border-zinc-800 hover:border-orange-500/30 rounded-xl py-2.5 transition-colors disabled:opacity-50';
+      'flex items-center justify-center gap-1.5 text-xs text-ink-3 hover:text-accent-ink border border-dashed border-line hover:border-accent-line rounded-panel py-2.5 transition-colors disabled:opacity-50';
 
     const dispatch = () => {
       if (meta.connectType === 'youtube') return onYoutube();
@@ -648,7 +710,7 @@ function ConnectButton({
               Tarifingiz chekloviga yetdingiz. Iltimos,{' '}
               <Link
                 href="/settings?billing=true"
-                className="text-orange-400 underline hover:text-orange-300 font-semibold"
+                className="text-accent-ink underline hover:text-accent-ink font-semibold"
               >
                 tarifni yangilang
               </Link>
@@ -676,7 +738,7 @@ function ConnectButton({
 
   if (meta.connectType === 'youtube') {
     return (
-      <Button size="sm" onClick={onYoutube} className="gap-1.5">
+      <Button size="sm" variant={quiet ? 'secondary' : 'primary'} onClick={onYoutube} className={cn('gap-1.5', fullWidth && 'w-full')}>
         {icon}
         {label}
       </Button>
@@ -685,7 +747,7 @@ function ConnectButton({
 
   if (meta.connectType === 'bluesky') {
     return (
-      <Button size="sm" onClick={onBluesky} className="gap-1.5">
+      <Button size="sm" variant={quiet ? 'secondary' : 'primary'} onClick={onBluesky} className={cn('gap-1.5', fullWidth && 'w-full')}>
         {icon}
         {label}
       </Button>
@@ -697,7 +759,7 @@ function ConnectButton({
     meta.connectType === 'telegram_handle'
   ) {
     return (
-      <Button size="sm" onClick={onTelegram} className="gap-1.5">
+      <Button size="sm" variant={quiet ? 'secondary' : 'primary'} onClick={onTelegram} className={cn('gap-1.5', fullWidth && 'w-full')}>
         {icon}
         {label}
       </Button>
@@ -706,7 +768,7 @@ function ConnectButton({
 
   if (meta.connectType === 'reddit') {
     return (
-      <Button size="sm" onClick={onReddit} className="gap-1.5">
+      <Button size="sm" variant={quiet ? 'secondary' : 'primary'} onClick={onReddit} className={cn('gap-1.5', fullWidth && 'w-full')}>
         {icon}
         {label}
       </Button>
@@ -731,7 +793,7 @@ function ConnectButton({
             Tarifingiz chekloviga yetdingiz. Iltimos,{' '}
             <Link
               href="/settings?billing=true"
-              className="text-orange-400 underline hover:text-orange-300 font-semibold"
+              className="text-accent-ink underline hover:text-accent-ink font-semibold"
             >
               tarifni yangilang
             </Link>
@@ -747,9 +809,10 @@ function ConnectButton({
   return (
     <Button
       size="sm"
+      variant={quiet ? 'secondary' : 'primary'}
       loading={connecting}
       onClick={handleOAuth}
-      className="gap-1.5"
+      className={cn('gap-1.5', fullWidth && 'w-full')}
     >
       {!connecting && icon}
       {label}
@@ -761,11 +824,11 @@ export default function ConnectionsPage() {
   return (
     <Suspense
       fallback={
-        <div className="max-w-3xl mx-auto animate-pulse space-y-3">
+        <div className="max-w-wide mx-auto animate-pulse space-y-3">
           {[1, 2, 3].map((i) => (
             <div
               key={i}
-              className="h-20 rounded-xl bg-zinc-900/60 border border-zinc-800"
+              className="h-20 rounded-panel bg-surface border border-line"
             />
           ))}
         </div>
@@ -836,7 +899,7 @@ function ConnectModal({
             Tarifingiz chekloviga yetdingiz. Iltimos,{' '}
             <Link
               href="/settings?billing=true"
-              className="text-orange-400 underline hover:text-orange-300 font-semibold"
+              className="text-accent-ink underline hover:text-accent-ink font-semibold"
             >
               tarifni yangilang
             </Link>
@@ -853,7 +916,7 @@ function ConnectModal({
   }
 
   return (
-    <Modal title={title} onClose={onClose}>
+    <Modal size="md" title={title} onClose={onClose}>
       {description}
       <form onSubmit={handleSubmit} className="flex flex-col gap-3">
         {fields.map((f) => (
@@ -871,7 +934,7 @@ function ConnectModal({
           />
         ))}
         {error && (
-          <p className="text-xs text-red-400 bg-red-500/10 border border-red-500/20 rounded-md px-3 py-2">
+          <p className="text-xs text-negative-ink bg-negative-quiet border border-negative-line rounded-control px-3 py-2">
             {error}
           </p>
         )}
@@ -904,7 +967,7 @@ function BlueskyModal({
     <ConnectModal
       title="Bluesky ulash"
       description={
-        <p className="text-sm text-zinc-500 mb-4">
+        <p className="text-sm text-ink-3 mb-4">
           Bluesky sozlamalaridan App Password yaratib, shu yerga kiriting.
           Asosiy parolingizni kiritmang.
         </p>
@@ -967,7 +1030,7 @@ function YoutubeModal({
             Tarifingiz chekloviga yetdingiz. Iltimos,{' '}
             <Link
               href="/settings?billing=true"
-              className="text-orange-400 underline hover:text-orange-300 font-semibold"
+              className="text-accent-ink underline hover:text-accent-ink font-semibold"
             >
               tarifni yangilang
             </Link>
@@ -997,8 +1060,8 @@ function YoutubeModal({
   }
 
   return (
-    <Modal title="YouTube ulash" onClose={onClose}>
-      <p className="text-sm text-zinc-500 mb-4">
+    <Modal size="md" title="YouTube ulash" onClose={onClose}>
+      <p className="text-sm text-ink-3 mb-4">
         OAuth talab qilinmaydi — faqat kanal handle yoki URL kiriting.
       </p>
       <form onSubmit={handleSubmit} className="flex flex-col gap-3">
@@ -1010,7 +1073,7 @@ function YoutubeModal({
           hint="@handle, to'liq URL yoki Channel ID bo'lishi mumkin"
         />
         {error && (
-          <p className="text-xs text-red-400 bg-red-500/10 border border-red-500/20 rounded-md px-3 py-2">
+          <p className="text-xs text-negative-ink bg-negative-quiet border border-negative-line rounded-control px-3 py-2">
             {error}
           </p>
         )}
@@ -1029,8 +1092,8 @@ function YoutubeModal({
         </div>
       </form>
 
-      <div className="mt-4 pt-4 border-t border-zinc-800/60">
-        <p className="text-xs text-zinc-600 mb-2">
+      <div className="mt-4 pt-4 border-t border-line-subtle">
+        <p className="text-xs text-ink-3 mb-2">
           Bu FAQAT o&apos;zingiz egalik qiladigan kanal uchun: har bir video
           qancha yangi obunachi olib kelganini ham ko&apos;rish uchun Google
           orqali ulang.
@@ -1062,14 +1125,14 @@ function TelegramModal({
     <ConnectModal
       title="Telegram kanal ulash"
       description={
-        <div className="mb-4 p-3 rounded-lg bg-blue-500/10 border border-blue-500/20 text-xs text-blue-300 space-y-1">
+        <div className="mb-4 p-3 rounded-control bg-info-quiet border border-info-line text-xs text-info-ink space-y-1">
           <p className="font-medium">
             Avval botni kanalingizga admin sifatida qo&apos;shing:
           </p>
           <p>1. Kanalingiz sozlamalariga o&apos;ting</p>
           <p>2. Administrators → Add Administrator</p>
           <p>
-            3. <span className="font-mono text-blue-400">@{botUsername}</span>{' '}
+            3. <span className="font-mono text-info-ink">@{botUsername}</span>{' '}
             ni qo&apos;shing
           </p>
           <p>4. Keyin quyidagi formani to&apos;ldiring</p>
@@ -1103,7 +1166,7 @@ function RedditModal({
     <ConnectModal
       title="Reddit ulash"
       description={
-        <p className="text-sm text-zinc-500 mb-4">
+        <p className="text-sm text-ink-3 mb-4">
           OAuth talab qilinmaydi — kuzatmoqchi bo&apos;lgan subreddit nomini
           kiriting.
         </p>

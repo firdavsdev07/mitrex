@@ -15,6 +15,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
 import { Modal } from '@/components/ui/modal';
+import { ConfirmDialog } from '@/components/ui/confirm-dialog';
+import { toast } from '@/components/ui/toast';
 import { useWorkspaceStore } from '@/store/workspace';
 
 export default function WebsitesPage() {
@@ -24,6 +26,11 @@ export default function WebsitesPage() {
   const [scriptModal, setScriptModal] = useState<Website | null>(null);
   const [script, setScript] = useState('');
   const [error, setError] = useState('');
+  // Saytni o'chirish uning butun analitika tarixini ham o'chiradi. Ilgari bu
+  // bitta bosishda, tasdiqsiz sodir bo'lardi — mahsulotdagi eng xavfli
+  // bitta klik edi va u filtr chipi kabi ko'rinardi.
+  const [deleteTarget, setDeleteTarget] = useState<Website | null>(null);
+  const [deleting, setDeleting] = useState(false);
   const { activeWorkspace, workspaces } = useWorkspaceStore();
 
   useEffect(() => {
@@ -44,13 +51,19 @@ export default function WebsitesPage() {
     }
   }
 
-  async function handleDelete(id: string) {
+  async function handleDelete() {
+    if (!deleteTarget) return;
     setError('');
+    setDeleting(true);
     try {
-      await websitesApi.remove(id);
-      setWebsites((prev) => prev.filter((w) => w.id !== id));
+      await websitesApi.remove(deleteTarget.id);
+      setWebsites((prev) => prev.filter((w) => w.id !== deleteTarget.id));
+      toast.success(`${deleteTarget.name} o'chirildi`);
+      setDeleteTarget(null);
     } catch {
       setError("Saytni o'chirishda xatolik yuz berdi");
+    } finally {
+      setDeleting(false);
     }
   }
 
@@ -66,13 +79,13 @@ export default function WebsitesPage() {
   }
 
   return (
-    <div className="max-w-3xl mx-auto">
+    <div className="max-w-wide mx-auto">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <p className="text-xs text-zinc-600 uppercase tracking-wider mb-0.5">
+          <p className="text-xs text-ink-3 uppercase tracking-wider mb-0.5">
             Saytlar
           </p>
-          <h1 className="text-lg font-semibold text-zinc-100">Web Analytics</h1>
+          <h1 className="text-lg font-semibold text-ink">Web Analytics</h1>
         </div>
         <Button onClick={() => setAddModal(true)} className="gap-1.5">
           <Plus className="w-4 h-4" />
@@ -81,7 +94,7 @@ export default function WebsitesPage() {
       </div>
 
       {error && (
-        <p className="text-xs text-red-400 bg-red-500/10 border border-red-500/20 rounded-md px-3 py-2 mb-4">
+        <p className="text-xs text-negative-ink bg-negative-quiet border border-negative-line rounded-control px-3 py-2 mb-4">
           {error}
         </p>
       )}
@@ -91,17 +104,17 @@ export default function WebsitesPage() {
           {[1, 2].map((i) => (
             <div
               key={i}
-              className="h-20 rounded-xl border border-zinc-800 bg-zinc-900/60 animate-pulse"
+              className="h-20 rounded-panel border border-line bg-surface animate-pulse"
             />
           ))}
         </div>
       ) : !filteredWebsites.length ? (
-        <div className="rounded-xl border border-zinc-800 border-dashed bg-zinc-900/30 p-12 text-center">
-          <Globe className="w-10 h-10 text-zinc-700 mx-auto mb-4" />
-          <p className="text-sm text-zinc-400 mb-1">
+        <div className="rounded-panel border border-line border-dashed bg-surface p-12 text-center">
+          <Globe className="w-10 h-10 text-ink-3 mx-auto mb-4" />
+          <p className="text-sm text-ink-2 mb-1">
             Hali sayt qo&apos;shilmagan
           </p>
-          <p className="text-xs text-zinc-700 mb-5">
+          <p className="text-xs text-ink-3 mb-5">
             Saytingizni qo&apos;shing va bir qatorli kod bilan statistikani
             kuzating
           </p>
@@ -116,18 +129,18 @@ export default function WebsitesPage() {
             <Card key={site.id}>
               <CardContent className="p-4">
                 <div className="flex items-center gap-4">
-                  <div className="w-10 h-10 rounded-xl bg-zinc-800/60 border border-zinc-700/50 flex items-center justify-center shrink-0">
-                    <Globe className="w-5 h-5 text-zinc-400" />
+                  <div className="w-10 h-10 rounded-panel bg-surface-sunken border border-line flex items-center justify-center shrink-0">
+                    <Globe className="w-5 h-5 text-ink-2" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-zinc-200">
+                    <p className="text-sm font-medium text-ink">
                       {site.name}
                     </p>
                     <div className="flex items-center gap-2 mt-1">
                       {site.domain && (
-                        <span className="text-xs text-zinc-600">{site.domain}</span>
+                        <span className="text-xs text-ink-3">{site.domain}</span>
                       )}
-                      {site.domain && <span className="text-zinc-800 text-[10px]">•</span>}
+                      {site.domain && <span className="text-ink-3 text-[10px]">•</span>}
                       <select
                         value={site.workspaceId ?? 'personal'}
                         onChange={async (e) => {
@@ -137,10 +150,12 @@ export default function WebsitesPage() {
                             await websitesApi.updateWorkspace(site.id, newWs);
                             load();
                           } catch {
-                            alert("Sayt jamoasini o'zgartirishda xatolik yuz berdi");
+                            toast.error(
+                              "Sayt jamoasini o'zgartirib bo'lmadi. Qayta urinib ko'ring.",
+                            );
                           }
                         }}
-                        className="text-[10px] bg-zinc-900 border border-zinc-850 rounded px-1.5 py-0.5 text-zinc-500 outline-none hover:text-zinc-350 cursor-pointer transition-colors max-w-28 truncate font-medium"
+                        className="text-[10px] bg-surface border border-line rounded px-1.5 py-0.5 text-ink-3 outline-none hover:text-ink cursor-pointer transition-colors max-w-28 truncate font-medium"
                       >
                         <option value="personal">Shaxsiy</option>
                         {workspaces.map((w) => (
@@ -170,7 +185,8 @@ export default function WebsitesPage() {
                     <Button
                       variant="danger"
                       size="sm"
-                      onClick={() => handleDelete(site.id)}
+                      aria-label={`${site.name} saytini o'chirish`}
+                      onClick={() => setDeleteTarget(site)}
                     >
                       <Trash2 className="w-3.5 h-3.5" />
                     </Button>
@@ -197,6 +213,26 @@ export default function WebsitesPage() {
           site={scriptModal}
           script={script}
           onClose={() => setScriptModal(null)}
+        />
+      )}
+
+      {deleteTarget && (
+        <ConfirmDialog
+          title="Saytni o'chirish"
+          message={
+            <>
+              <strong className="text-ink">{deleteTarget.name}</strong> saytini
+              o&apos;chirmoqchimisiz? Bu amalni ortga qaytarib bo&apos;lmaydi.
+            </>
+          }
+          consequence={`${deleteTarget.domain ?? deleteTarget.name} uchun to'plangan barcha tashrif, sahifa va hodisa ma'lumotlari`}
+          // Domen bor bo'lsa aynan uni yozdiramiz — tasodifiy o'chirishning
+          // oldini oladigan eng arzon to'siq.
+          confirmText={deleteTarget.domain ?? undefined}
+          confirmLabel="Ha, o'chirilsin"
+          loading={deleting}
+          onConfirm={handleDelete}
+          onClose={() => setDeleteTarget(null)}
         />
       )}
     </div>
@@ -239,7 +275,7 @@ function AddWebsiteModal({
             Tarifingiz chekloviga yetdingiz. Iltimos,{' '}
             <Link
               href="/settings?billing=true"
-              className="text-orange-400 underline hover:text-orange-300 font-semibold"
+              className="text-accent-ink underline hover:text-accent-ink font-semibold"
             >
               tarifni yangilang
             </Link>
@@ -256,7 +292,7 @@ function AddWebsiteModal({
   }
 
   return (
-    <Modal title="Yangi sayt qo'shish" onClose={onClose}>
+    <Modal size="md" title="Yangi sayt qo'shish" onClose={onClose}>
       <form onSubmit={handleSubmit} className="flex flex-col gap-3">
         <Input
           label="Sayt nomi"
@@ -272,7 +308,7 @@ function AddWebsiteModal({
           hint="Protokolsiz kiriting: example.com"
         />
         {error && (
-          <p className="text-xs text-red-400 bg-red-500/10 border border-red-500/20 rounded-md px-3 py-2">
+          <p className="text-xs text-negative-ink bg-negative-quiet border border-negative-line rounded-control px-3 py-2">
             {error}
           </p>
         )}
@@ -312,24 +348,24 @@ function ScriptModal({
   }
 
   return (
-    <Modal title={`${site.name} — Embed Script`} onClose={onClose}>
-      <p className="text-sm text-zinc-500 mb-3">
+    <Modal size="lg" title={`${site.name} — Embed Script`} onClose={onClose}>
+      <p className="text-sm text-ink-3 mb-3">
         Quyidagi kodni saytingizning{' '}
-        <code className="text-zinc-300 bg-zinc-800 px-1 rounded">
+        <code className="text-ink-2 bg-surface-sunken px-1 rounded">
           &lt;head&gt;
         </code>{' '}
         qismiga joylashtiring:
       </p>
       <div className="relative">
-        <pre className="text-xs text-zinc-300 bg-zinc-800/60 border border-zinc-700 rounded-lg p-3 overflow-x-auto whitespace-pre-wrap break-all font-mono">
+        <pre className="text-xs text-ink-2 bg-surface-sunken border border-line rounded-control p-3 overflow-x-auto whitespace-pre-wrap break-all font-mono">
           {script}
         </pre>
         <button
           onClick={copy}
-          className="absolute top-2 right-2 text-zinc-500 hover:text-zinc-200 transition-colors p-1"
+          className="absolute top-2 right-2 text-ink-3 hover:text-ink transition-colors p-1"
         >
           {copied ? (
-            <CheckCircle className="w-4 h-4 text-green-400" />
+            <CheckCircle className="w-4 h-4 text-positive-ink" />
           ) : (
             <Copy className="w-4 h-4" />
           )}

@@ -1,4 +1,4 @@
-import { Clock, BrainCircuit, Unlink, AlertCircle } from 'lucide-react';
+import { Clock, BrainCircuit, Unlink, HelpCircle } from 'lucide-react';
 import {
   YouTubeIcon,
   TelegramIcon,
@@ -8,319 +8,203 @@ import {
   WebIcon,
 } from '@/components/icons/platform-icons';
 
-/* ── Visual: Browser tabs ─────────────────────────── */
+// Bu bo'lim uchta muammoni ko'rsatadi. Ular ketma-ketlik EMAS — shuning
+// uchun ilgari turgan `01 / 02 / 03` raqamlari olib tashlandi: raqam
+// tartib borligini bildiradi, bu yerda esa tartib yo'q.
+//
+// Ikkinchi kartaning maketi ilgari bo'sh kulrang to'rtburchaklar edi va
+// «murakkab interfeys» emas, «yuklanmagan sahifa» bo'lib ko'rinardi.
+// Endi u haqiqiy chalkashlikni ko'rsatadi: tushunarsiz atamalar va
+// javobsiz savollar.
+
 const tabs = [
-  {
-    Icon: WebIcon,
-    label: 'Google Analytics',
-    url: 'analytics.google.com',
-    color: 'bg-blue-500/20 border-blue-500/30',
-    dot: 'bg-blue-400',
-  },
-  {
-    Icon: YouTubeIcon,
-    label: 'YouTube Studio',
-    url: 'studio.youtube.com',
-    color: 'bg-red-500/20 border-red-500/30',
-    dot: 'bg-red-400',
-  },
-  {
-    Icon: TelegramIcon,
-    label: 'Telegram',
-    url: 'web.telegram.org',
-    color: 'bg-sky-500/20 border-sky-500/30',
-    dot: 'bg-sky-400',
-  },
-  {
-    Icon: InstagramIcon,
-    label: 'Instagram',
-    url: 'instagram.com',
-    color: 'bg-pink-500/20 border-pink-500/30',
-    dot: 'bg-pink-400',
-  },
-  {
-    Icon: DiscordIcon,
-    label: 'Discord',
-    url: 'discord.com/channels',
-    color: 'bg-indigo-500/20 border-indigo-500/30',
-    dot: 'bg-indigo-400',
-  },
+  { Icon: WebIcon, label: 'Google Analytics', url: 'analytics.google.com' },
+  { Icon: YouTubeIcon, label: 'YouTube Studio', url: 'studio.youtube.com' },
+  { Icon: TelegramIcon, label: 'Telegram', url: 'web.telegram.org' },
+  { Icon: InstagramIcon, label: 'Instagram', url: 'instagram.com' },
+  { Icon: DiscordIcon, label: 'Discord', url: 'discord.com/channels' },
 ];
 
 function TabsVisual() {
   return (
-    <div className="space-y-1.5 mb-4">
-      {tabs.map((t, i) => (
+    <div className="flex flex-col gap-1.5">
+      {tabs.map((t) => (
         <div
           key={t.label}
-          className={`flex items-center gap-2.5 px-3 py-2 rounded-lg border ${t.color} transition-all`}
-          style={{ animationDelay: `${i * 0.1}s` }}
+          className="flex items-center gap-2.5 rounded-control border border-line-subtle bg-surface-sunken px-3 py-2"
         >
-          <t.Icon className="w-3.5 h-3.5 shrink-0" />
-          <div className="flex-1 min-w-0">
-            <p className="text-[10px] font-medium text-zinc-300 truncate">
+          <t.Icon className="h-3.5 w-3.5 shrink-0" />
+          <div className="min-w-0 flex-1">
+            <p className="truncate text-eyebrow font-medium text-ink-2">
               {t.label}
             </p>
-            <p className="text-[9px] text-zinc-600 truncate">{t.url}</p>
+            <p className="truncate text-eyebrow text-ink-3">{t.url}</p>
           </div>
-          <div className={`w-1.5 h-1.5 rounded-full ${t.dot} opacity-70`} />
+          <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-line-strong" />
         </div>
       ))}
 
-      {/* Time cost badge */}
-      <div className="flex items-center justify-center gap-1.5 mt-3 py-1.5 rounded-lg border border-red-500/20 bg-red-500/5">
-        <Clock className="w-3 h-3 text-red-400" />
-        <span className="text-[11px] font-semibold text-red-400">
+      <div className="mt-1.5 flex items-center justify-center gap-2 rounded-control border border-negative-line bg-negative-quiet py-2">
+        <Clock className="h-3.5 w-3.5 text-negative-ink" />
+        <span className="text-caption font-semibold text-negative-ink">
           30 daqiqa / kun
         </span>
-        <span className="text-[10px] text-zinc-600">= 180 soat/yil</span>
+        <span className="text-eyebrow text-ink-3">= 180 soat/yil</span>
       </div>
     </div>
   );
 }
 
-/* ── Visual: Cluttered dashboard ──────────────────── */
-function ChaosVisual() {
-  const bars = [
-    { h: 55, w: 'col-span-2' },
-    { h: 35, w: 'col-span-1' },
-    { h: 28, w: 'col-span-1' },
-    { h: 28, w: 'col-span-1' },
-    { h: 44, w: 'col-span-1' },
-    { h: 44, w: 'col-span-1' },
-    { h: 20, w: 'col-span-2' },
-    { h: 20, w: 'col-span-1' },
-  ];
+// Chalkashlik = tushunarsiz atamalar, javobsiz savollar.
+const jargon = [
+  { term: 'Bounce rate', value: '68.4%' },
+  { term: 'Sessions / Visits', value: '1.42' },
+  { term: 'DAU / MAU', value: '0.19' },
+  { term: 'Avg. engagement time', value: '00:47' },
+  { term: 'CTR vs CPC', value: '2.1 / $0.34' },
+];
 
+function JargonVisual() {
   return (
-    <div className="mb-4">
-      {/* Messy chart mockup */}
-      <div className="grid grid-cols-3 gap-1 mb-2">
-        {bars.map((b, i) => (
+    <div className="flex flex-col gap-1.5">
+      <div className="rounded-control border border-line-subtle">
+        {jargon.map(({ term, value }, i) => (
           <div
-            key={i}
-            className={`rounded-md bg-zinc-800/70 border border-zinc-700/30 ${b.w}`}
-            style={{ height: b.h }}
-          />
-        ))}
-      </div>
-
-      {/* Confusion indicators */}
-      <div className="grid grid-cols-2 gap-1.5">
-        {[
-          'Sessions vs Visits?',
-          'Bounce rate nima?',
-          'CTR vs CPC?',
-          'DAU/MAU nima?',
-        ].map((q) => (
-          <div
-            key={q}
-            className="flex items-center gap-1.5 px-2 py-1.5 rounded-md bg-zinc-800/40 border border-zinc-700/20"
+            key={term}
+            className={`flex items-center gap-2 px-3 py-2 ${
+              i < jargon.length - 1 ? 'border-b border-line-subtle' : ''
+            }`}
           >
-            <AlertCircle className="w-3 h-3 text-yellow-500/70 shrink-0" />
-            <span className="text-[9px] text-zinc-500 truncate">{q}</span>
+            <HelpCircle className="h-3 w-3 shrink-0 text-ink-3" />
+            <span className="min-w-0 flex-1 truncate text-eyebrow text-ink-3">
+              {term}
+            </span>
+            <span className="shrink-0 text-eyebrow font-semibold tabular-nums text-ink-2">
+              {value}
+            </span>
           </div>
         ))}
       </div>
+
+      <div className="mt-1.5 flex items-center justify-center gap-2 rounded-control border border-line bg-surface-sunken py-2">
+        <span className="text-caption text-ink-3">
+          …bularning qaysi biri muhim?
+        </span>
+      </div>
     </div>
   );
 }
 
-/* ── Visual: Disconnected islands ─────────────────── */
 const islands = [
-  {
-    Icon: YouTubeIcon,
-    label: 'YouTube',
-    color: 'border-red-500/20   bg-red-500/5',
-  },
-  {
-    Icon: TelegramIcon,
-    label: 'Telegram',
-    color: 'border-sky-500/20   bg-sky-500/5',
-  },
-  {
-    Icon: InstagramIcon,
-    label: 'Instagram',
-    color: 'border-pink-500/20  bg-pink-500/5',
-  },
-  {
-    Icon: DiscordIcon,
-    label: 'Discord',
-    color: 'border-indigo-500/20 bg-indigo-500/5',
-  },
-  {
-    Icon: BlueskyIcon,
-    label: 'Bluesky',
-    color: 'border-blue-500/20  bg-blue-500/5',
-  },
-  { Icon: WebIcon, label: 'Sayt', color: 'border-zinc-500/20  bg-zinc-500/5' },
+  { Icon: YouTubeIcon, label: 'YouTube', fill: 62 },
+  { Icon: TelegramIcon, label: 'Telegram', fill: 38 },
+  { Icon: InstagramIcon, label: 'Instagram', fill: 74 },
+  { Icon: DiscordIcon, label: 'Discord', fill: 45 },
+  { Icon: BlueskyIcon, label: 'Bluesky', fill: 29 },
+  { Icon: WebIcon, label: 'Sayt', fill: 56 },
 ];
 
 function IslandsVisual() {
   return (
-    <div className="mb-4">
-      <div className="grid grid-cols-3 gap-2 mb-3">
-        {islands.map((p) => (
+    <div className="flex flex-col gap-1.5">
+      <div className="grid grid-cols-3 gap-2">
+        {islands.map(({ Icon, label, fill }) => (
           <div
-            key={p.label}
-            className={`flex flex-col items-center gap-1.5 p-2.5 rounded-xl border ${p.color}`}
+            key={label}
+            className="flex flex-col items-center gap-2 rounded-control border border-line-subtle bg-surface-sunken p-2.5"
           >
-            <p.Icon className="w-5 h-5" />
-            <span className="text-[9px] text-zinc-500">{p.label}</span>
-            {/* Mini random bar */}
-            <div className="w-full h-1 rounded-full bg-zinc-800">
+            <Icon className="h-5 w-5" />
+            <span className="text-eyebrow text-ink-3">{label}</span>
+            <div className="h-1 w-full overflow-hidden rounded-full bg-line">
               <div
-                className="h-1 rounded-full bg-zinc-600"
-                style={{
-                  width: `${30 + (Math.floor(p.label.length * 7) % 55)}%`,
-                }}
+                className="h-full rounded-full bg-line-strong"
+                style={{ width: `${fill}%` }}
               />
             </div>
           </div>
         ))}
       </div>
 
-      {/* "No connection" status */}
-      <div className="flex items-center justify-center gap-1.5 py-1.5 rounded-lg border border-zinc-700/30 bg-zinc-800/20">
-        <Unlink className="w-3 h-3 text-zinc-600" />
-        <span className="text-[10px] text-zinc-600">
-          Platformalar bir-biriga ulanmagan
+      <div className="mt-1.5 flex items-center justify-center gap-2 rounded-control border border-line bg-surface-sunken py-2">
+        <Unlink className="h-3.5 w-3.5 text-ink-3" />
+        <span className="text-caption text-ink-3">
+          Hech biri bir-biriga ulanmagan
         </span>
       </div>
     </div>
   );
 }
 
-/* ── Cards config ─────────────────────────────────── */
 const problems = [
   {
-    icon: Clock,
-    number: '01',
+    Icon: Clock,
     title: 'Vaqt ketadi',
     description:
-      "Google Analytics, YouTube Studio, Telegram, Instagram — har birida alohida login, alohida grafik. Kuniga 30 daqiqa faqat raqam yig'ishga ketadi.",
+      "Har birida alohida login, alohida grafik. Kuniga yarim soat faqat raqam yig'ishga ketadi.",
     Visual: TabsVisual,
-    accentColor: 'text-red-400',
-    borderGlow: 'hover:border-red-500/20 hover:shadow-red-500/5',
-    labelColor: 'text-red-400/60',
   },
   {
-    icon: BrainCircuit,
-    number: '02',
+    Icon: BrainCircuit,
     title: 'Murakkab interfeys',
     description:
-      "Google Analytics o'rganish uchun kurs kerak. Boshqalari ham undan kam emas. Siz biznesingiz bilan shug'ullanishingiz kerak, analytics bilan emas.",
-    Visual: ChaosVisual,
-    accentColor: 'text-yellow-400',
-    borderGlow: 'hover:border-yellow-500/20 hover:shadow-yellow-500/5',
-    labelColor: 'text-yellow-400/60',
+      "Google Analytics'ni o'rganish uchun kurs kerak. Siz esa biznesingiz bilan shug'ullanishingiz kerak.",
+    Visual: JargonVisual,
   },
   {
-    icon: Unlink,
-    number: '03',
+    Icon: Unlink,
     title: "Umumiy rasm yo'q",
     description:
-      "Saytingiz va sotsial tarmoqlaringiz o'rtasidagi bog'liqlikni ko'rishning hech qanday oddiy usuli yo'q. Hamma narsa alohida, hech narsa birlashmagan.",
+      "Sayt va sotsial tarmoqlar o'rtasidagi bog'liqlikni ko'rishning oddiy usuli yo'q.",
     Visual: IslandsVisual,
-    accentColor: 'text-zinc-400',
-    borderGlow: 'hover:border-zinc-500/20 hover:shadow-zinc-500/5',
-    labelColor: 'text-zinc-500/60',
   },
 ];
 
-/* ── Section ──────────────────────────────────────── */
 export default function ProblemSection() {
   return (
-    <section className="relative py-24 overflow-hidden">
-      {/* Background */}
-      <div className="absolute inset-0 pointer-events-none">
-        <div
-          className="absolute inset-0 opacity-[0.07]"
-          style={{
-            backgroundImage:
-              'radial-gradient(circle, #52525b 1px, transparent 1px)',
-            backgroundSize: '28px 28px',
-          }}
-        />
-        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-zinc-800 to-transparent" />
-        <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-zinc-800 to-transparent" />
-      </div>
-
-      <div className="relative z-10 max-w-6xl mx-auto px-4">
-        {/* Heading */}
-        <div
-          className="max-w-xl mb-14"
-          style={{ animation: 'fade-up 0.6s ease-out both' }}
-        >
-          <p className="text-xs uppercase tracking-widest text-orange-500/80 font-medium mb-3">
-            Muammo
-          </p>
-          <h2 className="text-4xl font-bold tracking-tight text-zinc-100 leading-[1.1] mb-4">
-            Har kuni sabah
+    <section className="relative border-y border-line-subtle py-20 lg:py-28">
+      <div className="relative z-10 mx-auto w-full max-w-landing px-4">
+        {/* Sarlavha — hero va mahsulot bo'limi bilan bir xil ritmda,
+            markazlashtirilgan. Ilgari chapga tekislangan edi va sahifa
+            o'qish o'qi bo'lim o'rtasida sakrardi. */}
+        <div className="mx-auto max-w-2xl text-center">
+          <p className="text-eyebrow uppercase text-accent-ink">Muammo</p>
+          <h2 className="mt-3 text-[2rem] font-extrabold leading-[1.1] tracking-[-0.03em] text-ink text-balance sm:text-[2.75rem]">
+            Har kuni ertalab
             <br />
-            <span className="text-zinc-500">5 ta login,</span>
-            <br />
-            <span className="text-zinc-600">5 ta parol...</span>
+            <span className="text-ink-3">5 ta login, 5 ta parol…</span>
           </h2>
-          <p className="text-sm text-zinc-500 leading-relaxed">
-            Ko&apos;pchilik solopreneurlar va kreatorlar har kuni bir xil muammo
-            bilan kurashadi. Vaqt, chalkashlik va yagona ko&apos;rinishning yo&apos;qligi.
+          <p className="mx-auto mt-5 max-w-xl text-body leading-relaxed text-ink-2">
+            Solopreneurlar va kreatorlar har kuni bir xil narsaga duch keladi:
+            ketgan vaqt, tushunarsiz atamalar va yagona ko&apos;rinishning
+            yo&apos;qligi.
           </p>
         </div>
 
-        {/* Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-          {problems.map((p, i) => (
+        <div className="mt-14 grid grid-cols-1 gap-5 md:grid-cols-3">
+          {problems.map(({ Icon, title, description, Visual }) => (
             <div
-              key={p.title}
-              className={`group relative flex flex-col rounded-2xl border border-zinc-800/80 bg-zinc-900/40 p-5 transition-all duration-300 hover:bg-zinc-900/70 hover:shadow-lg ${p.borderGlow}`}
-              style={{
-                animation: `fade-up 0.6s ease-out ${0.1 + i * 0.1}s both`,
-              }}
+              key={title}
+              className="flex flex-col rounded-panel border border-line-subtle bg-surface p-6 shadow-card"
             >
-              {/* Shimmer top border on hover */}
-              <div className="absolute top-0 left-0 right-0 h-px rounded-t-2xl overflow-hidden opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                <div
-                  className="h-full bg-gradient-to-r from-transparent via-orange-500/40 to-transparent"
-                  style={{ animation: 'shimmer-slide 2s ease-in-out infinite' }}
-                />
+              <div className="flex h-11 w-11 items-center justify-center rounded-full bg-surface-sunken">
+                <Icon className="h-5 w-5 text-ink-3" />
               </div>
 
-              {/* Number badge */}
-              <div className="flex items-center justify-between mb-5">
-                <span
-                  className={`text-xs font-mono font-bold ${p.labelColor} tracking-widest`}
-                >
-                  {p.number}
-                </span>
-                <div className="w-7 h-7 rounded-lg bg-zinc-800/80 border border-zinc-700/50 flex items-center justify-center">
-                  <p.icon className={`w-3.5 h-3.5 ${p.accentColor}`} />
-                </div>
-              </div>
+              <h3 className="mt-5 text-heading text-ink">{title}</h3>
+              <p className="mt-2 text-small leading-relaxed text-ink-2">
+                {description}
+              </p>
 
-              {/* Visual illustration */}
-              <p.Visual />
-
-              {/* Text */}
-              <div className="mt-auto">
-                <h3 className="text-sm font-semibold text-zinc-200 mb-2">
-                  {p.title}
-                </h3>
-                <p className="text-xs text-zinc-500 leading-relaxed">
-                  {p.description}
-                </p>
+              <div className="mt-5">
+                <Visual />
               </div>
             </div>
           ))}
         </div>
 
-        {/* Bottom connector to solution */}
-        <div className="flex flex-col items-center mt-14 gap-2">
-          <div className="w-px h-12 bg-gradient-to-b from-zinc-700 to-transparent" />
-          <p className="text-xs text-zinc-600">
-            Metrix bularning barchasini hal qiladi
-          </p>
-        </div>
+        <p className="mt-14 text-center text-body text-ink-3">
+          Metrix bularning barchasini bitta ekranga sig&apos;diradi.
+        </p>
       </div>
     </section>
   );

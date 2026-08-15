@@ -92,7 +92,7 @@ export default function TermsPage() {
           Siz ulagan saytlar va hisoblar orqali yig&apos;ilgan barcha statistika
           ma&apos;lumotlariga egalik huquqi sizda qoladi. Batafsil ma&apos;lumot
           uchun{' '}
-          <a href="/privacy" className="text-orange-400 hover:underline">
+          <a href="/privacy" className="text-accent-ink hover:underline">
             Maxfiylik siyosati
           </a>
           ga qarang.
@@ -139,7 +139,7 @@ export default function TermsPage() {
           Savollaringiz bo&apos;lsa,{' '}
           <a
             href="mailto:hello@metrix.io"
-            className="text-orange-400 hover:underline"
+            className="text-accent-ink hover:underline"
           >
             hello@metrix.io
           </a>{' '}

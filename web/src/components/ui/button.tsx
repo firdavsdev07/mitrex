@@ -27,21 +27,29 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         ref={ref}
         disabled={disabled || loading}
         className={cn(
-          'inline-flex items-center justify-center gap-2 font-medium rounded-md transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed',
+          // `border` HAR BIR variantda bor — ko'rinmasligi kerak bo'lganda
+          // `border-transparent`. Ilgari primary'da border yo'q edi, shuning
+          // uchun u secondary'dan 2px past chiqardi va yonma-yon turganda
+          // farq ko'rinardi. Balandlik endi `h-*` bilan qat'iy belgilangan,
+          // `py-*` bilan emas — shrift o'lchami o'zgarsa ham siljimaydi.
+          // `shadow-tile` + bosilganda 1px pastga siljish — tugma tekis
+          // to'rtburchak emas, bosiladigan jism bo'lib his qilinadi.
+          // `ghost` bunga kirmaydi: u ataylab tugmaga o'xshamasligi kerak.
+          'inline-flex items-center justify-center gap-2 shrink-0 font-medium rounded-control border transition-all ease-standard duration-[var(--mx-dur-micro)] disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none active:translate-y-px',
           {
-            'bg-orange-500 hover:bg-orange-600 text-white':
+            'bg-accent hover:bg-accent-hover text-on-accent border-transparent shadow-card active:shadow-tile':
               variant === 'primary',
-            'bg-zinc-800 hover:bg-zinc-700 text-zinc-200 border border-zinc-700':
+            'bg-surface-raised hover:bg-surface-hover text-ink border-line shadow-tile':
               variant === 'secondary',
-            'hover:bg-zinc-800/60 text-zinc-400 hover:text-zinc-200':
+            'text-ink-2 hover:text-ink hover:bg-surface-hover border-transparent active:translate-y-0':
               variant === 'ghost',
-            'bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20':
+            'bg-negative-quiet hover:bg-negative-quiet-hover text-negative-ink border-negative-line shadow-tile':
               variant === 'danger',
           },
           {
-            'text-xs px-3 py-1.5': size === 'sm',
-            'text-sm px-4 py-2': size === 'md',
-            'text-sm px-5 py-2.5': size === 'lg',
+            'h-8 text-caption px-3': size === 'sm',
+            'h-10 text-body px-4': size === 'md',
+            'h-12 text-body px-5': size === 'lg',
           },
           className,
         )}

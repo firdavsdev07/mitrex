@@ -30,6 +30,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Modal } from '@/components/ui/modal';
+import { toast } from '@/components/ui/toast';
 import {
   Card,
   CardContent,
@@ -66,16 +67,16 @@ export default function SettingsPage() {
   }, []);
 
   return (
-    <div className="max-w-2xl mx-auto">
+    <div className="max-w-wide mx-auto">
       <div className="mb-6">
-        <p className="text-xs text-zinc-600 uppercase tracking-wider mb-0.5">
+        <p className="text-xs text-ink-3 uppercase tracking-wider mb-0.5">
           Hisob
         </p>
-        <h1 className="text-lg font-semibold text-zinc-100">Sozlamalar</h1>
+        <h1 className="text-lg font-semibold text-ink">Sozlamalar</h1>
       </div>
 
       {/* Tabs */}
-      <div className="flex items-center gap-1 mb-6 border-b border-zinc-800">
+      <div className="flex items-center gap-1 mb-6 border-b border-line">
         {[
           { key: 'profile' as const, label: 'Profil', icon: User },
           { key: 'password' as const, label: 'Parol', icon: Lock },
@@ -90,8 +91,8 @@ export default function SettingsPage() {
              onClick={() => setActiveTab(key)}
              className={`flex items-center gap-1.5 px-4 py-2 text-sm transition-all border-b-2 -mb-px ${
               activeTab === key
-                ? 'border-orange-500 text-orange-400'
-                : 'border-transparent text-zinc-500 hover:text-zinc-300'
+                ? 'border-accent-line text-accent-ink'
+                : 'border-transparent text-ink-3 hover:text-ink'
             }`}
           >
             <Icon className="w-3.5 h-3.5" />
@@ -100,22 +101,40 @@ export default function SettingsPage() {
         ))}
       </div>
 
+      {/* Konteyner keng (1200px), lekin forma o'lchovi tor (720px) — matn
+          qatori cho'zilib ketmasligi uchun. Billing va API kalitlar esa
+          to'liq kenglikni oladi: ularda uch ustunli tarif to'ri va besh
+          ustunli faktura jadvali bor, ular 672px ichida siqilib turardi. */}
       {activeTab === 'profile' && (
-        <ProfileTab user={user} onUpdate={(u) => setUser({ ...user!, ...u })} />
+        <div className="max-w-narrow">
+          <ProfileTab user={user} onUpdate={(u) => setUser({ ...user!, ...u })} />
+        </div>
       )}
-      {activeTab === 'password' && <PasswordTab />}
+      {activeTab === 'password' && (
+        <div className="max-w-narrow">
+          <PasswordTab />
+        </div>
+      )}
       {activeTab === 'security' && (
-        <SecurityTab
-          user={user}
-          onUpdate={(u) => setUser({ ...user!, ...u })}
-          onLoggedOutAll={() => router.push('/login')}
-        />
+        <div className="max-w-narrow">
+          <SecurityTab
+            user={user}
+            onUpdate={(u) => setUser({ ...user!, ...u })}
+            onLoggedOutAll={() => router.push('/login')}
+          />
+        </div>
       )}
       {activeTab === 'billing' && <BillingTab />}
-      {activeTab === 'usage' && <UsageTab />}
+      {activeTab === 'usage' && (
+        <div className="max-w-narrow">
+          <UsageTab />
+        </div>
+      )}
       {activeTab === 'apikeys' && <ApiKeysTab />}
       {activeTab === 'danger' && (
-        <DangerTab onDeleted={() => router.push('/login')} />
+        <div className="max-w-narrow">
+          <DangerTab onDeleted={() => router.push('/login')} />
+        </div>
       )}
     </div>
   );
@@ -166,7 +185,7 @@ function ProfileTab({
             placeholder="Ismingiz"
           />
           {success && (
-            <p className="text-xs text-green-400 bg-green-500/10 border border-green-500/20 rounded-md px-3 py-2">
+            <p className="text-xs text-positive-ink bg-positive-quiet border border-positive-line rounded-control px-3 py-2">
               Profil yangilandi
             </p>
           )}
@@ -253,12 +272,12 @@ function PasswordTab() {
             placeholder="••••••••"
           />
           {error && (
-            <p className="text-xs text-red-400 bg-red-500/10 border border-red-500/20 rounded-md px-3 py-2">
+            <p className="text-xs text-negative-ink bg-negative-quiet border border-negative-line rounded-control px-3 py-2">
               {error}
             </p>
           )}
           {success && (
-            <p className="text-xs text-green-400 bg-green-500/10 border border-green-500/20 rounded-md px-3 py-2">
+            <p className="text-xs text-positive-ink bg-positive-quiet border border-positive-line rounded-control px-3 py-2">
               Parol muvaffaqiyatli o&apos;zgartirildi
             </p>
           )}
@@ -388,13 +407,13 @@ function TwoFactorCard({
       </CardContent>
 
       {setupOpen && qrDataUrl && (
-        <Modal title="2FA sozlash" onClose={() => setSetupOpen(false)}>
+        <Modal size="md" title="2FA sozlash" onClose={() => setSetupOpen(false)}>
           <div className="flex flex-col gap-4">
-            <p className="text-sm text-zinc-400">
+            <p className="text-sm text-ink-2">
               QR kodni autentifikator ilovangiz bilan skanerlang, so&apos;ng 6
               xonali kodni kiriting.
             </p>
-            <div className="flex justify-center bg-white rounded-lg p-3">
+            <div className="flex justify-center bg-white rounded-control p-3">
               <Image
                 src={qrDataUrl}
                 alt="2FA QR kod"
@@ -403,9 +422,9 @@ function TwoFactorCard({
                 unoptimized
               />
             </div>
-            <p className="text-xs text-zinc-600 text-center break-all">
+            <p className="text-xs text-ink-3 text-center break-all">
               Qo&apos;lda kiritish:{' '}
-              <span className="text-zinc-400 font-mono">{secret}</span>
+              <span className="text-ink-2 font-mono">{secret}</span>
             </p>
             <form onSubmit={confirmSetup} className="flex flex-col gap-3">
               <input
@@ -416,9 +435,9 @@ function TwoFactorCard({
                 placeholder="000000"
                 value={code}
                 onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))}
-                className="w-full px-3 py-2.5 text-center text-lg tracking-[0.4em] rounded-md border border-zinc-800 bg-zinc-900 text-zinc-100 placeholder:text-zinc-700 outline-none focus:border-zinc-600 focus:ring-1 focus:ring-zinc-600/20"
+                className="w-full px-3 py-2.5 text-center text-lg tracking-[0.4em] rounded-control border border-line bg-surface text-ink placeholder:text-ink-faint outline-none focus:border-line-strong focus:ring-1 focus:ring-line-strong"
               />
-              {error && <p className="text-xs text-red-400">{error}</p>}
+              {error && <p className="text-xs text-negative-ink">{error}</p>}
               <Button type="submit" loading={loading} className="w-full">
                 Tasdiqlash va yoqish
               </Button>
@@ -430,7 +449,7 @@ function TwoFactorCard({
       {disableOpen && (
         <Modal title="2FA'ni o'chirish" onClose={() => setDisableOpen(false)}>
           <form onSubmit={confirmDisable} className="flex flex-col gap-3">
-            <p className="text-sm text-zinc-400">
+            <p className="text-sm text-ink-2">
               Tasdiqlash uchun parolingizni kiriting:
             </p>
             <Input
@@ -440,7 +459,7 @@ function TwoFactorCard({
               value={password}
               onChange={(e) => setPassword(e.target.value)}
             />
-            {error && <p className="text-xs text-red-400">{error}</p>}
+            {error && <p className="text-xs text-negative-ink">{error}</p>}
             <Button
               type="submit"
               variant="danger"
@@ -489,7 +508,7 @@ function DigestCard({
           onClick={toggle}
           disabled={loading}
           className={`relative w-10 h-5.5 rounded-full transition-colors ${
-            enabled ? 'bg-orange-500' : 'bg-zinc-700'
+            enabled ? 'bg-accent' : 'bg-surface-hover'
           } disabled:opacity-50`}
           aria-pressed={enabled}
           aria-label="Haftalik hisobotni yoqish/o'chirish"
@@ -519,7 +538,7 @@ function LoginHistoryCard() {
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <History className="w-4 h-4 text-zinc-500" />
+          <History className="w-4 h-4 text-ink-3" />
           Kirish tarixi
         </CardTitle>
         <CardDescription>
@@ -530,26 +549,26 @@ function LoginHistoryCard() {
         {events === null ? (
           <div className="flex flex-col gap-2">
             {[1, 2, 3].map((i) => (
-              <div key={i} className="h-8 bg-zinc-800 rounded animate-pulse" />
+              <div key={i} className="h-8 bg-surface-sunken rounded animate-pulse" />
             ))}
           </div>
         ) : events.length === 0 ? (
-          <p className="text-sm text-zinc-600">Ma&apos;lumot yo&apos;q</p>
+          <p className="text-sm text-ink-3">Ma&apos;lumot yo&apos;q</p>
         ) : (
-          <div className="flex flex-col divide-y divide-zinc-800/60">
+          <div className="flex flex-col divide-y divide-line">
             {events.map((ev) => (
               <div
                 key={ev.id}
                 className="flex items-center justify-between py-2.5 text-sm"
               >
                 <div className="flex items-center gap-2.5 min-w-0">
-                  <Monitor className="w-3.5 h-3.5 text-zinc-600 shrink-0" />
+                  <Monitor className="w-3.5 h-3.5 text-ink-3 shrink-0" />
                   <div className="min-w-0">
-                    <p className="text-zinc-300">
+                    <p className="text-ink-2">
                       {ev.provider}
                       {ev.ip ? ` · ${ev.ip}` : ''}
                     </p>
-                    <p className="text-xs text-zinc-600">
+                    <p className="text-xs text-ink-3">
                       {new Date(ev.createdAt).toLocaleString('uz-UZ')}
                     </p>
                   </div>
@@ -585,7 +604,7 @@ function LogoutAllCard({ onLoggedOutAll }: { onLoggedOutAll: () => void }) {
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <LogOut className="w-4 h-4 text-zinc-500" />
+          <LogOut className="w-4 h-4 text-ink-3" />
           Barcha qurilmalardan chiqish
         </CardTitle>
         <CardDescription>
@@ -616,9 +635,9 @@ function UsageTab() {
   function UsageBar({ used, limit }: { used: number; limit: number | null }) {
     const pct = limit ? Math.min((used / limit) * 100, 100) : 0;
     const color =
-      pct > 80 ? 'bg-red-500' : pct > 60 ? 'bg-yellow-500' : 'bg-orange-500';
+      pct > 80 ? 'bg-negative-quiet' : pct > 60 ? 'bg-accent-quiet' : 'bg-accent';
     return (
-      <div className="mt-1 h-1.5 bg-zinc-800 rounded-full overflow-hidden">
+      <div className="mt-1 h-1.5 bg-surface-sunken rounded-full overflow-hidden">
         <div
           className={`h-full ${color} rounded-full`}
           style={{ width: `${limit ? pct : 0}%` }}
@@ -634,7 +653,7 @@ function UsageTab() {
         {usage && (
           <CardDescription>
             Plan:{' '}
-            <span className="text-zinc-300 font-medium">{usage.plan}</span>
+            <span className="text-ink-2 font-medium">{usage.plan}</span>
           </CardDescription>
         )}
       </CardHeader>
@@ -642,7 +661,7 @@ function UsageTab() {
         {loading ? (
           <div className="space-y-4">
             {[1, 2, 3].map((i) => (
-              <div key={i} className="h-10 bg-zinc-800 rounded animate-pulse" />
+              <div key={i} className="h-10 bg-surface-sunken rounded animate-pulse" />
             ))}
           </div>
         ) : usage ? (
@@ -666,8 +685,8 @@ function UsageTab() {
             ].map(({ label, used, limit }) => (
               <div key={label}>
                 <div className="flex items-center justify-between text-sm mb-1">
-                  <span className="text-zinc-400">{label}</span>
-                  <span className="text-zinc-300 font-medium tabular-nums">
+                  <span className="text-ink-2">{label}</span>
+                  <span className="text-ink-2 font-medium tabular-nums">
                     {used.toLocaleString()}{' '}
                     {limit ? `/ ${limit.toLocaleString()}` : '/ ∞'}
                   </span>
@@ -677,7 +696,7 @@ function UsageTab() {
             ))}
           </div>
         ) : (
-          <p className="text-sm text-zinc-600">Ma&apos;lumot yuklanmadi</p>
+          <p className="text-sm text-ink-3">Ma&apos;lumot yuklanmadi</p>
         )}
       </CardContent>
     </Card>
@@ -699,7 +718,7 @@ function DangerTab({ onDeleted }: { onDeleted: () => void }) {
       triggerDownload(blob, 'metrix-my-data.json');
     } catch (err) {
       console.error('Export error:', err);
-      alert("Ma'lumotlarni eksport qilishda xatolik yuz berdi");
+      toast.error("Ma'lumotlarni eksport qilib bo'lmadi. Qayta urinib ko'ring.");
     } finally {
       setExporting(false);
     }
@@ -746,9 +765,9 @@ function DangerTab({ onDeleted }: { onDeleted: () => void }) {
       </Card>
 
       {/* Delete Account Card */}
-      <Card className="border-red-500/20">
+      <Card className="border-negative-line">
         <CardHeader>
-          <CardTitle className="text-red-400">Xavfli zona</CardTitle>
+          <CardTitle className="text-negative-ink">Xavfli zona</CardTitle>
           <CardDescription>
             Hisobni o&apos;chirish qaytarib bo&apos;lmaydigan jarayon.
             Ma&apos;lumotlaringiz 30 kun ichida o&apos;chiriladi.
@@ -766,7 +785,7 @@ function DangerTab({ onDeleted }: { onDeleted: () => void }) {
             </Button>
           ) : (
             <form onSubmit={handleDelete} className="flex flex-col gap-3">
-              <p className="text-sm text-zinc-400">
+              <p className="text-sm text-ink-2">
                 Tasdiqlash uchun parolingizni kiriting:
               </p>
               <Input
@@ -778,7 +797,7 @@ function DangerTab({ onDeleted }: { onDeleted: () => void }) {
                 onChange={(e) => setPassword(e.target.value)}
               />
               {error && (
-                <p className="text-xs text-red-400 bg-red-500/10 border border-red-500/20 rounded-md px-3 py-2">
+                <p className="text-xs text-negative-ink bg-negative-quiet border border-negative-line rounded-control px-3 py-2">
                   {error}
                 </p>
               )}
@@ -895,7 +914,7 @@ function BillingTab() {
     return (
       <div className="space-y-4">
         {[1, 2, 3].map((i) => (
-          <div key={i} className="h-20 bg-zinc-900/40 rounded-xl animate-pulse border border-zinc-800" />
+          <div key={i} className="h-20 bg-surface rounded-panel animate-pulse border border-line" />
         ))}
       </div>
     );
@@ -907,17 +926,17 @@ function BillingTab() {
   return (
     <div className="flex flex-col gap-6">
       {successMsg && (
-        <div className="text-sm text-green-400 bg-green-500/10 border border-green-500/20 rounded-lg p-3">
+        <div className="text-sm text-positive-ink bg-positive-quiet border border-positive-line rounded-control p-3">
           {successMsg}
         </div>
       )}
       {errorMsg && (
-        <div className="text-sm text-red-400 bg-red-500/10 border border-red-500/20 rounded-lg p-3">
+        <div className="text-sm text-negative-ink bg-negative-quiet border border-negative-line rounded-control p-3">
           {errorMsg}
         </div>
       )}
 
-      <Card className="overflow-hidden border-orange-500/20 relative">
+      <Card className="overflow-hidden border-accent-line relative">
         <div className="absolute top-0 right-0 p-6 flex flex-col items-end">
           <Badge variant={sub?.status === 'ACTIVE' || sub?.status === 'TRIALING' ? 'success' : 'default'}>
             {sub ? (sub.status === 'ACTIVE' ? 'Faol' : sub.status === 'CANCELED' ? 'Bekor qilingan' : sub.status) : 'Bepul plan'}
@@ -925,7 +944,7 @@ function BillingTab() {
         </div>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <CreditCard className="w-5 h-5 text-orange-500" />
+            <CreditCard className="w-5 h-5 text-accent-ink" />
             Joriy tarif: {currentPlan.name}
           </CardTitle>
           <CardDescription>
@@ -938,21 +957,21 @@ function BillingTab() {
           <div className="flex flex-col gap-4">
             {usage && (
               <div className="grid grid-cols-3 gap-4 pb-2">
-                <div className="bg-zinc-900/40 border border-zinc-850 rounded-xl p-3">
-                  <p className="text-[10px] text-zinc-500 uppercase tracking-wider">Saytlar</p>
-                  <p className="text-sm font-semibold text-zinc-200 mt-0.5">
+                <div className="bg-surface border border-line rounded-panel p-3">
+                  <p className="text-[10px] text-ink-3 uppercase tracking-wider">Saytlar</p>
+                  <p className="text-sm font-semibold text-ink mt-0.5">
                     {usage.websites.used} / {usage.websites.limit ?? '∞'}
                   </p>
                 </div>
-                <div className="bg-zinc-900/40 border border-zinc-850 rounded-xl p-3">
-                  <p className="text-[10px] text-zinc-500 uppercase tracking-wider">Platformalar</p>
-                  <p className="text-sm font-semibold text-zinc-200 mt-0.5">
+                <div className="bg-surface border border-line rounded-panel p-3">
+                  <p className="text-[10px] text-ink-3 uppercase tracking-wider">Platformalar</p>
+                  <p className="text-sm font-semibold text-ink mt-0.5">
                     {usage.platforms.used} / {usage.platforms.limit ?? '∞'}
                   </p>
                 </div>
-                <div className="bg-zinc-900/40 border border-zinc-850 rounded-xl p-3">
-                  <p className="text-[10px] text-zinc-500 uppercase tracking-wider">Oylik tashriflar</p>
-                  <p className="text-sm font-semibold text-zinc-200 mt-0.5">
+                <div className="bg-surface border border-line rounded-panel p-3">
+                  <p className="text-[10px] text-ink-3 uppercase tracking-wider">Oylik tashriflar</p>
+                  <p className="text-sm font-semibold text-ink mt-0.5">
                     {usage.views.used.toLocaleString()} / {usage.views.limit ? usage.views.limit.toLocaleString() : '∞'}
                   </p>
                 </div>
@@ -960,13 +979,13 @@ function BillingTab() {
             )}
 
             {sub && (
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between border-t border-zinc-800/60 pt-4 gap-3">
-                <div className="flex items-center gap-2 text-sm text-zinc-400">
-                  <Calendar className="w-4 h-4 text-zinc-500" />
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between border-t border-line-subtle pt-4 gap-3">
+                <div className="flex items-center gap-2 text-sm text-ink-2">
+                  <Calendar className="w-4 h-4 text-ink-3" />
                   {sub.canceledAt ? (
-                    <span>Obuna bekor qilingan. Amaldagi muddat: <strong className="text-zinc-200">{new Date(sub.currentPeriodEnd!).toLocaleDateString('uz-UZ')}</strong></span>
+                    <span>Obuna bekor qilingan. Amaldagi muddat: <strong className="text-ink">{new Date(sub.currentPeriodEnd!).toLocaleDateString('uz-UZ')}</strong></span>
                   ) : (
-                    <span>Navbatdagi to&apos;lov sanasi: <strong className="text-zinc-200">{new Date(sub.currentPeriodEnd!).toLocaleDateString('uz-UZ')}</strong></span>
+                    <span>Navbatdagi to&apos;lov sanasi: <strong className="text-ink">{new Date(sub.currentPeriodEnd!).toLocaleDateString('uz-UZ')}</strong></span>
                   )}
                 </div>
 
@@ -1015,23 +1034,23 @@ function BillingTab() {
               return (
                 <div
                   key={plan.slug}
-                  className={`flex flex-col p-5 rounded-xl border transition-all ${
+                  className={`flex flex-col p-5 rounded-panel border transition-all ${
                     isCurrent
-                      ? 'border-orange-500/40 bg-orange-500/5'
-                      : 'border-zinc-800 bg-zinc-900/40 hover:border-zinc-700'
+                      ? 'border-accent-line bg-accent-quiet'
+                      : 'border-line bg-surface hover:border-line-strong'
                   }`}
                 >
-                  <h4 className="font-semibold text-zinc-100 mb-1">{plan.name}</h4>
-                  <p className="text-xs text-zinc-500 mb-3">{plan.desc}</p>
-                  <div className="text-2xl font-bold text-zinc-100 mb-4">
+                  <h4 className="font-semibold text-ink mb-1">{plan.name}</h4>
+                  <p className="text-xs text-ink-3 mb-3">{plan.desc}</p>
+                  <div className="text-2xl font-bold text-ink mb-4">
                     {plan.price}
-                    <span className="text-xs text-zinc-500 font-normal">/oy</span>
+                    <span className="text-xs text-ink-3 font-normal">/oy</span>
                   </div>
 
                   <ul className="space-y-2 mb-6 flex-1">
                     {plan.features.map((f, i) => (
-                      <li key={i} className="text-xs text-zinc-400 flex items-center gap-1.5">
-                        <span className="w-1.5 h-1.5 rounded-full bg-orange-500/60" />
+                      <li key={i} className="text-xs text-ink-2 flex items-center gap-1.5">
+                        <span className="w-1.5 h-1.5 rounded-full bg-accent-quiet" />
                         {f}
                       </li>
                     ))}
@@ -1061,8 +1080,8 @@ function BillingTab() {
           </CardHeader>
           <CardContent>
             <div className="overflow-x-auto">
-              <table className="w-full text-sm text-left text-zinc-300">
-                <thead className="text-xs uppercase bg-zinc-900/60 text-zinc-500 border-b border-zinc-800">
+              <table className="w-full text-sm text-left text-ink-2">
+                <thead className="text-xs uppercase bg-surface text-ink-3 border-b border-line">
                   <tr>
                     <th className="px-4 py-3">Faktura ID</th>
                     <th className="px-4 py-3">Sana</th>
@@ -1071,9 +1090,9 @@ function BillingTab() {
                     <th className="px-4 py-3 text-right">Hujjat</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-zinc-800/60">
+                <tbody className="divide-y divide-line">
                   {invoices.map((inv) => (
-                    <tr key={inv.id} className="hover:bg-zinc-900/20">
+                    <tr key={inv.id} className="hover:bg-surface-hover">
                       <td className="px-4 py-3.5 font-mono text-xs">{inv.id}</td>
                       <td className="px-4 py-3.5 text-xs">
                         {new Date(inv.date).toLocaleDateString('uz-UZ')}
@@ -1088,12 +1107,12 @@ function BillingTab() {
                             href={inv.downloadUrl}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="text-xs text-orange-400 hover:text-orange-300 hover:underline"
+                            className="text-xs text-accent-ink hover:text-accent-ink hover:underline"
                           >
                             Yuklab olish
                           </a>
                         ) : (
-                          <span className="text-xs text-zinc-600">—</span>
+                          <span className="text-xs text-ink-3">—</span>
                         )}
                       </td>
                     </tr>
@@ -1108,10 +1127,10 @@ function BillingTab() {
       {cancelOpen && (
         <Modal title="Obunani bekor qilish" onClose={() => setCancelOpen(false)}>
           <div className="flex flex-col gap-4">
-            <p className="text-sm text-zinc-400 leading-relaxed">
+            <p className="text-sm text-ink-2 leading-relaxed">
               Haqiqatan ham obunangizni bekor qilmoqchimisiz? Bekor qilingandan so&apos;ng, joriy to&apos;lov muddati{' '}
               {sub?.currentPeriodEnd && (
-                <strong className="text-zinc-200">({new Date(sub.currentPeriodEnd).toLocaleDateString('uz-UZ')})</strong>
+                <strong className="text-ink">({new Date(sub.currentPeriodEnd).toLocaleDateString('uz-UZ')})</strong>
               )}{' '}
               tugaguniga qadar barcha imkoniyatlar siz uchun ochiq qoladi.
             </p>
@@ -1217,12 +1236,12 @@ function ApiKeysTab() {
   return (
     <div className="flex flex-col gap-6">
       {success && (
-        <div className="text-sm text-green-400 bg-green-500/10 border border-green-500/20 rounded-lg p-3">
+        <div className="text-sm text-positive-ink bg-positive-quiet border border-positive-line rounded-control p-3">
           {success}
         </div>
       )}
       {error && (
-        <div className="text-sm text-red-400 bg-red-500/10 border border-red-500/20 rounded-lg p-3">
+        <div className="text-sm text-negative-ink bg-negative-quiet border border-negative-line rounded-control p-3">
           {error}
         </div>
       )}
@@ -1232,7 +1251,7 @@ function ApiKeysTab() {
           <div className="flex items-center justify-between">
             <div>
               <CardTitle className="flex items-center gap-2">
-                <Key className="w-5 h-5 text-orange-500" />
+                <Key className="w-5 h-5 text-accent-ink" />
                 API Kalitlar
               </CardTitle>
               <CardDescription>
@@ -1256,33 +1275,33 @@ function ApiKeysTab() {
           {loading ? (
             <div className="space-y-3">
               {[1, 2].map((i) => (
-                <div key={i} className="h-14 bg-zinc-900/40 border border-zinc-800 rounded-xl animate-pulse" />
+                <div key={i} className="h-14 bg-surface border border-line rounded-panel animate-pulse" />
               ))}
             </div>
           ) : keys.length === 0 ? (
-            <div className="text-center py-8 border border-dashed border-zinc-800 rounded-xl bg-zinc-950/40">
-              <Key className="w-8 h-8 text-zinc-700 mx-auto mb-3" />
-              <p className="text-sm text-zinc-400 mb-1">API kalitlar mavjud emas</p>
-              <p className="text-xs text-zinc-600">Integratsiyani boshlash uchun birinchi API kalitini yarating</p>
+            <div className="text-center py-8 border border-dashed border-line rounded-panel bg-canvas">
+              <Key className="w-8 h-8 text-ink-3 mx-auto mb-3" />
+              <p className="text-sm text-ink-2 mb-1">API kalitlar mavjud emas</p>
+              <p className="text-xs text-ink-3">Integratsiyani boshlash uchun birinchi API kalitini yarating</p>
             </div>
           ) : (
             <div className="flex flex-col gap-3">
               {keys.map((k) => (
                 <div
                   key={k.id}
-                  className={`p-4 rounded-xl border flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-all ${
-                    k.isActive ? 'border-zinc-800 bg-zinc-900/20' : 'border-zinc-900/60 bg-zinc-950/20 opacity-60'
+                  className={`p-4 rounded-panel border flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-all ${
+                    k.isActive ? 'border-line bg-surface' : 'border-line-subtle bg-canvas opacity-60'
                   }`}
                 >
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
-                      <p className="text-sm font-semibold text-zinc-200 truncate">{k.name}</p>
+                      <p className="text-sm font-semibold text-ink truncate">{k.name}</p>
                       <Badge variant={k.isActive ? 'success' : 'default'}>
                         {k.isActive ? 'Faol' : "Bekor qilingan"}
                       </Badge>
                     </div>
-                    <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-zinc-500">
-                      <span className="font-mono text-zinc-400 bg-zinc-900/60 px-1 py-0.5 rounded">
+                    <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-ink-3">
+                      <span className="font-mono text-ink-2 bg-surface px-1 py-0.5 rounded">
                         {k.keyPrefix ?? 'mk_live_'}...
                       </span>
                       <span>
@@ -1290,7 +1309,7 @@ function ApiKeysTab() {
                       </span>
                       {k.expiresAt && (
                         <span className="flex items-center gap-1">
-                          <Clock className="w-3 h-3 text-zinc-600" />
+                          <Clock className="w-3 h-3 text-ink-3" />
                           Muddati: {new Date(k.expiresAt).toLocaleDateString('uz-UZ')}
                         </span>
                       )}
@@ -1320,7 +1339,7 @@ function ApiKeysTab() {
       </Card>
 
       {/* API Documentation */}
-      <Card className="border-zinc-800 bg-zinc-900/30">
+      <Card className="border-line bg-surface">
         <CardHeader>
           <CardTitle className="text-sm font-semibold">Tizimga API orqali ulanish</CardTitle>
           <CardDescription className="text-xs">
@@ -1328,21 +1347,21 @@ function ApiKeysTab() {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-3">
-          <p className="text-xs text-zinc-400">
-            So&apos;rov yuborishda <code className="text-orange-400 font-mono bg-orange-950/20 px-1 py-0.5 rounded">X-API-Key</code> sarlavhasini (header) qo&apos;shing.
+          <p className="text-xs text-ink-2">
+            So&apos;rov yuborishda <code className="text-accent-ink font-mono bg-accent-quiet px-1 py-0.5 rounded">X-API-Key</code> sarlavhasini (header) qo&apos;shing.
           </p>
           <div className="relative">
-            <pre className="text-xs font-mono bg-zinc-950 border border-zinc-850 rounded-lg p-3 overflow-x-auto text-zinc-300">
+            <pre className="text-xs font-mono bg-canvas border border-line rounded-control p-3 overflow-x-auto text-ink-2">
               {`curl -X GET \\
   -H "X-API-Key: YOUR_API_KEY" \\
   "http://localhost:5000/api/v1/stats?domain=example.com&period=week"`}
             </pre>
           </div>
-          <div className="text-xs space-y-1.5 text-zinc-500">
-            <p className="font-semibold text-zinc-400">Parametrlar:</p>
+          <div className="text-xs space-y-1.5 text-ink-3">
+            <p className="font-semibold text-ink-2">Parametrlar:</p>
             <div className="flex flex-col gap-1 pl-2">
-              <p>• <code className="text-zinc-350 font-mono">domain</code>: Saytingiz domeni (masalan: <code className="text-zinc-450">myblog.com</code>)</p>
-              <p>• <code className="text-zinc-350 font-mono">period</code>: Statistika davri (<code className="text-zinc-450">today | week | month</code>)</p>
+              <p>• <code className="text-ink-2 font-mono">domain</code>: Saytingiz domeni (masalan: <code className="text-ink-2">myblog.com</code>)</p>
+              <p>• <code className="text-ink-2 font-mono">period</code>: Statistika davri (<code className="text-ink-2">today | week | month</code>)</p>
             </div>
           </div>
         </CardContent>
@@ -1350,7 +1369,7 @@ function ApiKeysTab() {
 
       {/* Create Modal */}
       {createOpen && (
-        <Modal title="Yangi API kalit yaratish" onClose={() => setCreateOpen(false)}>
+        <Modal size="md" title="Yangi API kalit yaratish" onClose={() => setCreateOpen(false)}>
           <form onSubmit={handleCreate} className="flex flex-col gap-4">
             <Input
               label="Kalit nomi"
@@ -1361,12 +1380,12 @@ function ApiKeysTab() {
               autoFocus
             />
             <div className="flex flex-col gap-1.5">
-              <label htmlFor="expires-select" className="text-sm text-zinc-300">Amal qilish muddati</label>
+              <label htmlFor="expires-select" className="text-sm text-ink-2">Amal qilish muddati</label>
               <select
                 id="expires-select"
                 value={expiresInDays}
                 onChange={(e) => setExpiresInDays(e.target.value)}
-                className="w-full px-3 py-2 text-sm rounded-md border border-zinc-800 bg-zinc-900 text-zinc-100 outline-none transition-all focus:border-zinc-600"
+                className="w-full px-3 py-2 text-sm rounded-control border border-line bg-surface text-ink outline-none transition-all focus:border-line-strong"
               >
                 <option value="0">Muddatsiz (Hech qachon tugamaydi)</option>
                 <option value="30">30 kun</option>
@@ -1388,27 +1407,27 @@ function ApiKeysTab() {
 
       {/* Show Key Modal (Only Once) */}
       {createdKey && (
-        <Modal title="API Kaliti Yaratildi" onClose={() => setCreatedKey(null)}>
+        <Modal size="md" title="API Kaliti Yaratildi" onClose={() => setCreatedKey(null)}>
           <div className="flex flex-col gap-4">
-            <div className="p-3 bg-yellow-500/10 border border-yellow-500/20 text-xs text-yellow-300 rounded-lg flex gap-2.5 items-start">
-              <AlertTriangle className="w-5 h-5 shrink-0 text-yellow-500" />
+            <div className="p-3 bg-accent-quiet border border-accent-line text-xs text-accent-ink rounded-control flex gap-2.5 items-start">
+              <AlertTriangle className="w-5 h-5 shrink-0 text-accent-ink" />
               <div>
                 <p className="font-semibold">Muhim ogohlantirish!</p>
                 <p className="mt-0.5">Ushbu kalit faqat bir marta ko&apos;rsatiladi. Uni hoziroq nusxalab oling va xavfsiz joyga saqlang.</p>
               </div>
             </div>
             <div className="relative">
-              <pre className="text-xs font-mono bg-zinc-950 border border-zinc-850 rounded-lg p-3 pr-10 overflow-x-auto text-orange-400 break-all select-all font-semibold">
+              <pre className="text-xs font-mono bg-canvas border border-line rounded-control p-3 pr-10 overflow-x-auto text-accent-ink break-all select-all font-semibold">
                 {createdKey.key}
               </pre>
               <button
                 type="button"
                 onClick={copyKeyToClipboard}
-                className="absolute right-2 top-2 p-1 text-zinc-500 hover:text-zinc-200 transition-colors"
+                className="absolute right-2 top-2 p-1 text-ink-3 hover:text-ink transition-colors"
                 aria-label="Kalitni nusxalash"
               >
                 {copied ? (
-                  <CheckCircle className="w-4 h-4 text-green-400" />
+                  <CheckCircle className="w-4 h-4 text-positive-ink" />
                 ) : (
                   <Copy className="w-4 h-4" />
                 )}
@@ -1429,8 +1448,8 @@ function ApiKeysTab() {
       {revokeKey && (
         <Modal title="API kalitini bekor qilish" onClose={() => setRevokeKey(null)}>
           <div className="flex flex-col gap-4">
-            <p className="text-sm text-zinc-400 leading-relaxed">
-              Haqiqatan ham <strong className="text-zinc-200">{revokeKey.name}</strong> nomli API kalitini o&apos;chirmoqchimisiz? Kalit o&apos;chirilgandan so&apos;ng undan foydalangan barcha skript va integratsiyalar ishlamay qoladi. Bu amalni ortga qaytarib bo&apos;lmaydi.
+            <p className="text-sm text-ink-2 leading-relaxed">
+              Haqiqatan ham <strong className="text-ink">{revokeKey.name}</strong> nomli API kalitini o&apos;chirmoqchimisiz? Kalit o&apos;chirilgandan so&apos;ng undan foydalangan barcha skript va integratsiyalar ishlamay qoladi. Bu amalni ortga qaytarib bo&apos;lmaydi.
             </p>
             <div className="flex gap-2 justify-end mt-2">
               <Button type="button" variant="secondary" onClick={() => setRevokeKey(null)}>

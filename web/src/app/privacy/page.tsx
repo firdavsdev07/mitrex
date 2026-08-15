@@ -20,13 +20,13 @@ export default function PrivacyPage() {
       <LegalSection title="1. Qanday ma'lumot yig'amiz">
         <ul className="list-disc pl-5 flex flex-col gap-1.5">
           <li>
-            <span className="text-zinc-300">Hisob ma&apos;lumotlari</span> —
+            <span className="text-ink-2">Hisob ma&apos;lumotlari</span> —
             email, ism, parol (bcrypt bilan xeshlangan holda saqlanadi), yoki
             OAuth provayderdan (Google, GitHub, Discord, Facebook, Apple) kelgan
             profil ma&apos;lumotlari.
           </li>
           <li>
-            <span className="text-zinc-300">Sayt analitikasi</span> — sahifa
+            <span className="text-ink-2">Sayt analitikasi</span> — sahifa
             ko&apos;rishlar, sessiya davomiyligi, qurilma/brauzer turi, taxminiy
             davlat (IP orqali, IP manzilning o&apos;zi taxminiy geolokatsiyadan
             keyin uzoq muddat saqlanmaydi), referrer va UTM parametrlari —
@@ -34,12 +34,12 @@ export default function PrivacyPage() {
             yig&apos;iladi.
           </li>
           <li>
-            <span className="text-zinc-300">Ijtimoiy tarmoq statistikasi</span>{' '}
+            <span className="text-ink-2">Ijtimoiy tarmoq statistikasi</span>{' '}
             — OAuth orqali ulagan hisoblaringizning ochiq ko&apos;rsatkichlari
             (obunachilar, ko&apos;rishlar, layklar va h.k.).
           </li>
           <li>
-            <span className="text-zinc-300">Texnik ma&apos;lumotlar</span> —
+            <span className="text-ink-2">Texnik ma&apos;lumotlar</span> —
             kirish tarixi (IP, brauzer, vaqt), xavfsizlik auditi maqsadida.
           </li>
         </ul>
@@ -148,7 +148,7 @@ export default function PrivacyPage() {
           bo&apos;lsa,{' '}
           <a
             href="mailto:privacy@metrix.io"
-            className="text-orange-400 hover:underline"
+            className="text-accent-ink hover:underline"
           >
             privacy@metrix.io
           </a>{' '}

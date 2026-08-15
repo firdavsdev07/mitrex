@@ -18,15 +18,15 @@ function StatCard({
   color: string;
 }) {
   return (
-    <div className={`rounded-xl border p-5 ${color}`}>
+    <div className={`rounded-panel border p-5 ${color}`}>
       <div className="flex items-center gap-2 mb-3">
         {icon}
-        <span className="text-xs text-zinc-500">{label}</span>
+        <span className="text-xs text-ink-3">{label}</span>
       </div>
-      <p className="text-3xl font-bold text-zinc-100 tabular-nums">
+      <p className="text-3xl font-bold text-ink tabular-nums">
         {typeof value === 'number' ? value.toLocaleString() : value}
       </p>
-      {sub && <p className="text-xs text-zinc-600 mt-1">{sub}</p>}
+      {sub && <p className="text-xs text-ink-3 mt-1">{sub}</p>}
     </div>
   );
 }
@@ -40,23 +40,23 @@ const SYNC_STATUS_META: Record<
 > = {
   ok: {
     label: 'Ishlayapti',
-    dot: 'bg-green-400',
-    box: 'bg-green-500/8 border-green-500/15',
+    dot: 'bg-positive',
+    box: 'bg-positive-quiet border-positive-line',
   },
   degraded: {
     label: 'Qisman eskirgan',
-    dot: 'bg-amber-400',
-    box: 'bg-amber-500/8 border-amber-500/15',
+    dot: 'bg-accent',
+    box: 'bg-accent-quiet border-accent-line',
   },
   down: {
     label: "To'xtagan",
-    dot: 'bg-red-400',
-    box: 'bg-red-500/8 border-red-500/15',
+    dot: 'bg-negative',
+    box: 'bg-negative-quiet border-negative-line',
   },
   idle: {
     label: 'Ulanish yo‘q',
-    dot: 'bg-zinc-500',
-    box: 'bg-zinc-500/8 border-zinc-700/40',
+    dot: 'bg-ink-faint',
+    box: 'bg-surface-sunken border-line',
   },
 };
 
@@ -75,13 +75,13 @@ function SyncHealthCard({ health }: { health: SyncHealth }) {
   const { total, stale, failing } = health.connections;
 
   return (
-    <div className={`rounded-xl border p-5 mb-8 ${meta.box}`}>
+    <div className={`rounded-panel border p-5 mb-8 ${meta.box}`}>
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
-          <RefreshCw className="w-4 h-4 text-zinc-400" />
-          <span className="text-xs text-zinc-500">Sinxronizatsiya (6 soat)</span>
+          <RefreshCw className="w-4 h-4 text-ink-2" />
+          <span className="text-xs text-ink-3">Sinxronizatsiya (6 soat)</span>
         </div>
-        <span className="flex items-center gap-2 text-xs text-zinc-300">
+        <span className="flex items-center gap-2 text-xs text-ink-2">
           <span className={`w-2 h-2 rounded-full ${meta.dot}`} />
           {meta.label}
         </span>
@@ -89,42 +89,42 @@ function SyncHealthCard({ health }: { health: SyncHealth }) {
 
       <div className="grid grid-cols-3 gap-4">
         <div>
-          <p className="text-sm font-semibold text-zinc-100">
+          <p className="text-sm font-semibold text-ink">
             {timeAgo(health.lastSyncAt)}
           </p>
-          <p className="text-xs text-zinc-600 mt-0.5">oxirgi sync</p>
+          <p className="text-xs text-ink-3 mt-0.5">oxirgi sync</p>
         </div>
         <div>
-          <p className="text-sm font-semibold text-zinc-100 tabular-nums">
+          <p className="text-sm font-semibold text-ink tabular-nums">
             {stale} / {total}
           </p>
-          <p className="text-xs text-zinc-600 mt-0.5">
+          <p className="text-xs text-ink-3 mt-0.5">
             {health.staleThresholdHours} soatdan eskirgan
           </p>
         </div>
         <div>
           <p
             className={`text-sm font-semibold tabular-nums ${
-              failing > 0 ? 'text-red-400' : 'text-zinc-100'
+              failing > 0 ? 'text-negative-ink' : 'text-ink'
             }`}
           >
             {failing}
           </p>
-          <p className="text-xs text-zinc-600 mt-0.5">xatolik bilan</p>
+          <p className="text-xs text-ink-3 mt-0.5">xatolik bilan</p>
         </div>
       </div>
 
       {health.byPlatform.length > 0 && (
-        <div className="mt-4 pt-4 border-t border-zinc-800/60 space-y-1.5">
+        <div className="mt-4 pt-4 border-t border-line-subtle space-y-1.5">
           {health.byPlatform.map((p) => (
             <div
               key={p.platform}
               className="flex items-center justify-between text-xs"
             >
-              <span className="text-zinc-400">{p.platform}</span>
-              <span className="flex items-center gap-3 text-zinc-600">
+              <span className="text-ink-2">{p.platform}</span>
+              <span className="flex items-center gap-3 text-ink-3">
                 {p.failing > 0 && (
-                  <span className="text-red-400">{p.failing} xato</span>
+                  <span className="text-negative-ink">{p.failing} xato</span>
                 )}
                 <span className="tabular-nums">{p.total} ta</span>
                 <span className="w-24 text-right">{timeAgo(p.lastSyncAt)}</span>
@@ -156,16 +156,16 @@ export default function AdminOverviewPage() {
     return (
       <div className="max-w-5xl mx-auto">
         <div className="mb-6">
-          <p className="text-xs text-zinc-600 uppercase tracking-wider mb-0.5">
+          <p className="text-xs text-ink-3 uppercase tracking-wider mb-0.5">
             Admin
           </p>
-          <h1 className="text-lg font-semibold text-zinc-100">Overview</h1>
+          <h1 className="text-lg font-semibold text-ink">Overview</h1>
         </div>
         <div className="grid grid-cols-3 gap-4">
           {[1, 2, 3, 4, 5].map((i) => (
             <div
               key={i}
-              className="h-28 rounded-xl border border-zinc-800 bg-zinc-900/60 animate-pulse"
+              className="h-28 rounded-panel border border-line bg-surface animate-pulse"
             />
           ))}
         </div>
@@ -176,57 +176,57 @@ export default function AdminOverviewPage() {
   return (
     <div className="max-w-5xl mx-auto">
       <div className="mb-6">
-        <p className="text-xs text-zinc-600 uppercase tracking-wider mb-0.5">
+        <p className="text-xs text-ink-3 uppercase tracking-wider mb-0.5">
           Admin
         </p>
-        <h1 className="text-lg font-semibold text-zinc-100">Overview</h1>
-        <p className="text-sm text-zinc-500 mt-1">
+        <h1 className="text-lg font-semibold text-ink">Overview</h1>
+        <p className="text-sm text-ink-3 mt-1">
           Platform bo&apos;yicha umumiy statistika
         </p>
       </div>
 
       <div className="grid grid-cols-3 gap-4 mb-8">
         <StatCard
-          icon={<Users className="w-4 h-4 text-blue-400" />}
+          icon={<Users className="w-4 h-4 text-info-ink" />}
           label="Jami foydalanuvchilar"
           value={stats?.totalUsers ?? 0}
           sub={`+${stats?.newUsersThisMonth ?? 0} bu oy`}
-          color="bg-blue-500/8 border-blue-500/15"
+          color="bg-info-quiet border-info-line"
         />
         <StatCard
-          icon={<Link2 className="w-4 h-4 text-orange-400" />}
+          icon={<Link2 className="w-4 h-4 text-accent-ink" />}
           label="Faol ulanishlar"
           value={stats?.activeConnections ?? 0}
-          color="bg-orange-500/8 border-orange-500/15"
+          color="bg-accent-quiet border-accent-line"
         />
         <StatCard
-          icon={<Globe className="w-4 h-4 text-green-400" />}
+          icon={<Globe className="w-4 h-4 text-positive-ink" />}
           label="Jami saytlar"
           value={stats?.totalWebsites ?? 0}
-          color="bg-green-500/8 border-green-500/15"
+          color="bg-positive-quiet border-positive-line"
         />
         <StatCard
-          icon={<Eye className="w-4 h-4 text-purple-400" />}
+          icon={<Eye className="w-4 h-4 text-info-ink" />}
           label="Bu oylik ko'rishlar"
           value={stats?.totalViews ?? 0}
-          color="bg-purple-500/8 border-purple-500/15"
+          color="bg-info-quiet border-info-line"
         />
         <StatCard
-          icon={<TrendingUp className="w-4 h-4 text-red-400" />}
+          icon={<TrendingUp className="w-4 h-4 text-negative-ink" />}
           label="Bu oy yangi userlar"
           value={stats?.newUsersThisMonth ?? 0}
-          color="bg-red-500/8 border-red-500/15"
+          color="bg-negative-quiet border-negative-line"
         />
       </div>
 
       {health && <SyncHealthCard health={health} />}
 
-      <div className="rounded-xl border border-zinc-800/60 bg-zinc-900/30 p-5">
-        <p className="text-sm text-zinc-500">
+      <div className="rounded-panel border border-line-subtle bg-surface p-5">
+        <p className="text-sm text-ink-3">
           Foydalanuvchilarni boshqarish uchun{' '}
           <a
             href="/admin/users"
-            className="text-zinc-300 hover:text-white underline underline-offset-2"
+            className="text-ink-2 hover:text-ink underline underline-offset-2"
           >
             Foydalanuvchilar
           </a>{' '}

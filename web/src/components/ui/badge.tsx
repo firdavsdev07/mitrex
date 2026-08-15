@@ -9,18 +9,19 @@ function Badge({ className, variant = 'default', ...props }: BadgeProps) {
   return (
     <span
       className={cn(
-        'inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full',
+        'inline-flex items-center gap-1 text-caption font-medium px-2 py-0.5 rounded-full',
         {
-          'bg-zinc-800 text-zinc-300 border border-zinc-700':
+          'bg-surface-raised text-ink-2 border border-line':
             variant === 'default',
-          'bg-green-500/10 text-green-400 border border-green-500/20':
+          'bg-positive-quiet text-positive-ink border border-positive-line':
             variant === 'success',
-          'bg-yellow-500/10 text-yellow-400 border border-yellow-500/20':
-            variant === 'warning',
-          'bg-red-500/10 text-red-400 border border-red-500/20':
+          // `warning` va `orange` ataylab bir xil: dizayn tizimida amber
+          // yo'q — u aksent apelsini bilan chalkashadi. Ikkalasi ham
+          // «e'tibor talab qiladi» ma'nosini beradi.
+          'bg-accent-quiet text-accent-ink border border-accent-line':
+            variant === 'warning' || variant === 'orange',
+          'bg-negative-quiet text-negative-ink border border-negative-line':
             variant === 'danger',
-          'bg-orange-500/10 text-orange-400 border border-orange-500/20':
-            variant === 'orange',
         },
         className,
       )}

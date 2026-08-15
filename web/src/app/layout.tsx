@@ -1,10 +1,16 @@
 import type { Metadata } from 'next';
-import { Geist } from 'next/font/google';
+import { Plus_Jakarta_Sans } from 'next/font/google';
 import './globals.css';
 
-const geist = Geist({
+// Geist — yaxshi, lekin neytral grotesk: u hech qanday xarakter bermaydi.
+// Referensdagi interfeys dumaloqroq, geometrikroq va sarlavhalarda qalinroq
+// shriftga tayanadi — aynan shu unga «do'stona mahsulot» tuyg'usini beradi.
+// Plus Jakarta Sans shu xarakterga ega va UI metrikalari ham to'g'ri
+// (tabular raqamlar, tor interfeys balandligi).
+const jakarta = Plus_Jakarta_Sans({
   variable: '--font-geist-sans',
   subsets: ['latin'],
+  weight: ['400', '500', '600', '700', '800'],
   display: 'swap',
 });
 
@@ -27,7 +33,17 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="uz" className={geist.variable} suppressHydrationWarning>
+    // `data-theme="light"` — mahsulot standart holatda YORUG'. Ilgari bu
+    // yerda `dark` turardi, lekin sahifalar baribir qorong'i ranglarni
+    // qo'lda yozgani uchun token qatlami hech qachon ishlamagan.
+    // Endi ranglar faqat tokenlardan keladi, shuning uchun almashtirgich
+    // qo'shilganda shu atributni o'zgartirish kifoya.
+    <html
+      lang="uz"
+      data-theme="light"
+      className={jakarta.variable}
+      suppressHydrationWarning
+    >
       <body className="min-h-screen antialiased">{children}</body>
     </html>
   );

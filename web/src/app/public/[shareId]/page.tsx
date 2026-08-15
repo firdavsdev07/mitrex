@@ -56,11 +56,11 @@ export default function PublicDashboardPage({
 
   if (notFound) {
     return (
-      <div className="min-h-screen bg-zinc-950 flex items-center justify-center px-4">
+      <div className="min-h-screen bg-canvas flex items-center justify-center px-4">
         <div className="text-center">
-          <Globe className="w-10 h-10 text-zinc-700 mx-auto mb-4" />
-          <p className="text-lg text-zinc-300 mb-1">Dashboard topilmadi</p>
-          <p className="text-sm text-zinc-600">
+          <Globe className="w-10 h-10 text-ink-3 mx-auto mb-4" />
+          <p className="text-lg text-ink-2 mb-1">Dashboard topilmadi</p>
+          <p className="text-sm text-ink-3">
             Havola o&apos;chirilgan yoki noto&apos;g&apos;ri bo&apos;lishi
             mumkin.
           </p>
@@ -75,30 +75,30 @@ export default function PublicDashboardPage({
   }));
 
   return (
-    <div className="min-h-screen bg-zinc-950">
-      <div className="max-w-3xl mx-auto px-4 py-8">
+    <div className="min-h-screen bg-canvas">
+      <div className="max-w-wide mx-auto px-4 sm:px-6 py-8">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-2.5">
-            <div className="w-7 h-7 rounded-md bg-orange-500/10 border border-orange-500/20 flex items-center justify-center">
-              <Zap className="w-4 h-4 text-orange-500" />
+            <div className="w-7 h-7 rounded-control bg-accent-quiet border border-accent-line flex items-center justify-center">
+              <Zap className="w-4 h-4 text-accent-ink" />
             </div>
             <div>
-              <p className="text-xs text-zinc-600">Ommaviy dashboard</p>
-              <h1 className="text-lg font-semibold text-zinc-100">
+              <p className="text-xs text-ink-3">Ommaviy dashboard</p>
+              <h1 className="text-lg font-semibold text-ink">
                 {loading ? '...' : (data?.website.name ?? '')}
               </h1>
             </div>
           </div>
-          <div className="flex items-center gap-0.5 bg-zinc-900 border border-zinc-800 rounded-lg p-0.5">
+          <div className="flex items-center gap-0.5 bg-surface border border-line rounded-control p-0.5">
             {(['today', 'week', 'month'] as Period[]).map((p) => (
               <button
                 key={p}
                 onClick={() => setPeriod(p)}
-                className={`text-xs px-3 py-1.5 rounded-md transition-all ${
+                className={`text-xs px-3 py-1.5 rounded-control transition-all ${
                   period === p
-                    ? 'bg-orange-500/12 text-orange-400 border border-orange-500/20'
-                    : 'text-zinc-600 hover:text-zinc-300'
+                    ? 'bg-accent-quiet text-accent-ink border border-accent-line'
+                    : 'text-ink-3 hover:text-ink'
                 }`}
               >
                 {PERIOD_LABELS[p]}
@@ -111,33 +111,33 @@ export default function PublicDashboardPage({
         <div className="grid grid-cols-3 gap-3 mb-5">
           {[
             {
-              icon: <Users className="w-4 h-4 text-blue-400" />,
+              icon: <Users className="w-4 h-4 text-info-ink" />,
               label: 'Tashrifchilar',
               val: data?.overview.visitors,
-              bg: 'bg-blue-500/8 border-blue-500/15',
+              bg: 'bg-info-quiet border-info-line',
             },
             {
-              icon: <Eye className="w-4 h-4 text-orange-400" />,
+              icon: <Eye className="w-4 h-4 text-accent-ink" />,
               label: "Sahifa ko'rishlar",
               val: data?.overview.pageViews,
-              bg: 'bg-orange-500/8 border-orange-500/15',
+              bg: 'bg-accent-quiet border-accent-line',
             },
             {
-              icon: <TrendingUp className="w-4 h-4 text-red-400" />,
+              icon: <TrendingUp className="w-4 h-4 text-negative-ink" />,
               label: 'Bounce rate',
               val: data ? `${data.overview.bounceRate.toFixed(1)}%` : undefined,
-              bg: 'bg-red-500/8 border-red-500/15',
+              bg: 'bg-negative-quiet border-negative-line',
             },
           ].map(({ icon, label, val, bg }) => (
-            <div key={label} className={`rounded-xl border p-4 ${bg}`}>
+            <div key={label} className={`rounded-panel border p-4 ${bg}`}>
               <div className="flex items-center gap-2 mb-2">
                 {icon}
-                <span className="text-xs text-zinc-500">{label}</span>
+                <span className="text-xs text-ink-3">{label}</span>
               </div>
               {loading || val === undefined ? (
-                <div className="h-8 w-16 bg-zinc-800/50 rounded animate-pulse" />
+                <div className="h-8 w-16 bg-surface-sunken rounded animate-pulse" />
               ) : (
-                <p className="text-2xl font-bold text-zinc-100 tabular-nums">
+                <p className="text-2xl font-bold text-ink tabular-nums">
                   {typeof val === 'number' ? fmt(val) : val}
                 </p>
               )}
@@ -148,15 +148,15 @@ export default function PublicDashboardPage({
         {/* Trend chart */}
         <Card className="mb-5">
           <CardContent className="p-5">
-            <p className="text-sm font-medium text-zinc-200 mb-4">
+            <p className="text-sm font-medium text-ink mb-4">
               Tashrifchilar va ko&apos;rishlar dinamikasi
             </p>
             {loading ? (
-              <div className="h-48 bg-zinc-800/30 rounded-lg animate-pulse" />
+              <div className="h-48 bg-surface-sunken rounded-control animate-pulse" />
             ) : trendData.length === 0 ? (
               <div className="h-48 flex flex-col items-center justify-center gap-2">
-                <Globe className="w-8 h-8 text-zinc-700" />
-                <p className="text-sm text-zinc-600">
+                <Globe className="w-8 h-8 text-ink-3" />
+                <p className="text-sm text-ink-3">
                   Bu davrda ma&apos;lumot yo&apos;q
                 </p>
               </div>
@@ -165,23 +165,23 @@ export default function PublicDashboardPage({
                 <AreaChart data={trendData}>
                   <defs>
                     <linearGradient id="gPubViews" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#f97316" stopOpacity={0.2} />
-                      <stop offset="95%" stopColor="#f97316" stopOpacity={0} />
+                      <stop offset="5%" stopColor="var(--mx-accent)" stopOpacity={0.2} />
+                      <stop offset="95%" stopColor="var(--mx-accent)" stopOpacity={0} />
                     </linearGradient>
                   </defs>
                   <CartesianGrid
                     strokeDasharray="3 3"
-                    stroke="#27272a"
+                    stroke="var(--mx-chart-grid)"
                     vertical={false}
                   />
                   <XAxis
                     dataKey="date"
-                    tick={{ fill: '#52525b', fontSize: 11 }}
+                    tick={{ fill: 'var(--mx-chart-axis)', fontSize: 11 }}
                     axisLine={false}
                     tickLine={false}
                   />
                   <YAxis
-                    tick={{ fill: '#52525b', fontSize: 11 }}
+                    tick={{ fill: 'var(--mx-chart-axis)', fontSize: 11 }}
                     axisLine={false}
                     tickLine={false}
                     width={36}
@@ -194,17 +194,17 @@ export default function PublicDashboardPage({
                       borderRadius: 8,
                       fontSize: 12,
                     }}
-                    labelStyle={{ color: '#71717a' }}
+                    labelStyle={{ color: 'var(--mx-ink-3)' }}
                   />
                   <Area
                     type="monotone"
                     dataKey="views"
                     name="Ko'rishlar"
-                    stroke="#f97316"
+                    stroke="var(--mx-accent)"
                     strokeWidth={2}
                     fill="url(#gPubViews)"
                     dot={false}
-                    activeDot={{ r: 4, fill: '#f97316' }}
+                    activeDot={{ r: 4, fill: 'var(--mx-accent)' }}
                   />
                 </AreaChart>
               </ResponsiveContainer>
@@ -215,33 +215,33 @@ export default function PublicDashboardPage({
         {/* Top pages */}
         <Card>
           <CardContent className="p-0">
-            <div className="px-5 py-3 border-b border-zinc-800/60">
-              <p className="text-sm font-medium text-zinc-200">Top sahifalar</p>
+            <div className="px-5 py-3 border-b border-line-subtle">
+              <p className="text-sm font-medium text-ink">Top sahifalar</p>
             </div>
             {loading ? (
               <div className="p-5 space-y-3">
                 {[1, 2, 3].map((i) => (
                   <div
                     key={i}
-                    className="h-6 bg-zinc-800/40 rounded animate-pulse"
+                    className="h-6 bg-surface-sunken rounded animate-pulse"
                   />
                 ))}
               </div>
             ) : !data?.topPages.length ? (
-              <p className="py-8 text-center text-sm text-zinc-600">
+              <p className="py-8 text-center text-sm text-ink-3">
                 Ma&apos;lumot yo&apos;q
               </p>
             ) : (
-              <div className="divide-y divide-zinc-800/40">
+              <div className="divide-y divide-line">
                 {data.topPages.map((p) => (
                   <div
                     key={p.path}
                     className="flex items-center justify-between px-5 py-3"
                   >
-                    <p className="text-sm text-zinc-300 font-mono truncate">
+                    <p className="text-sm text-ink-2 font-mono truncate">
                       {p.path}
                     </p>
-                    <p className="text-sm font-semibold text-zinc-100 tabular-nums">
+                    <p className="text-sm font-semibold text-ink tabular-nums">
                       {fmt(p.views)}
                     </p>
                   </div>
@@ -251,7 +251,7 @@ export default function PublicDashboardPage({
           </CardContent>
         </Card>
 
-        <p className="text-center text-xs text-zinc-700 mt-6">
+        <p className="text-center text-xs text-ink-3 mt-6">
           Metrix orqali quvvatlanadi
         </p>
       </div>

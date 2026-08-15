@@ -77,18 +77,18 @@ export default function LoginPage() {
     return (
       <div className="w-full max-w-sm">
         <div className="mb-7 text-center">
-          <div className="w-10 h-10 rounded-xl bg-orange-500/10 border border-orange-500/20 flex items-center justify-center mx-auto mb-3">
-            <ShieldCheck className="w-5 h-5 text-orange-400" />
+          <div className="w-10 h-10 rounded-panel bg-accent-quiet border border-accent-line flex items-center justify-center mx-auto mb-3">
+            <ShieldCheck className="w-5 h-5 text-accent-ink" />
           </div>
-          <h1 className="text-xl font-semibold text-zinc-100 mb-1">
+          <h1 className="text-xl font-semibold text-ink mb-1">
             Ikki bosqichli tekshiruv
           </h1>
-          <p className="text-sm text-zinc-500">
+          <p className="text-sm text-ink-3">
             Autentifikator ilovangizdagi 6 xonali kodni kiriting
           </p>
         </div>
 
-        <div className="rounded-xl border border-zinc-800 bg-zinc-900/60 p-6">
+        <div className="rounded-panel border border-line bg-surface p-6">
           <form onSubmit={onVerifyTwoFactor} className="flex flex-col gap-4">
             <input
               type="text"
@@ -98,10 +98,10 @@ export default function LoginPage() {
               placeholder="000000"
               value={code}
               onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))}
-              className="w-full px-3 py-3 text-center text-lg tracking-[0.5em] rounded-md border border-zinc-800 bg-zinc-900 text-zinc-100 placeholder:text-zinc-700 outline-none transition-all focus:border-zinc-600 focus:ring-1 focus:ring-zinc-600/20"
+              className="w-full px-3 py-3 text-center text-lg tracking-[0.5em] rounded-control border border-line bg-surface text-ink placeholder:text-ink-faint outline-none transition-all focus:border-line-strong focus:ring-1 focus:ring-line-strong"
             />
             {serverError && (
-              <p className="text-xs text-red-400 bg-red-500/10 border border-red-500/20 rounded-md px-3 py-2">
+              <p className="text-xs text-negative-ink bg-negative-quiet border border-negative-line rounded-control px-3 py-2">
                 {serverError}
               </p>
             )}
@@ -120,7 +120,7 @@ export default function LoginPage() {
                 setCode('');
                 setServerError('');
               }}
-              className="text-xs text-zinc-500 hover:text-zinc-300 transition-colors"
+              className="text-xs text-ink-3 hover:text-ink transition-colors"
             >
               Orqaga
             </button>
@@ -133,25 +133,25 @@ export default function LoginPage() {
   return (
     <div className="w-full max-w-sm">
       <div className="mb-7 text-center">
-        <h1 className="text-xl font-semibold text-zinc-100 mb-1">
+        <h1 className="text-xl font-semibold text-ink mb-1">
           Xush kelibsiz
         </h1>
-        <p className="text-sm text-zinc-500">Hisobingizga kiring</p>
+        <p className="text-sm text-ink-3">Hisobingizga kiring</p>
       </div>
 
-      <div className="rounded-xl border border-zinc-800 bg-zinc-900/60 p-6">
+      <div className="rounded-panel border border-line bg-surface p-6">
         {/* Social logins */}
         <div className="flex flex-col gap-2 mb-5">
           <a
             href={`${API_BASE}/auth/google`}
-            className="flex items-center justify-center gap-2.5 w-full py-2 text-sm text-zinc-300 border border-zinc-700 rounded-md hover:bg-zinc-800 transition-colors"
+            className="flex h-12 items-center justify-center gap-2.5 w-full text-body font-medium text-ink border border-line rounded-control hover:bg-surface-hover transition-colors ease-standard duration-[var(--mx-dur-micro)]"
           >
             <GoogleIcon />
             Google bilan kirish
           </a>
           <a
             href={`${API_BASE}/auth/github`}
-            className="flex items-center justify-center gap-2.5 w-full py-2 text-sm text-zinc-300 border border-zinc-700 rounded-md hover:bg-zinc-800 transition-colors"
+            className="flex h-12 items-center justify-center gap-2.5 w-full text-body font-medium text-ink border border-line rounded-control hover:bg-surface-hover transition-colors ease-standard duration-[var(--mx-dur-micro)]"
           >
             <GithubIcon />
             GitHub bilan kirish
@@ -160,9 +160,9 @@ export default function LoginPage() {
 
         {/* Divider */}
         <div className="flex items-center gap-3 mb-5">
-          <div className="flex-1 h-px bg-zinc-800" />
-          <span className="text-xs text-zinc-600">yoki email bilan</span>
-          <div className="flex-1 h-px bg-zinc-800" />
+          <div className="flex-1 h-px bg-surface-sunken" />
+          <span className="text-xs text-ink-3">yoki email bilan</span>
+          <div className="flex-1 h-px bg-surface-sunken" />
         </div>
 
         {/* Form */}
@@ -178,12 +178,12 @@ export default function LoginPage() {
 
           <div className="flex flex-col gap-1.5">
             <div className="flex items-center justify-between">
-              <label htmlFor="password" className="text-sm text-zinc-300">
+              <label htmlFor="password" className="text-sm text-ink-2">
                 Parol
               </label>
               <Link
                 href="/forgot-password"
-                className="text-xs text-zinc-500 hover:text-zinc-300 transition-colors"
+                className="text-xs text-ink-3 hover:text-ink transition-colors"
               >
                 Parolni unutdingizmi?
               </Link>
@@ -194,7 +194,11 @@ export default function LoginPage() {
                 type={showPwd ? 'text' : 'password'}
                 placeholder="••••••••"
                 autoComplete="current-password"
-                className="w-full px-3 py-2 pr-10 text-sm rounded-md border border-zinc-800 bg-zinc-900 text-zinc-100 placeholder:text-zinc-600 outline-none transition-all focus:border-zinc-600 focus:ring-1 focus:ring-zinc-600/20"
+                // Input primitivi bilan AYNAN bir xil: `h-10`,
+                // `bg-surface-sunken`, `rounded-control`. Ilgari bu maydon
+                // qo'lda yozilgani uchun email maydonidan boshqacha radius va
+                // boshqacha fon bilan chiqardi — bitta formada, 16px masofada.
+                className="w-full h-10 px-3 pr-10 text-body rounded-control border border-line bg-surface-sunken text-ink placeholder:text-ink-faint outline-none transition-colors ease-standard duration-[var(--mx-dur-micro)] focus:border-line-strong focus:ring-1 focus:ring-line-strong"
                 {...register('password')}
               />
               <button
@@ -203,7 +207,7 @@ export default function LoginPage() {
                 aria-label={
                   showPwd ? 'Parolni yashirish' : "Parolni ko'rsatish"
                 }
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-600 hover:text-zinc-400 transition-colors"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-ink-3 hover:text-ink transition-colors"
               >
                 {showPwd ? (
                   <EyeOff className="w-4 h-4" />
@@ -213,12 +217,12 @@ export default function LoginPage() {
               </button>
             </div>
             {errors.password && (
-              <p className="text-xs text-red-400">{errors.password.message}</p>
+              <p className="text-xs text-negative-ink">{errors.password.message}</p>
             )}
           </div>
 
           {serverError && (
-            <p className="text-xs text-red-400 bg-red-500/10 border border-red-500/20 rounded-md px-3 py-2">
+            <p className="text-xs text-negative-ink bg-negative-quiet border border-negative-line rounded-control px-3 py-2">
               {serverError}
             </p>
           )}
@@ -234,11 +238,11 @@ export default function LoginPage() {
         </form>
       </div>
 
-      <p className="mt-5 text-center text-sm text-zinc-600">
+      <p className="mt-5 text-center text-sm text-ink-3">
         Hisob yo&apos;qmi?{' '}
         <Link
           href="/register"
-          className="text-zinc-400 hover:text-zinc-200 transition-colors"
+          className="text-ink-2 hover:text-ink transition-colors"
         >
           Ro&apos;yxatdan o&apos;tish
         </Link>

@@ -20,6 +20,8 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Modal } from '@/components/ui/modal';
+import { ConfirmDialog } from '@/components/ui/confirm-dialog';
+import { toast } from '@/components/ui/toast';
 
 // ─── types ────────────────────────────────────────────────────────────────────
 
@@ -77,6 +79,10 @@ export default function AlertsPage() {
   const [loading, setLoading] = useState(true);
   const [addModal, setAddModal] = useState(false);
   const [error, setError] = useState('');
+  // Alert o'chirish qaytarib bo'lmaydigan amal — ilgari tasdiqsiz edi.
+  // Alertni qayta yaratish arzon, shuning uchun yozib tasdiqlash shart emas.
+  const [deleteTarget, setDeleteTarget] = useState<Alert | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     load();
@@ -104,25 +110,31 @@ export default function AlertsPage() {
     }
   }
 
-  async function deleteAlert(id: string) {
+  async function deleteAlert() {
+    if (!deleteTarget) return;
     setError('');
+    setDeleting(true);
     try {
-      await apiClient.delete(`/alerts/${id}`);
-      setAlerts((prev) => prev.filter((a) => a.id !== id));
+      await apiClient.delete(`/alerts/${deleteTarget.id}`);
+      setAlerts((prev) => prev.filter((a) => a.id !== deleteTarget.id));
+      toast.success(`«${deleteTarget.name}» o'chirildi`);
+      setDeleteTarget(null);
     } catch {
       setError("Alertni o'chirishda xatolik yuz berdi");
+    } finally {
+      setDeleting(false);
     }
   }
 
   return (
-    <div className="max-w-3xl mx-auto">
+    <div className="max-w-wide mx-auto">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <p className="text-xs text-zinc-600 uppercase tracking-wider mb-0.5">
+          <p className="text-xs text-ink-3 uppercase tracking-wider mb-0.5">
             Ogohlantirishlar
           </p>
-          <h1 className="text-lg font-semibold text-zinc-100">Alertlar</h1>
-          <p className="text-sm text-zinc-500 mt-1">
+          <h1 className="text-lg font-semibold text-ink">Alertlar</h1>
+          <p className="text-sm text-ink-3 mt-1">
             Muhim o&apos;zgarishlar bo&apos;lganda darhol xabar oling
           </p>
         </div>
@@ -133,7 +145,7 @@ export default function AlertsPage() {
       </div>
 
       {error && (
-        <p className="text-xs text-red-400 bg-red-500/10 border border-red-500/20 rounded-md px-3 py-2 mb-4">
+        <p className="text-xs text-negative-ink bg-negative-quiet border border-negative-line rounded-control px-3 py-2 mb-4">
           {error}
         </p>
       )}
@@ -143,15 +155,15 @@ export default function AlertsPage() {
           {[1, 2, 3].map((i) => (
             <div
               key={i}
-              className="h-20 rounded-xl border border-zinc-800 bg-zinc-900/60 animate-pulse"
+              className="h-20 rounded-panel border border-line bg-surface animate-pulse"
             />
           ))}
         </div>
       ) : alerts.length === 0 ? (
-        <div className="rounded-xl border border-zinc-800 border-dashed bg-zinc-900/30 p-12 text-center">
-          <Bell className="w-10 h-10 text-zinc-700 mx-auto mb-4" />
-          <p className="text-sm text-zinc-400 mb-1">Hali alert yo&apos;q</p>
-          <p className="text-xs text-zinc-700 mb-5">
+        <div className="rounded-panel border border-line border-dashed bg-surface p-12 text-center">
+          <Bell className="w-10 h-10 text-ink-3 mx-auto mb-4" />
+          <p className="text-sm text-ink-2 mb-1">Hali alert yo&apos;q</p>
+          <p className="text-xs text-ink-3 mb-5">
             Traffic tushib ketsa yoki obunachi keskin o&apos;ssa — siz birinchi
             bilasiz
           </p>
@@ -169,7 +181,7 @@ export default function AlertsPage() {
                   <div className="flex-1 min-w-0">
                     {/* Name + badges */}
                     <div className="flex items-center gap-2 mb-1 flex-wrap">
-                      <p className="text-sm font-semibold text-zinc-100">
+                      <p className="text-sm font-semibold text-ink">
                         {alert.name}
                       </p>
                       <Badge variant={alert.isActive ? 'success' : 'default'}>
@@ -195,23 +207,23 @@ export default function AlertsPage() {
                     </div>
 
                     {/* Metric + threshold */}
-                    <p className="text-xs text-zinc-500">
+                    <p className="text-xs text-ink-3">
                       {METRIC_LABELS[alert.metric] ?? alert.metric}
                       {' · '}Chegara:{' '}
-                      <span className="text-zinc-300">{alert.threshold}x</span>
+                      <span className="text-ink-2">{alert.threshold}x</span>
                     </p>
 
                     {/* Target: website or connection */}
                     <div className="flex items-center gap-3 mt-1.5 flex-wrap">
                       {alert.website && (
-                        <span className="flex items-center gap-1 text-xs text-zinc-600">
+                        <span className="flex items-center gap-1 text-xs text-ink-3">
                           <Globe className="w-3 h-3" />
                           {alert.website.name}
                           {alert.website.domain && ` (${alert.website.domain})`}
                         </span>
                       )}
                       {alert.connection && (
-                        <span className="flex items-center gap-1 text-xs text-zinc-600">
+                        <span className="flex items-center gap-1 text-xs text-ink-3">
                           <Link2 className="w-3 h-3" />
                           {PLATFORM_LABELS[alert.connection.platform] ??
                             alert.connection.platform}
@@ -220,7 +232,7 @@ export default function AlertsPage() {
                         </span>
                       )}
                       {alert.lastTriggered && (
-                        <span className="text-xs text-zinc-700">
+                        <span className="text-xs text-ink-3">
                           Oxirgi:{' '}
                           {new Date(alert.lastTriggered).toLocaleDateString(
                             'uz-UZ',
@@ -234,17 +246,18 @@ export default function AlertsPage() {
                   <div className="flex items-center gap-2 shrink-0">
                     <button
                       onClick={() => toggleAlert(alert.id, alert.isActive)}
-                      className="text-zinc-500 hover:text-zinc-200 transition-colors"
+                      className="text-ink-3 hover:text-ink transition-colors"
                     >
                       {alert.isActive ? (
-                        <ToggleRight className="w-5 h-5 text-green-400" />
+                        <ToggleRight className="w-5 h-5 text-positive-ink" />
                       ) : (
                         <ToggleLeft className="w-5 h-5" />
                       )}
                     </button>
                     <button
-                      onClick={() => deleteAlert(alert.id)}
-                      className="text-zinc-600 hover:text-red-400 transition-colors"
+                      onClick={() => setDeleteTarget(alert)}
+                      aria-label={`«${alert.name}» alertini o'chirish`}
+                      className="text-ink-3 hover:text-negative-ink transition-colors"
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
@@ -263,6 +276,22 @@ export default function AlertsPage() {
             setAddModal(false);
             load();
           }}
+        />
+      )}
+
+      {deleteTarget && (
+        <ConfirmDialog
+          title="Alertni o'chirish"
+          message={
+            <>
+              <strong className="text-ink">{deleteTarget.name}</strong> alerti
+              o&apos;chiriladi va bundan keyin bu holat yuz berganda sizga
+              xabar berilmaydi.
+            </>
+          }
+          loading={deleting}
+          onConfirm={deleteAlert}
+          onClose={() => setDeleteTarget(null)}
         />
       )}
     </div>
@@ -351,7 +380,7 @@ function AddAlertModal({
   }
 
   return (
-    <Modal title="Yangi alert" onClose={onClose}>
+    <Modal size="md" title="Yangi alert" onClose={onClose}>
       <form onSubmit={handleSubmit} className="flex flex-col gap-3">
         <Input
           label="Nom"
@@ -362,11 +391,11 @@ function AddAlertModal({
 
         {/* Metric */}
         <div className="flex flex-col gap-1.5">
-          <label className="text-sm text-zinc-300">Vaziyat turi</label>
+          <label className="text-sm text-ink-2">Vaziyat turi</label>
           <select
             value={metric}
             onChange={(e) => setMetric(e.target.value)}
-            className="w-full px-3 py-2 text-sm rounded-md border border-zinc-800 bg-zinc-900 text-zinc-100 outline-none focus:border-zinc-600"
+            className="w-full px-3 py-2 text-sm rounded-control border border-line bg-surface text-ink outline-none focus:border-line-strong"
           >
             {Object.entries(METRIC_LABELS).map(([key, label]) => (
               <option key={key} value={key}>
@@ -379,11 +408,11 @@ function AddAlertModal({
         {/* Target — website */}
         {targetType === 'website' && (
           <div className="flex flex-col gap-1.5">
-            <label className="text-sm text-zinc-300">Sayt</label>
+            <label className="text-sm text-ink-2">Sayt</label>
             <select
               value={websiteId}
               onChange={(e) => setWebsiteId(e.target.value)}
-              className="w-full px-3 py-2 text-sm rounded-md border border-zinc-800 bg-zinc-900 text-zinc-100 outline-none focus:border-zinc-600"
+              className="w-full px-3 py-2 text-sm rounded-control border border-line bg-surface text-ink outline-none focus:border-line-strong"
             >
               <option value="">— Sayt tanlang —</option>
               {websites.map((w) => (
@@ -399,11 +428,11 @@ function AddAlertModal({
         {/* Target — connection */}
         {targetType === 'connection' && (
           <div className="flex flex-col gap-1.5">
-            <label className="text-sm text-zinc-300">Platforma</label>
+            <label className="text-sm text-ink-2">Platforma</label>
             <select
               value={connectionId}
               onChange={(e) => setConnectionId(e.target.value)}
-              className="w-full px-3 py-2 text-sm rounded-md border border-zinc-800 bg-zinc-900 text-zinc-100 outline-none focus:border-zinc-600"
+              className="w-full px-3 py-2 text-sm rounded-control border border-line bg-surface text-ink outline-none focus:border-line-strong"
             >
               <option value="">— Platforma tanlang —</option>
               {connections.map((c) => (
@@ -429,7 +458,7 @@ function AddAlertModal({
 
         {/* Channel */}
         <div className="flex flex-col gap-1.5">
-          <label className="text-sm text-zinc-300">Xabar usuli</label>
+          <label className="text-sm text-ink-2">Xabar usuli</label>
           <div className="flex gap-2">
             {[
               { value: 'EMAIL', icon: Mail, label: 'Email' },
@@ -439,10 +468,10 @@ function AddAlertModal({
                 key={value}
                 type="button"
                 onClick={() => setChannel(value)}
-                className={`flex-1 flex items-center justify-center gap-1.5 py-2 text-sm rounded-md border transition-all ${
+                className={`flex-1 flex items-center justify-center gap-1.5 py-2 text-sm rounded-control border transition-all ${
                   channel === value
-                    ? 'border-orange-500/40 bg-orange-500/10 text-orange-400'
-                    : 'border-zinc-800 text-zinc-500 hover:border-zinc-600 hover:text-zinc-300'
+                    ? 'border-accent-line bg-accent-quiet text-accent-ink'
+                    : 'border-line text-ink-3 hover:border-line-strong hover:text-ink'
                 }`}
               >
                 <Icon className="w-3.5 h-3.5" />
@@ -453,7 +482,7 @@ function AddAlertModal({
         </div>
 
         {error && (
-          <p className="text-xs text-red-400 bg-red-500/10 border border-red-500/20 rounded-md px-3 py-2">
+          <p className="text-xs text-negative-ink bg-negative-quiet border border-negative-line rounded-control px-3 py-2">
             {error}
           </p>
         )}

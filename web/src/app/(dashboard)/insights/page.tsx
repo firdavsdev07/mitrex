@@ -11,7 +11,6 @@ import {
   ResponsiveContainer,
 } from 'recharts';
 import {
-  Plus,
   Bot,
   Globe,
   Link2,
@@ -25,6 +24,7 @@ import {
   X,
   Sparkles,
   Clock,
+  ChevronDown,
 } from 'lucide-react';
 import { apiClient } from '@/lib/api/client';
 import { websitesApi, type Website } from '@/lib/api/websites';
@@ -36,6 +36,7 @@ import {
 } from '@/lib/api/dashboard';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { uzDate, uzDateShort, uzTime } from '@/lib/date';
 
 // ─── types ────────────────────────────────────────────────────────────────────
 
@@ -72,13 +73,13 @@ const TYPE_ICONS: Record<string, React.FC<{ className?: string }>> = {
 };
 
 const TYPE_COLOR: Record<string, string> = {
-  WEEKLY: 'text-orange-400',
-  MONTHLY: 'text-yellow-400',
-  YEARLY: 'text-purple-400',
-  WEBSITE: 'text-blue-400',
-  CUSTOM: 'text-green-400',
-  POST: 'text-zinc-400',
-  DAILY: 'text-zinc-400',
+  WEEKLY: 'text-accent-ink',
+  MONTHLY: 'text-accent-ink',
+  YEARLY: 'text-info-ink',
+  WEBSITE: 'text-info-ink',
+  CUSTOM: 'text-positive-ink',
+  POST: 'text-ink-2',
+  DAILY: 'text-ink-2',
 };
 
 const PLATFORM_CHART_COLORS: Record<string, string> = {
@@ -136,12 +137,7 @@ function fmtDate(iso: string) {
   return `${d.getMonth() + 1}/${d.getDate()}`;
 }
 
-function fmtTime(iso: string) {
-  return new Date(iso).toLocaleTimeString('uz-UZ', {
-    hour: '2-digit',
-    minute: '2-digit',
-  });
-}
+const fmtTime = uzTime;
 
 // ─── Markdown renderer ─────────────────────────────────────────────────────────
 
@@ -149,7 +145,7 @@ function renderInline(text: string): React.ReactNode {
   return text.split(/(\*\*[^*]+\*\*|`[^`]+`)/g).map((part, i) => {
     if (part.startsWith('**') && part.endsWith('**'))
       return (
-        <strong key={i} className="text-zinc-100 font-semibold">
+        <strong key={i} className="text-ink font-semibold">
           {part.slice(2, -2)}
         </strong>
       );
@@ -157,7 +153,7 @@ function renderInline(text: string): React.ReactNode {
       return (
         <code
           key={i}
-          className="text-orange-300 bg-zinc-800 px-1.5 py-0.5 rounded text-xs font-mono"
+          className="text-accent-ink bg-surface-sunken px-1.5 py-0.5 rounded text-xs font-mono"
         >
           {part.slice(1, -1)}
         </code>
@@ -168,14 +164,16 @@ function renderInline(text: string): React.ReactNode {
 
 function MarkdownContent({ text }: { text: string }) {
   return (
-    <div className="text-[15px] text-zinc-300 leading-7 space-y-2">
+    // `max-w-reading` (68ch) — ilgari o'lchov umuman yo'q edi, shuning uchun
+    // 1920px ekranda AI tahlili qatoriga ~200 belgi tushardi.
+    <div className="text-[15px] text-ink-2 leading-7 space-y-2 max-w-reading">
       {text.split('\n').map((line, i) => {
         if (!line.trim()) return <div key={i} className="h-2" />;
         if (line.startsWith('## '))
           return (
             <h2
               key={i}
-              className="text-lg font-bold text-zinc-100 mt-6 mb-2 first:mt-0"
+              className="text-lg font-bold text-ink mt-6 mb-2 first:mt-0"
             >
               {renderInline(line.slice(3))}
             </h2>
@@ -184,7 +182,7 @@ function MarkdownContent({ text }: { text: string }) {
           return (
             <h3
               key={i}
-              className="text-base font-semibold text-zinc-200 mt-4 mb-1.5 first:mt-0"
+              className="text-base font-semibold text-ink mt-4 mb-1.5 first:mt-0"
             >
               {renderInline(line.slice(4))}
             </h3>
@@ -192,7 +190,7 @@ function MarkdownContent({ text }: { text: string }) {
         if (line.match(/^[-*]\s/))
           return (
             <div key={i} className="flex gap-2.5 ml-1">
-              <span className="text-orange-400 mt-1.5 shrink-0 text-xs">●</span>
+              <span className="text-accent-ink mt-1.5 shrink-0 text-xs">●</span>
               <span>{renderInline(line.slice(2))}</span>
             </div>
           );
@@ -200,7 +198,7 @@ function MarkdownContent({ text }: { text: string }) {
           const dot = line.indexOf('. ');
           return (
             <div key={i} className="flex gap-2.5 ml-1">
-              <span className="text-orange-400 font-bold shrink-0 w-5 mt-0.5 text-sm">
+              <span className="text-accent-ink font-bold shrink-0 w-5 mt-0.5 text-sm">
                 {line.slice(0, dot)}.
               </span>
               <span>{renderInline(line.slice(dot + 2))}</span>
@@ -208,7 +206,7 @@ function MarkdownContent({ text }: { text: string }) {
           );
         }
         return (
-          <p key={i} className="text-zinc-300">
+          <p key={i} className="text-ink-2">
             {renderInline(line)}
           </p>
         );
@@ -236,8 +234,8 @@ function ChartTip({
 }) {
   if (!active || !payload?.length) return null;
   return (
-    <div className="bg-zinc-900 border border-zinc-700 rounded-lg px-2.5 py-1.5 text-xs shadow-xl">
-      <p className="text-zinc-500 mb-0.5">{label}</p>
+    <div className="bg-surface border border-line rounded-control px-2.5 py-1.5 text-xs shadow-xl">
+      <p className="text-ink-3 mb-0.5">{label}</p>
       {payload.map((p) => {
         const value = p.value ?? 0;
         return (
@@ -271,18 +269,18 @@ function GenerateModal({
         className="absolute inset-0 bg-black/70 backdrop-blur-sm"
         onClick={onClose}
       />
-      <div className="relative w-full max-w-sm rounded-2xl border border-zinc-800 bg-zinc-950 shadow-2xl overflow-hidden">
+      <div className="relative w-full max-w-sm rounded-panel border border-line bg-canvas shadow-2xl overflow-hidden">
         {/* Header */}
-        <div className="flex items-center justify-between px-5 py-4 border-b border-zinc-800">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-line">
           <div className="flex items-center gap-2">
-            <div className="w-7 h-7 rounded-lg bg-orange-500/10 border border-orange-500/20 flex items-center justify-center">
-              <Sparkles className="w-3.5 h-3.5 text-orange-400" />
+            <div className="w-7 h-7 rounded-control bg-accent-quiet border border-accent-line flex items-center justify-center">
+              <Sparkles className="w-3.5 h-3.5 text-accent-ink" />
             </div>
-            <p className="text-sm font-semibold text-zinc-100">Yangi tahlil</p>
+            <p className="text-sm font-semibold text-ink">Yangi tahlil</p>
           </div>
           <button
             onClick={onClose}
-            className="text-zinc-600 hover:text-zinc-300 transition-colors"
+            className="text-ink-3 hover:text-ink transition-colors"
           >
             <X className="w-4 h-4" />
           </button>
@@ -291,7 +289,7 @@ function GenerateModal({
         <div className="p-4 space-y-4">
           {/* Period */}
           <div>
-            <p className="text-xs text-zinc-600 uppercase tracking-wider mb-2">
+            <p className="text-xs text-ink-3 uppercase tracking-wider mb-2">
               Davr bo&apos;yicha
             </p>
             <div className="grid grid-cols-3 gap-2">
@@ -303,7 +301,7 @@ function GenerateModal({
                   endpoint: '/ai/insights/weekly',
                   Icon: BarChart2,
                   color:
-                    'text-orange-400 border-orange-500/20 bg-orange-500/5 hover:bg-orange-500/10',
+                    'text-accent-ink border-accent-line bg-accent-quiet hover:bg-accent-quiet-hover',
                 },
                 {
                   key: 'monthly',
@@ -312,7 +310,7 @@ function GenerateModal({
                   endpoint: '/ai/insights/monthly',
                   Icon: CalendarDays,
                   color:
-                    'text-yellow-400 border-yellow-500/20 bg-yellow-500/5 hover:bg-yellow-500/10',
+                    'text-accent-ink border-accent-line bg-accent-quiet hover:bg-accent-quiet',
                 },
                 {
                   key: 'yearly',
@@ -321,7 +319,7 @@ function GenerateModal({
                   endpoint: '/ai/insights/yearly',
                   Icon: Calendar,
                   color:
-                    'text-purple-400 border-purple-500/20 bg-purple-500/5 hover:bg-purple-500/10',
+                    'text-info-ink border-info-line bg-info-quiet hover:bg-info-quiet',
                 },
               ].map(({ key, label, sub, endpoint, Icon, color }) => (
                 <button
@@ -332,7 +330,7 @@ function GenerateModal({
                     onClose();
                   }}
                   className={cn(
-                    'flex flex-col items-center gap-1.5 p-3 rounded-xl border transition-all disabled:opacity-40',
+                    'flex flex-col items-center gap-1.5 p-3 rounded-panel border transition-all disabled:opacity-40',
                     color,
                   )}
                 >
@@ -351,7 +349,7 @@ function GenerateModal({
           {/* Websites */}
           {websites.length > 0 && (
             <div>
-              <p className="text-xs text-zinc-600 uppercase tracking-wider mb-2">
+              <p className="text-xs text-ink-3 uppercase tracking-wider mb-2">
                 Sayt tahlili
               </p>
               <div className="space-y-1">
@@ -363,19 +361,19 @@ function GenerateModal({
                       onGenerate(`/ai/insights/website/${w.id}`, `w-${w.id}`);
                       onClose();
                     }}
-                    className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl border border-zinc-800 hover:border-blue-500/30 hover:bg-blue-500/5 text-blue-400 transition-all disabled:opacity-40 text-left"
+                    className="w-full flex items-center gap-3 px-3 py-2.5 rounded-panel border border-line hover:border-info-line hover:bg-info-quiet text-info-ink transition-all disabled:opacity-40 text-left"
                   >
                     {generating === `w-${w.id}` ? (
-                      <div className="w-4 h-4 rounded-full border-2 border-blue-400 border-t-transparent animate-spin shrink-0" />
+                      <div className="w-4 h-4 rounded-full border-2 border-info-line border-t-transparent animate-spin shrink-0" />
                     ) : (
                       <Globe className="w-4 h-4 shrink-0" />
                     )}
                     <div className="min-w-0">
-                      <p className="text-sm font-medium text-zinc-200 truncate">
+                      <p className="text-sm font-medium text-ink truncate">
                         {w.name}
                       </p>
                       {w.domain && (
-                        <p className="text-xs text-zinc-600 truncate">
+                        <p className="text-xs text-ink-3 truncate">
                           {w.domain}
                         </p>
                       )}
@@ -390,7 +388,7 @@ function GenerateModal({
           {connections.filter((c) => AI_INSIGHT_PLATFORMS.includes(c.platform))
             .length > 0 && (
             <div>
-              <p className="text-xs text-zinc-600 uppercase tracking-wider mb-2">
+              <p className="text-xs text-ink-3 uppercase tracking-wider mb-2">
                 Platforma tahlili
               </p>
               <div className="space-y-1">
@@ -407,19 +405,19 @@ function GenerateModal({
                         );
                         onClose();
                       }}
-                      className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl border border-zinc-800 hover:border-green-500/30 hover:bg-green-500/5 text-green-400 transition-all disabled:opacity-40 text-left"
+                      className="w-full flex items-center gap-3 px-3 py-2.5 rounded-panel border border-line hover:border-positive-line hover:bg-positive-quiet text-positive-ink transition-all disabled:opacity-40 text-left"
                     >
                       {generating === `p-${c.id}` ? (
-                        <div className="w-4 h-4 rounded-full border-2 border-green-400 border-t-transparent animate-spin shrink-0" />
+                        <div className="w-4 h-4 rounded-full border-2 border-positive-line border-t-transparent animate-spin shrink-0" />
                       ) : (
                         <Link2 className="w-4 h-4 shrink-0" />
                       )}
                       <div className="min-w-0">
-                        <p className="text-sm font-medium text-zinc-200 truncate">
+                        <p className="text-sm font-medium text-ink truncate">
                           {c.platform}
                         </p>
                         {c.platformUsername && (
-                          <p className="text-xs text-zinc-600">
+                          <p className="text-xs text-ink-3">
                             @{c.platformUsername}
                           </p>
                         )}
@@ -456,7 +454,7 @@ function InsightDetail({
   const [deleting, setDeleting] = useState(false);
 
   const Icon = TYPE_ICONS[insight.type] ?? Bot;
-  const color = TYPE_COLOR[insight.type] ?? 'text-zinc-400';
+  const color = TYPE_COLOR[insight.type] ?? 'text-ink-2';
 
   const isPeriod = ['WEEKLY', 'MONTHLY', 'YEARLY'].includes(insight.type);
   const days =
@@ -539,55 +537,38 @@ function InsightDetail({
   return (
     <div className="h-full flex flex-col">
       {/* Header */}
-      <div className="flex items-center gap-3 pb-5 border-b border-zinc-800/60 mb-6">
-        <div
-          className={cn(
-            'w-9 h-9 rounded-xl bg-zinc-800/80 border border-zinc-700/50 flex items-center justify-center shrink-0',
-            color,
-          )}
-        >
-          <Icon className="w-4.5 h-4.5" />
-        </div>
-        <div className="flex-1 min-w-0">
-          <p className="text-base font-semibold text-zinc-100">
-            {insight.title ?? TYPE_LABELS[insight.type]}
-          </p>
-          <p className="text-xs text-zinc-500 mt-0.5">
-            {new Date(insight.generatedAt).toLocaleDateString('uz-UZ', {
-              day: 'numeric',
-              month: 'long',
-              year: 'numeric',
-            })}
-            {' · '}
-            {fmtTime(insight.generatedAt)}
-            {' · '}
-            {insight.provider}
-            {insight.tokensUsed
-              ? ` · ${insight.tokensUsed.toLocaleString()} token`
-              : ''}
-          </p>
-        </div>
+      {/* Sarlavha karta boshida allaqachon bor — bu yerda faqat manba
+          ma'lumoti va o'chirish tugmasi qoladi, takrorlanmaydi. */}
+      <div className="mb-5 flex items-center gap-3 border-b border-line-subtle pb-4">
+        <p className="min-w-0 flex-1 text-caption text-ink-3">
+          {uzDate(insight.generatedAt)} · {fmtTime(insight.generatedAt)} ·{' '}
+          {insight.provider}
+          {insight.tokensUsed
+            ? ` · ${insight.tokensUsed.toLocaleString()} token`
+            : ''}
+        </p>
         <button
           onClick={handleDelete}
           disabled={deleting}
-          className="p-2 rounded-lg text-zinc-600 hover:text-red-400 hover:bg-red-500/10 transition-all disabled:opacity-30"
+          aria-label="Tahlilni o'chirish"
           title="O'chirish"
+          className="shrink-0 rounded-control p-2 text-ink-3 transition-colors hover:bg-negative-quiet hover:text-negative-ink disabled:opacity-30"
         >
-          <Trash2 className="w-4 h-4" />
+          <Trash2 className="h-4 w-4" />
         </button>
       </div>
 
       {/* Charts section */}
       {(webTrend.length > 1 || platEntries.length > 0) && (
-        <div className="mb-6 rounded-xl bg-zinc-900/60 border border-zinc-800/60 overflow-hidden">
+        <div className="mb-6 rounded-panel bg-surface border border-line-subtle overflow-hidden">
           {/* Web trend */}
           {webTrend.length > 1 && (
-            <div className="p-4 border-b border-zinc-800/60">
+            <div className="p-4 border-b border-line-subtle">
               <div className="flex items-center justify-between mb-2">
-                <p className="text-xs text-zinc-500">
+                <p className="text-xs text-ink-3">
                   Sayt tashriflari ({days} kun)
                 </p>
-                <p className="text-sm font-bold text-zinc-100">
+                <p className="text-sm font-bold text-ink">
                   {totalViews.toLocaleString()}
                 </p>
               </div>
@@ -599,15 +580,15 @@ function InsightDetail({
                     <linearGradient id="cg" x1="0" y1="0" x2="0" y2="1">
                       <stop
                         offset="5%"
-                        stopColor="#f97316"
+                        stopColor="var(--mx-accent)"
                         stopOpacity={0.15}
                       />
-                      <stop offset="95%" stopColor="#f97316" stopOpacity={0} />
+                      <stop offset="95%" stopColor="var(--mx-accent)" stopOpacity={0} />
                     </linearGradient>
                   </defs>
                   <XAxis
                     dataKey="date"
-                    tick={{ fill: '#52525b', fontSize: 10 }}
+                    tick={{ fill: 'var(--mx-chart-axis)', fontSize: 10 }}
                     axisLine={false}
                     tickLine={false}
                   />
@@ -615,7 +596,7 @@ function InsightDetail({
                   <Area
                     type="monotone"
                     dataKey="views"
-                    stroke="#f97316"
+                    stroke="var(--mx-accent)"
                     strokeWidth={1.5}
                     fill="url(#cg)"
                     dot={false}
@@ -632,7 +613,7 @@ function InsightDetail({
               className={`grid p-4 gap-4 ${platEntries.length === 1 ? 'grid-cols-1' : 'grid-cols-2'}`}
             >
               {platEntries.map(([connectionId, { platform, history, username }]) => {
-                const color = PLATFORM_CHART_COLORS[platform] ?? '#f97316';
+                const color = PLATFORM_CHART_COLORS[platform] ?? 'var(--mx-accent)';
                 const latest = history[history.length - 1];
                 const first = history[0];
                 const growth =
@@ -647,22 +628,22 @@ function InsightDetail({
                   <div key={connectionId}>
                     <div className="flex items-center justify-between mb-1.5">
                       <div>
-                        <p className="text-xs font-medium text-zinc-400">
+                        <p className="text-xs font-medium text-ink-2">
                           {platform}
                         </p>
                         {username && (
-                          <p className="text-[10px] text-zinc-600">
+                          <p className="text-[10px] text-ink-3">
                             @{username}
                           </p>
                         )}
                       </div>
                       <div className="text-right">
-                        <p className="text-sm font-bold text-zinc-100">
+                        <p className="text-sm font-bold text-ink">
                           {latest?.followers?.toLocaleString() ?? '?'}
                         </p>
                         {growth && (
                           <p
-                            className={`text-[10px] flex items-center gap-0.5 justify-end ${Number(growth) >= 0 ? 'text-green-400' : 'text-red-400'}`}
+                            className={`text-[10px] flex items-center gap-0.5 justify-end ${Number(growth) >= 0 ? 'text-positive-ink' : 'text-negative-ink'}`}
                           >
                             {Number(growth) >= 0 ? (
                               <TrendingUp className="w-2.5 h-2.5" />
@@ -683,7 +664,7 @@ function InsightDetail({
                       >
                         <XAxis
                           dataKey="date"
-                          tick={{ fill: '#52525b', fontSize: 9 }}
+                          tick={{ fill: 'var(--mx-chart-axis)', fontSize: 9 }}
                           axisLine={false}
                           tickLine={false}
                         />
@@ -714,66 +695,174 @@ function InsightDetail({
   );
 }
 
-// ─── Empty / Welcome state ─────────────────────────────────────────────────────
+// ─── Xulosa satri ──────────────────────────────────────────────────────────
+// Yopiq kartada nima yozilganini ko'rsatadi. Ilgari ro'yxatda faqat tur
+// yorlig'i va vaqt turardi — ya'ni qaysi tahlilni ochishni taxmin qilish
+// kerak edi. Endi birinchi mazmunli jumla ko'rinadi.
+function gist(content: string): string {
+  for (const raw of content.split('\n')) {
+    const line = raw.trim();
+    if (!line) continue;
+    if (line.startsWith('#')) continue;
+    const clean = line
+      .replace(/^[-*]\s+/, '')
+      .replace(/^\d+\.\s+/, '')
+      .replace(/\*\*/g, '')
+      .replace(/`/g, '');
+    if (clean.length > 24) return clean;
+  }
+  return content.slice(0, 120);
+}
+
+// ─── Bo'sh holat ───────────────────────────────────────────────────────────
 
 function WelcomeState({ onNew }: { onNew: () => void }) {
   return (
-    <div className="h-full flex flex-col items-center justify-center text-center px-8">
-      <div className="w-14 h-14 rounded-2xl bg-orange-500/10 border border-orange-500/20 flex items-center justify-center mb-5">
-        <Bot className="w-7 h-7 text-orange-400" />
+    <div className="rounded-panel border border-dashed border-line bg-surface px-6 py-14 text-center">
+      <div className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-full bg-accent-quiet">
+        <Bot className="h-7 w-7 text-accent-ink" />
       </div>
-      <h2 className="text-lg font-semibold text-zinc-100 mb-2">
-        AI tahlil tayyor
-      </h2>
-      <p className="text-sm text-zinc-500 mb-6 max-w-xs leading-relaxed">
-        Haftalik, oylik yoki yillik tahlil — platformalar va saytlaringiz haqida
-        amaliy maslahat oling
+      <h2 className="text-heading text-ink">Birinchi tahlilni yarating</h2>
+      <p className="mx-auto mt-2 max-w-sm text-small leading-relaxed text-ink-2">
+        AI raqamlaringizni o&apos;qib, nima o&apos;zgarganini va keyingi hafta
+        nima qilish kerakligini oddiy tilda aytib beradi.
       </p>
-      <Button onClick={onNew} className="gap-2">
-        <Sparkles className="w-4 h-4" />
-        Yangi tahlil yaratish
+      <Button onClick={onNew} className="mt-6 gap-2">
+        <Sparkles className="h-4 w-4" />
+        Tahlil yaratish
       </Button>
     </div>
   );
 }
 
-// ─── Main page ─────────────────────────────────────────────────────────────────
+// ─── Tahlil kartasi ────────────────────────────────────────────────────────
+
+function InsightCard({
+  insight,
+  connections,
+  open,
+  onToggle,
+  onDelete,
+}: {
+  insight: AiInsight;
+  connections: Connection[];
+  open: boolean;
+  onToggle: () => void;
+  onDelete: () => void;
+}) {
+  const Icon = TYPE_ICONS[insight.type] ?? Bot;
+
+  return (
+    <div
+      className={cn(
+        'rounded-panel border bg-surface transition-colors',
+        open ? 'border-accent-line shadow-card' : 'border-line-subtle shadow-tile',
+      )}
+    >
+      <button
+        onClick={onToggle}
+        aria-expanded={open}
+        className="flex w-full items-start gap-4 p-5 text-left"
+      >
+        <div
+          className={cn(
+            'flex h-10 w-10 shrink-0 items-center justify-center rounded-control',
+            open ? 'bg-accent text-on-accent' : 'bg-accent-quiet text-accent-ink',
+          )}
+        >
+          <Icon className="h-[18px] w-[18px]" />
+        </div>
+
+        <div className="min-w-0 flex-1">
+          <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+            <span className="rounded-chip bg-surface-sunken px-2 py-0.5 text-eyebrow font-semibold uppercase tracking-wider text-ink-3">
+              {TYPE_LABELS[insight.type] ?? insight.type}
+            </span>
+            <span className="text-caption text-ink-3">
+              {uzDateShort(insight.generatedAt)}
+              {' · '}
+              {fmtTime(insight.generatedAt)}
+            </span>
+          </div>
+
+          {/* Xulosa — yopiq holatda ham o'qiladi */}
+          <p
+            className={cn(
+              'mt-2 text-body leading-relaxed text-ink',
+              !open && 'line-clamp-2',
+            )}
+          >
+            {insight.title ?? gist(insight.content)}
+          </p>
+        </div>
+
+        <span
+          aria-hidden="true"
+          className={cn(
+            'mt-1 shrink-0 text-ink-3 transition-transform',
+            open && 'rotate-180',
+          )}
+        >
+          <ChevronDown className="h-5 w-5" />
+        </span>
+      </button>
+
+      {open && (
+        <div className="border-t border-line-subtle p-5">
+          <InsightDetail
+            insight={insight}
+            connections={connections}
+            onDelete={onDelete}
+          />
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── Asosiy sahifa ─────────────────────────────────────────────────────────
+// Ilgari bu yerda ikkita ustun bor edi: 224px li tahlillar ro'yxati va
+// o'qish paneli. Ilova sidebari bilan birga bu 432px navigatsiya degani
+// edi. Endi bitta ustun: kartalar ro'yxati, birinchisi ochiq.
 
 export default function InsightsPage() {
   const [insights, setInsights] = useState<AiInsight[]>([]);
-  const [selected, setSelected] = useState<AiInsight | null>(null);
+  const [openId, setOpenId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [websites, setWebsites] = useState<Website[]>([]);
   const [connections, setConnections] = useState<Connection[]>([]);
   const [generating, setGenerating] = useState<string | null>(null);
   const [showModal, setShowModal] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
+  // Ilgari bu yerda `catch` umuman yo'q edi: so'rov 401/500 bilan tugasa
+  // ham foydalanuvchi «hali tahlil yo'q» degan bo'sh holatni ko'rardi.
+  // Ya'ni «men hech narsa yaratmaganman» va «yuklab bo'lmadi» bir xil
+  // ko'rinardi — shuning uchun ular endi ajratiladi.
   const load = useCallback(async () => {
     setLoading(true);
+    setLoadError(null);
     try {
       const res = await apiClient.get<AiInsight[]>('/ai/insights', {
         params: { limit: 50 },
       });
       setInsights(res.data);
-      // Keep selection valid
-      if (res.data.length && !selected) setSelected(res.data[0]);
+      if (res.data.length) setOpenId((cur) => cur ?? res.data[0].id);
+    } catch (err: unknown) {
+      const msg = (err as { response?: { data?: { message?: string } } })
+        ?.response?.data?.message;
+      setLoadError(msg ?? "Tahlillarni yuklab bo'lmadi.");
     } finally {
       setLoading(false);
     }
   }, []);
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- qasddan: fetch-on-mount/reset-on-dep-change, asosiy render tugagach ishlaydi
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- qasddan: fetch-on-mount, asosiy render tugagach ishlaydi
     load();
-    websitesApi
-      .list()
-      .then(setWebsites)
-      .catch(() => {});
-    connectionsApi
-      .list()
-      .then(setConnections)
-      .catch(() => {});
+    websitesApi.list().then(setWebsites).catch(() => {});
+    connectionsApi.list().then(setConnections).catch(() => {});
   }, [load]);
 
   async function generate(endpoint: string, key: string) {
@@ -785,7 +874,7 @@ export default function InsightsPage() {
         params: { limit: 50 },
       });
       setInsights(res.data);
-      if (res.data.length) setSelected(res.data[0]);
+      if (res.data.length) setOpenId(res.data[0].id);
     } catch (err: unknown) {
       const msg = (err as { response?: { data?: { message?: string } } })
         ?.response?.data?.message;
@@ -795,116 +884,87 @@ export default function InsightsPage() {
     }
   }
 
-  function handleDelete() {
-    const remaining = insights.filter((i) => i.id !== selected?.id);
+  function handleDelete(id: string) {
+    const remaining = insights.filter((i) => i.id !== id);
     setInsights(remaining);
-    setSelected(remaining[0] ?? null);
+    setOpenId(remaining[0]?.id ?? null);
   }
 
   const groups = groupByDate(insights);
 
   return (
-    <div className="-m-6 flex" style={{ height: 'calc(100vh - 48px)' }}>
-      {/* ── Left sidebar ── */}
-      <div className="w-56 shrink-0 border-r border-zinc-800/60 flex flex-col bg-zinc-950">
-        {/* New button */}
-        <div className="p-3 border-b border-zinc-800/60">
-          <button
-            onClick={() => setShowModal(true)}
-            className="w-full flex items-center gap-2 px-3 py-2 rounded-lg border border-zinc-800 hover:border-orange-500/30 hover:bg-orange-500/5 text-zinc-400 hover:text-orange-400 transition-all text-sm"
-          >
-            <Plus className="w-4 h-4 shrink-0" />
-            <span>Yangi tahlil</span>
-            {generating && (
-              <div className="ml-auto w-3.5 h-3.5 rounded-full border-2 border-orange-400 border-t-transparent animate-spin" />
-            )}
-          </button>
+    <div className="mx-auto max-w-wide">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div className="min-w-0">
+          <h1 className="text-title text-ink">AI tahlil</h1>
+          <p className="mt-1.5 max-w-reading text-body text-ink-3">
+            Raqamlaringiz nima demoqchi — oddiy tilda, amaliy maslahat bilan.
+          </p>
         </div>
+        <Button
+          onClick={() => setShowModal(true)}
+          loading={!!generating}
+          className="shrink-0 gap-2"
+        >
+          <Sparkles className="h-4 w-4" />
+          Yangi tahlil
+        </Button>
+      </div>
 
-        {/* Error */}
-        {error && (
-          <div className="mx-3 mt-2 px-3 py-2 rounded-lg bg-red-500/10 border border-red-500/20 text-xs text-red-400">
-            {error}
+      {error && (
+        <div className="mt-5 rounded-panel border border-negative-line bg-negative-quiet px-4 py-3 text-small text-negative-ink">
+          {error}
+        </div>
+      )}
+
+      <div className="mt-7">
+        {loading ? (
+          <div className="flex flex-col gap-3">
+            {[1, 2, 3].map((i) => (
+              <div
+                key={i}
+                className="h-24 animate-pulse rounded-panel border border-line-subtle bg-surface"
+              />
+            ))}
           </div>
-        )}
-
-        {/* Insight list */}
-        <div className="flex-1 overflow-y-auto py-2">
-          {loading ? (
-            <div className="px-3 space-y-2 mt-1">
-              {[1, 2, 3].map((i) => (
-                <div
-                  key={i}
-                  className="h-12 rounded-lg bg-zinc-800/40 animate-pulse"
-                />
-              ))}
-            </div>
-          ) : groups.length === 0 ? (
-            <div className="px-4 py-6 text-center">
-              <p className="text-xs text-zinc-600">Hali tahlil yo&apos;q</p>
-            </div>
-          ) : (
-            groups.map(({ label, items }) => (
-              <div key={label} className="mb-2">
-                <p className="px-3 py-1 text-[10px] text-zinc-600 uppercase tracking-wider font-medium">
+        ) : loadError ? (
+          <div className="flex flex-col items-center gap-4 rounded-panel border border-negative-line bg-negative-quiet px-6 py-10 text-center">
+            <p className="text-body font-medium text-negative-ink">
+              {loadError}
+            </p>
+            <Button variant="secondary" size="sm" onClick={load}>
+              Qayta urinish
+            </Button>
+          </div>
+        ) : !insights.length ? (
+          <WelcomeState onNew={() => setShowModal(true)} />
+        ) : (
+          <div className="flex flex-col gap-8">
+            {groups.map(({ label, items }) => (
+              <section key={label}>
+                <p className="mb-3 text-eyebrow uppercase tracking-wider text-ink-3">
                   {label}
                 </p>
-                {items.map((ins) => {
-                  const Icon = TYPE_ICONS[ins.type] ?? Bot;
-                  const color = TYPE_COLOR[ins.type] ?? 'text-zinc-500';
-                  const isActive = selected?.id === ins.id;
-
-                  return (
-                    <button
+                <div className="flex flex-col gap-3">
+                  {items.map((ins) => (
+                    <InsightCard
                       key={ins.id}
-                      onClick={() => setSelected(ins)}
-                      className={cn(
-                        'w-full text-left px-3 py-2.5 mx-0 group flex items-start gap-2.5 transition-all',
-                        isActive
-                          ? 'bg-zinc-800/80 border-r-2 border-orange-500'
-                          : 'hover:bg-zinc-800/40 border-r-2 border-transparent',
-                      )}
-                    >
-                      <Icon
-                        className={cn('w-3.5 h-3.5 mt-0.5 shrink-0', color)}
-                      />
-                      <div className="min-w-0 flex-1">
-                        <p
-                          className={cn(
-                            'text-xs font-medium truncate',
-                            isActive ? 'text-zinc-100' : 'text-zinc-300',
-                          )}
-                        >
-                          {ins.title ?? TYPE_LABELS[ins.type]}
-                        </p>
-                        <p className="text-[10px] text-zinc-600 mt-0.5">
-                          {fmtTime(ins.generatedAt)}
-                        </p>
-                      </div>
-                    </button>
-                  );
-                })}
-              </div>
-            ))
-          )}
-        </div>
-      </div>
-
-      {/* ── Right content ── */}
-      <div className="flex-1 overflow-y-auto p-8">
-        {selected ? (
-          <InsightDetail
-            key={selected.id}
-            insight={selected}
-            connections={connections}
-            onDelete={handleDelete}
-          />
-        ) : (
-          <WelcomeState onNew={() => setShowModal(true)} />
+                      insight={ins}
+                      connections={connections}
+                      open={openId === ins.id}
+                      onToggle={() =>
+                        setOpenId(openId === ins.id ? null : ins.id)
+                      }
+                      onDelete={() => handleDelete(ins.id)}
+                    />
+                  ))}
+                </div>
+              </section>
+            ))}
+          </div>
         )}
       </div>
 
-      {/* Generate modal */}
       {showModal && (
         <GenerateModal
           websites={websites}

@@ -47,12 +47,12 @@ export default function CtaSection() {
             backgroundSize: '28px 28px',
           }}
         />
-        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-zinc-800 to-transparent" />
+        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-line to-transparent" />
       </div>
 
-      <div className="relative z-10 max-w-6xl mx-auto px-4">
+      <div className="relative z-10 max-w-landing mx-auto px-4">
         {/* Main card */}
-        <div className="relative rounded-3xl overflow-hidden border border-zinc-800 bg-zinc-900">
+        <div className="relative rounded-3xl overflow-hidden border border-line bg-surface">
           {/* Dot grid inside card — solid, no transparency issue */}
           <div
             className="absolute inset-0"
@@ -77,7 +77,7 @@ export default function CtaSection() {
           {/* Shimmer top border */}
           <div className="absolute top-0 left-0 right-0 h-px overflow-hidden">
             <div
-              className="h-full bg-gradient-to-r from-transparent via-orange-400/70 to-transparent"
+              className="h-full bg-gradient-to-r from-transparent via-accent to-transparent"
               style={{ animation: 'shimmer-slide 3s ease-in-out infinite' }}
             />
           </div>
@@ -86,10 +86,10 @@ export default function CtaSection() {
           <div className="relative z-10 px-8 py-16 md:px-16 md:py-20 flex flex-col items-center text-center">
             {/* Badge */}
             <div
-              className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-orange-500/30 bg-orange-500/10 text-orange-400 text-xs font-medium mb-8"
+              className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-accent-line bg-accent-quiet text-accent-ink text-xs font-medium mb-8"
               style={{ animation: 'badge-pulse 3s ease-in-out infinite' }}
             >
-              <span className="w-1.5 h-1.5 rounded-full bg-orange-500" />
+              <span className="w-1.5 h-1.5 rounded-full bg-accent" />
               Bugun boshlang — bepul
             </div>
 
@@ -98,7 +98,7 @@ export default function CtaSection() {
               className="text-5xl md:text-6xl font-black tracking-tight leading-[1.05] mb-6"
               style={{ animation: 'fade-up 0.6s ease-out 0.1s both' }}
             >
-              <span className="block text-zinc-50">Barcha analitikangiz</span>
+              <span className="block text-ink">Barcha analitikangiz</span>
               <span
                 className="block text-transparent bg-clip-text"
                 style={{
@@ -114,7 +114,7 @@ export default function CtaSection() {
 
             {/* Subtitle */}
             <p
-              className="text-base text-zinc-400 max-w-md leading-relaxed mb-10"
+              className="text-base text-ink-2 max-w-md leading-relaxed mb-10"
               style={{ animation: 'fade-up 0.6s ease-out 0.2s both' }}
             >
               2 daqiqada ro&apos;yxatdan o&apos;ting, birinchi platformangizni ulang. Hech
@@ -129,12 +129,12 @@ export default function CtaSection() {
               {stats.map((s) => (
                 <div key={s.label} className="flex flex-col items-center gap-1">
                   <div className="flex items-center gap-1.5">
-                    <s.icon className="w-3.5 h-3.5 text-zinc-500" />
-                    <span className="text-2xl font-black text-zinc-100 tabular-nums">
+                    <s.icon className="w-3.5 h-3.5 text-ink-3" />
+                    <span className="text-2xl font-black text-ink tabular-nums">
                       {s.value}
                     </span>
                   </div>
-                  <span className="text-[11px] text-zinc-600">{s.label}</span>
+                  <span className="text-[11px] text-ink-3">{s.label}</span>
                 </div>
               ))}
             </div>
@@ -146,7 +146,7 @@ export default function CtaSection() {
             >
               <Link
                 href="/register"
-                className="inline-flex items-center gap-2 bg-orange-500 hover:bg-orange-600 text-white text-sm font-bold px-8 py-3 rounded-xl transition-colors duration-200 shadow-lg shadow-orange-500/20"
+                className="inline-flex items-center gap-2 bg-accent hover:bg-accent-hover text-on-accent text-sm font-bold px-8 py-3 rounded-panel transition-colors duration-200 shadow-lg shadow-accent-line"
               >
                 Bepul boshlash
                 <ArrowRight className="w-4 h-4" />
@@ -154,7 +154,7 @@ export default function CtaSection() {
 
               <Link
                 href="#demo"
-                className="inline-flex items-center gap-2 border border-zinc-700 hover:border-zinc-500 text-zinc-300 hover:text-zinc-100 text-sm font-medium px-8 py-3 rounded-xl transition-colors duration-200"
+                className="inline-flex items-center gap-2 border border-line hover:border-line text-ink-2 hover:text-ink text-sm font-medium px-8 py-3 rounded-panel transition-colors duration-200"
               >
                 Demo ko&apos;rish
               </Link>
@@ -168,20 +168,20 @@ export default function CtaSection() {
               {trustItems.map((t) => (
                 <span
                   key={t}
-                  className="flex items-center gap-1.5 text-xs text-zinc-600"
+                  className="flex items-center gap-1.5 text-xs text-ink-3"
                 >
-                  <Check className="w-3 h-3 text-zinc-700" />
+                  <Check className="w-3 h-3 text-ink-3" />
                   {t}
                 </span>
               ))}
             </div>
 
             {/* Divider */}
-            <div className="w-full border-t border-zinc-800 mb-10" />
+            <div className="w-full border-t border-line mb-10" />
 
             {/* Platforms */}
             <div style={{ animation: 'fade-up 0.6s ease-out 0.4s both' }}>
-              <p className="text-[11px] text-zinc-700 uppercase tracking-widest mb-4">
+              <p className="text-[11px] text-ink-3 uppercase tracking-widest mb-4">
                 Barcha platformalar bilan ishlaydi
               </p>
               <div className="flex items-center justify-center gap-2 flex-wrap">
@@ -189,7 +189,7 @@ export default function CtaSection() {
                   <div
                     key={label}
                     title={label}
-                    className="w-9 h-9 rounded-xl bg-zinc-800 border border-zinc-700 flex items-center justify-center hover:border-zinc-600 hover:bg-zinc-700 transition-colors duration-200"
+                    className="w-9 h-9 rounded-panel bg-surface-sunken border border-line flex items-center justify-center hover:border-line-strong hover:bg-surface-hover transition-colors duration-200"
                   >
                     <Icon className="w-4 h-4" />
                   </div>

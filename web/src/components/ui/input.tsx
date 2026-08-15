@@ -16,24 +16,29 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
     return (
       <div className="flex flex-col gap-1.5">
         {label && (
-          <label htmlFor={inputId} className="text-sm text-zinc-300">
+          <label htmlFor={inputId} className="text-body text-ink-2">
             {label}
           </label>
         )}
         <input
           ref={ref}
           id={inputId}
+          aria-invalid={error ? true : undefined}
           className={cn(
-            'w-full px-3 py-2 text-sm rounded-md border bg-zinc-900 text-zinc-100 placeholder:text-zinc-600 outline-none transition-all duration-150',
+            // `h-10` — Button `md` bilan bir xil (40px), shuning uchun input
+            // va tugma bitta qatorda turganda tekis chiziladi. Ilgari
+            // ikkalasi ham `py-2` edi, lekin borderlar farq qilgani uchun
+            // amaldagi balandlik ham farq qilardi.
+            'w-full h-10 px-3 text-body rounded-control border bg-surface-sunken text-ink placeholder:text-ink-faint outline-none transition-colors ease-standard duration-[var(--mx-dur-micro)]',
             error
-              ? 'border-red-500/60 focus:border-red-500 focus:ring-1 focus:ring-red-500/20'
-              : 'border-zinc-800 focus:border-zinc-600 focus:ring-1 focus:ring-zinc-600/20',
+              ? 'border-negative focus:border-negative focus:ring-1 focus:ring-negative-line'
+              : 'border-line focus:border-line-strong focus:ring-1 focus:ring-line-strong',
             className,
           )}
           {...props}
         />
-        {error && <p className="text-xs text-red-400">{error}</p>}
-        {hint && !error && <p className="text-xs text-zinc-600">{hint}</p>}
+        {error && <p className="text-caption text-negative-ink">{error}</p>}
+        {hint && !error && <p className="text-caption text-ink-3">{hint}</p>}
       </div>
     );
   },

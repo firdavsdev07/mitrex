@@ -1,15 +1,145 @@
 @import "tailwindcss";
 
-@theme {
+/* ═══════════════════════════════════════════════════════════════════════════
+   METRIX DIZAYN TOKENLARI
+
+   Qoida: sahifalar hech qachon `zinc-*`, `orange-*` yoki qattiq hex yozmaydi —
+   faqat quyidagi semantik nomlar. Shu qoida buzilmaganda ilova ikkala mavzuda
+   ham to'g'ri ko'rinadi; bitta sahifa buzsa — o'sha sahifa ikkinchi mavzuda
+   sinadi.
+
+   Mavzu uch holatda ishlaydi:
+     :root                         → yorug' (asosiy ta'rif)
+     @media (prefers-color-scheme) → tizim qorong'i bo'lsa
+     :root[data-theme="dark"]      → foydalanuvchi tanlovi, tizimdan ustun
+
+   Ilova (app/layout.tsx) <html> ga `data-theme="dark"` qo'yadi — ya'ni
+   autentifikatsiyalangan mahsulot standart holatda qorong'i. Public dashboard
+   esa stamp qo'ymaydi va tizim sozlamasiga bo'ysunadi.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+@theme inline {
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
-  --color-background: #09090b;
-  --color-card: #111113;
-  --color-border: #27272a;
-  --color-orange: #f97316;
-  --color-orange-hover: #ea580c;
-  --color-muted: #a1a1aa;
 
+  /* ── Sirtlar ─────────────────────────────────────────────────────────── */
+  --color-canvas:         var(--mx-canvas);
+  --color-surface:        var(--mx-surface);
+  --color-surface-raised: var(--mx-surface-raised);
+  --color-surface-sunken: var(--mx-surface-sunken);
+  --color-surface-hover:  var(--mx-surface-hover);
+
+  /* ── Matn ────────────────────────────────────────────────────────────── */
+  --color-ink:       var(--mx-ink);
+  --color-ink-2:     var(--mx-ink-2);
+  --color-ink-3:     var(--mx-ink-3);
+  --color-ink-faint: var(--mx-ink-faint);
+
+  /* ── Chegaralar ──────────────────────────────────────────────────────── */
+  --color-line-subtle: var(--mx-line-subtle);
+  --color-line:        var(--mx-line);
+  --color-line-strong: var(--mx-line-strong);
+
+  /* ── Aksent — «bu yerga qara» ───────────────────────────────────────────
+     `accent`      to'ldirish (tugma foni, grafik chizig'i)
+     `accent-ink`  matn sifatida — kontrast uchun alohida qiymat
+     `accent-quiet` nozik fon · `accent-line` nozik chegara            */
+  --color-accent:             var(--mx-accent);
+  --color-accent-hover:       var(--mx-accent-hover);
+  --color-accent-ink:         var(--mx-accent-ink);
+  --color-accent-quiet:       var(--mx-accent-quiet);
+  --color-accent-quiet-hover: var(--mx-accent-quiet-hover);
+  --color-accent-line:        var(--mx-accent-line);
+  --color-on-accent:          var(--mx-on-accent);
+
+  /* ── Semantik holatlar ──────────────────────────────────────────────────
+     Diqqat: amber/warning ATAYLAB yo'q — u aksent apelsini bilan
+     chalkashadi. «E'tibor talab qiladi» = aksentning o'zi.             */
+  --color-positive:       var(--mx-positive);
+  --color-positive-ink:   var(--mx-positive-ink);
+  --color-positive-quiet: var(--mx-positive-quiet);
+  --color-positive-line:  var(--mx-positive-line);
+
+  --color-negative:             var(--mx-negative);
+  --color-negative-ink:         var(--mx-negative-ink);
+  --color-negative-quiet:       var(--mx-negative-quiet);
+  --color-negative-quiet-hover: var(--mx-negative-quiet-hover);
+  --color-negative-line:        var(--mx-negative-line);
+
+  --color-info:       var(--mx-info);
+  --color-info-ink:   var(--mx-info-ink);
+  --color-info-quiet: var(--mx-info-quiet);
+  --color-info-line:  var(--mx-info-line);
+
+  /* ── Grafik ──────────────────────────────────────────────────────────── */
+  --color-chart-grid: var(--mx-chart-grid);
+  --color-chart-axis: var(--mx-chart-axis);
+
+  /* ── Pastel plitkalar va soyalar ─────────────────────────────────────── */
+  --color-tile-a: var(--mx-tile-a);
+  --color-tile-b: var(--mx-tile-b);
+  --color-tile-c: var(--mx-tile-c);
+  --color-tile-d: var(--mx-tile-d);
+
+  --shadow-tile: var(--mx-shadow-tile);
+  --shadow-card: var(--mx-shadow-card);
+  --shadow-pop:  var(--mx-shadow-pop);
+
+  /* ── Tipografiya ────────────────────────────────────────────────────────
+     11px — mutlaq quyi chegara, faqat katta harfli eyebrow uchun.
+     Standart matn 14px (`text-body`), 12px emas.                      */
+  --text-metric: 1.75rem;
+  --text-metric--line-height: 1.1;
+  --text-metric--letter-spacing: -0.02em;
+  --text-metric--font-weight: 600;
+
+  --text-title: 1.25rem;
+  --text-title--line-height: 1.25;
+  --text-title--letter-spacing: -0.01em;
+  --text-title--font-weight: 600;
+
+  --text-heading: 1rem;
+  --text-heading--line-height: 1.35;
+  --text-heading--font-weight: 600;
+
+  --text-body: 0.875rem;
+  --text-body--line-height: 1.55;
+
+  --text-small: 0.8125rem;
+  --text-small--line-height: 1.5;
+
+  --text-caption: 0.75rem;
+  --text-caption--line-height: 1.45;
+
+  --text-eyebrow: 0.6875rem;
+  --text-eyebrow--line-height: 1.4;
+  --text-eyebrow--letter-spacing: 0.08em;
+  --text-eyebrow--font-weight: 500;
+
+  /* ── Shakl — oltitadan to'rttaga ─────────────────────────────────────── */
+  --radius-chip:    4px;
+  --radius-control: 8px;
+  --radius-panel:   12px;
+
+  /* ── Konteynerlar ───────────────────────────────────────────────────────
+     Ilgari har bir sahifa o'z kengligini o'zi tanlardi — 2xl/3xl/4xl/5xl,
+     ustiga bitta full-bleed. Besh xil o'lcham, hech qanday qoidasiz.
+     Endi ikkita: `wide` ma'lumot sahifalari uchun, `narrow` formalar uchun.
+     `reading` — uzun matn o'lchovi (AI tahlil), konteyner kengligidan
+     qat'i nazar amal qiladi.                                            */
+  --container-narrow:  45rem;   /*  720px — formalar, sozlamalar paneli   */
+  --container-wide:    75rem;   /* 1200px — dashboard, jadval, grafiklar  */
+  --container-reading: 68ch;    /*         — proza, o'qiladigan matn      */
+  /* Landing marketing sahifasi — mahsulotdan kengroq, chunki u bir marta
+     skroll qilinadi va nafas oladigan kompozitsiyaga muhtoj. Ilgari
+     `max-w-6xl` (1152px) edi.                                          */
+  --container-landing: 79rem;   /* 1264px */
+
+  /* ── Harakat ─────────────────────────────────────────────────────────── */
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --ease-exit:     cubic-bezier(0.4, 0, 1, 1);
+
+  /* ── Landing animatsiyalari (faqat marketing sahifalarida) ───────────── */
   --animate-float: float 4s ease-in-out infinite;
   --animate-float-slow: float 6s ease-in-out infinite;
   --animate-float-delay: float 4s ease-in-out 1.5s infinite;
@@ -23,6 +153,218 @@
   --animate-badge-pulse: badge-pulse 3s ease-in-out infinite;
 }
 
+/* ═══ YORUG' MAVZU — asosiy ta'rif ═══════════════════════════════════════
+   Mahsulot standart holatda YORUG'. Ilgari <html> ga `data-theme="dark"`
+   qo'yilardi va sahifalar qorong'i zinc ranglarni qo'lda yozardi.
+
+   Kanvas va sirt ATAYLAB farq qiladi: sidebar va topbar oq, ular ostidagi
+   kontent maydoni esa bir oz kulrang. Kartalar shu kulrang ustida oq bo'lib
+   ko'tariladi — chegara bilan emas, fon farqi va yumshoq soya bilan.
+   Shuning uchun ramkalar deyarli ko'rinmaydi va sahifa tinch turadi.      */
+:root {
+  color-scheme: light;
+
+  --mx-canvas:         #F7F8FA;  /* kontent maydoni */
+  --mx-surface:        #FFFFFF;  /* karta, sidebar, topbar */
+  --mx-surface-raised: #FFFFFF;  /* modal, dropdown */
+  --mx-surface-sunken: #F3F4F7;  /* input, progress trek */
+  --mx-surface-hover:  #F1F3F6;
+
+  --mx-ink:       #0F1420;
+  --mx-ink-2:     #4A5462;
+  --mx-ink-3:     #737E8C;
+  --mx-ink-faint: #A2ABB7;
+
+  --mx-line-subtle: #F0F2F5;
+  --mx-line:        #E4E7EC;
+  --mx-line-strong: #CFD5DD;
+
+  /* To'liq to'yingan apelsin — referensdagi kabi quyma tugma uchun.
+     Nozik `/10` yuvindilar emas: aksent ko'rinsa, to'liq ko'rinadi.     */
+  --mx-accent:             #EF5711;
+  --mx-accent-hover:       #D4470A;
+  --mx-accent-ink:         #C7420A;
+  --mx-accent-quiet:       #FDEDE4;
+  --mx-accent-quiet-hover: #FBDDCD;
+  --mx-accent-line:        #F8CDB5;
+  --mx-on-accent:          #FFFFFF;
+
+  --mx-positive:       #059669;
+  --mx-positive-ink:   #047857;
+  --mx-positive-quiet: rgba(5, 150, 105, 0.09);
+  --mx-positive-line:  rgba(5, 150, 105, 0.24);
+
+  --mx-negative:             #E11D48;
+  --mx-negative-ink:         #BE123C;
+  --mx-negative-quiet:       rgba(225, 29, 72, 0.08);
+  --mx-negative-quiet-hover: rgba(225, 29, 72, 0.15);
+  --mx-negative-line:        rgba(225, 29, 72, 0.22);
+
+  --mx-info:       #2563EB;
+  --mx-info-ink:   #1D4ED8;
+  --mx-info-quiet: rgba(37, 99, 235, 0.08);
+  --mx-info-line:  rgba(37, 99, 235, 0.22);
+
+  --mx-chart-grid: #EDF0F4;
+  --mx-chart-axis: #98A1AD;
+
+  /* ── Pastel plitkalar ────────────────────────────────────────────────
+     Referensdagi KPI plitkalari: chegarasiz, yumshoq tusli fon, ustida oq
+     ikonka kvadrati va yirik qalin son. Bular SEMANTIK EMAS — «yaxshi» yoki
+     «yomon» degani emas, shunchaki qatordagi o'rni bo'yicha aylanadi.
+     Semantik ma'no `positive`/`negative`/`info` orqali beriladi.        */
+  --mx-tile-a: #FDEDE4;  /* shaftoli */
+  --mx-tile-b: #EFEBFA;  /* lilac    */
+  --mx-tile-c: #FDF3E2;  /* krem     */
+  --mx-tile-d: #E8F1FB;  /* moviy    */
+
+  /* Soyalar — ramka o'rniga balandlik. Referensda kartalar chegara bilan
+     emas, aynan shu nozik soya bilan ajraladi.                          */
+  --mx-shadow-tile:  0 1px 2px rgba(15, 20, 32, 0.04);
+  --mx-shadow-card:  0 1px 3px rgba(15, 20, 32, 0.05), 0 1px 2px rgba(15, 20, 32, 0.03);
+  --mx-shadow-pop:   0 12px 32px -8px rgba(15, 20, 32, 0.16), 0 4px 8px -2px rgba(15, 20, 32, 0.06);
+
+  /* Davomiyliklar — Tailwind'da `duration-*` nomlar fazosi yo'q, shuning
+     uchun bular to'g'ridan-to'g'ri custom property sifatida ishlatiladi:
+     `duration-[var(--mx-dur-micro)]` */
+  --mx-dur-micro:      120ms;
+  --mx-dur-transition: 200ms;
+  --mx-dur-enter:      320ms;
+  --mx-dur-exit:       160ms;
+
+  /* ── Qobiq o'lchamlari ──────────────────────────────────────────────────
+     Mavzuga bog'liq emas — shuning uchun faqat shu yerda, qorong'i
+     bloklarda takrorlanmaydi.
+
+     Sidebar 208px edi: eng uzun yorliq ("AI Insights" + ikonka + gap) uchun
+     tor, va hech qanday breakpointda yig'ilmaydi. 240px to'liq holat,
+     64px ikonka relsi, undan pastda drawer.
+
+     Topbar 48px edi — 40px balandlikdagi kontrol sig'maydi, shuning uchun
+     workspace select 11px/py-0.5 gacha siqilgan. 56px = 40 + 8 + 8.       */
+  --mx-sidebar:      15rem;    /* 240px */
+  --mx-sidebar-rail:  4rem;    /*  64px */
+  --mx-topbar:      3.5rem;    /*  56px */
+}
+
+/* ═══ QORONG'I — tizim sozlamasi bo'yicha ════════════════════════════════ */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+
+    --mx-canvas:         #0A0C10;
+    --mx-surface:        #131820;
+    --mx-surface-raised: #1A2029;
+    --mx-surface-sunken: #06080B;
+    --mx-surface-hover:  #222A35;
+
+    --mx-ink:       #E9EDF2;
+    --mx-ink-2:     #A3ADBA;
+    --mx-ink-3:     #6E7885;
+    --mx-ink-faint: #4A535E;
+
+    --mx-line-subtle: #1E252F;
+    --mx-line:        #2A323D;
+    --mx-line-strong: #3A434F;
+
+    --mx-accent:             #F97316;
+    --mx-accent-hover:       #FB8437;
+    --mx-accent-ink:         #FB923C;
+    --mx-accent-quiet:       rgba(249, 115, 22, 0.12);
+    --mx-accent-quiet-hover: rgba(249, 115, 22, 0.20);
+    --mx-accent-line:        rgba(249, 115, 22, 0.28);
+    --mx-on-accent:          #FFFFFF;
+
+    --mx-positive:       #10B981;
+    --mx-positive-ink:   #34D399;
+    --mx-positive-quiet: rgba(16, 185, 129, 0.12);
+    --mx-positive-line:  rgba(16, 185, 129, 0.26);
+
+    --mx-negative:             #F43F5E;
+    --mx-negative-ink:         #FB7185;
+    --mx-negative-quiet:       rgba(244, 63, 94, 0.12);
+    --mx-negative-quiet-hover: rgba(244, 63, 94, 0.20);
+    --mx-negative-line:        rgba(244, 63, 94, 0.26);
+
+    --mx-info:       #3B82F6;
+    --mx-info-ink:   #60A5FA;
+    --mx-info-quiet: rgba(59, 130, 246, 0.12);
+    --mx-info-line:  rgba(59, 130, 246, 0.26);
+
+    --mx-chart-grid: #232B36;
+    --mx-chart-axis: #5E6874;
+
+    --mx-tile-a: #2A1C14;
+    --mx-tile-b: #1E1B2E;
+    --mx-tile-c: #292117;
+    --mx-tile-d: #141F2E;
+
+    --mx-shadow-tile: 0 1px 2px rgba(0, 0, 0, 0.35);
+    --mx-shadow-card: 0 1px 3px rgba(0, 0, 0, 0.4), 0 1px 2px rgba(0, 0, 0, 0.3);
+    --mx-shadow-pop:  0 12px 32px -8px rgba(0, 0, 0, 0.6), 0 4px 8px -2px rgba(0, 0, 0, 0.4);
+  }
+}
+
+/* ═══ QORONG'I — aniq tanlov, tizimdan ustun ═════════════════════════════
+   Selektor `:root` bilan cheklanmagan: keyinchalik public dashboard'ni
+   tizim sozlamasiga qaytarish uchun stamp'ni ichki elementga ko'chirish
+   mumkin bo'lsin.                                                        */
+[data-theme="dark"] {
+  color-scheme: dark;
+
+  --mx-canvas:         #0A0C10;
+  --mx-surface:        #131820;
+  --mx-surface-raised: #1A2029;
+  --mx-surface-sunken: #06080B;
+  --mx-surface-hover:  #222A35;
+
+  --mx-ink:       #E9EDF2;
+  --mx-ink-2:     #A3ADBA;
+  --mx-ink-3:     #6E7885;
+  --mx-ink-faint: #4A535E;
+
+  --mx-line-subtle: #1E252F;
+  --mx-line:        #2A323D;
+  --mx-line-strong: #3A434F;
+
+  --mx-accent:             #F97316;
+  --mx-accent-hover:       #FB8437;
+  --mx-accent-ink:         #FB923C;
+  --mx-accent-quiet:       rgba(249, 115, 22, 0.12);
+  --mx-accent-quiet-hover: rgba(249, 115, 22, 0.20);
+  --mx-accent-line:        rgba(249, 115, 22, 0.28);
+  --mx-on-accent:          #FFFFFF;
+
+  --mx-positive:       #10B981;
+  --mx-positive-ink:   #34D399;
+  --mx-positive-quiet: rgba(16, 185, 129, 0.12);
+  --mx-positive-line:  rgba(16, 185, 129, 0.26);
+
+  --mx-negative:             #F43F5E;
+  --mx-negative-ink:         #FB7185;
+  --mx-negative-quiet:       rgba(244, 63, 94, 0.12);
+  --mx-negative-quiet-hover: rgba(244, 63, 94, 0.20);
+  --mx-negative-line:        rgba(244, 63, 94, 0.26);
+
+  --mx-info:       #3B82F6;
+  --mx-info-ink:   #60A5FA;
+  --mx-info-quiet: rgba(59, 130, 246, 0.12);
+  --mx-info-line:  rgba(59, 130, 246, 0.26);
+
+  --mx-chart-grid: #232B36;
+  --mx-chart-axis: #5E6874;
+
+  --mx-tile-a: #2A1C14;
+  --mx-tile-b: #1E1B2E;
+  --mx-tile-c: #292117;
+  --mx-tile-d: #141F2E;
+
+  --mx-shadow-tile: 0 1px 2px rgba(0, 0, 0, 0.35);
+  --mx-shadow-card: 0 1px 3px rgba(0, 0, 0, 0.4), 0 1px 2px rgba(0, 0, 0, 0.3);
+  --mx-shadow-pop:  0 12px 32px -8px rgba(0, 0, 0, 0.6), 0 4px 8px -2px rgba(0, 0, 0, 0.4);
+}
+
+/* ═══ Landing keyframes ══════════════════════════════════════════════════ */
 @keyframes float {
   0%, 100% { transform: translateY(0px); }
   50%       { transform: translateY(-10px); }
@@ -72,13 +414,12 @@
   100%  { transform: scale(2);   opacity: 0; }
 }
 
-:root { color-scheme: dark; }
-
+/* ═══ Baza ═══════════════════════════════════════════════════════════════ */
 * { box-sizing: border-box; }
 
 body {
-  background-color: #09090b;
-  color: #fafafa;
+  background-color: var(--mx-canvas);
+  color: var(--mx-ink);
   font-family: var(--font-geist-sans), system-ui, -apple-system, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -86,8 +427,53 @@ body {
 
 html { scroll-behavior: smooth; }
 
-::-webkit-scrollbar { width: 5px; }
-::-webkit-scrollbar-track { background: #09090b; }
-::-webkit-scrollbar-thumb { background: #27272a; border-radius: 3px; }
+/* Kursor — Tailwind v4 buzuvchi o'zgarishi.
+   v3'da `<button>` ga standart `cursor: pointer` berilardi. v4 preflight uni
+   brauzer standartiga (`cursor: default`) qaytardi. Natijada BUTUN ilovada
+   birorta ham tugma, tab, chip yoki dropdown ustida qo'l ko'rsatkichi
+   chiqmaydi — bosiladigan narsa bosilmaydiganday tuyuladi.
+   Bu — v4 hujjatlarida tavsiya qilingan tiklash. */
+button:not(:disabled),
+[role='button']:not([aria-disabled='true']),
+[role='tab'],
+summary,
+label[for],
+select:not(:disabled) {
+  cursor: pointer;
+}
 
-::selection { background: #f9731625; color: #f97316; }
+button:disabled,
+[aria-disabled='true'] {
+  cursor: not-allowed;
+}
+
+/* Klaviatura fokusi — kodbazada bu umuman yo'q edi. Sichqoncha bosishida
+   ko'rinmaydi (`:focus-visible`), faqat Tab bilan yurilganda chiqadi. */
+:focus-visible {
+  outline: 2px solid var(--mx-accent);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: var(--mx-canvas); }
+::-webkit-scrollbar-thumb { background: var(--mx-line); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--mx-line-strong); }
+
+::selection {
+  background: var(--mx-accent-quiet);
+  color: var(--mx-accent-ink);
+}
+
+/* Harakatni kamaytirish — majburiy. Landing'dagi 11 ta uzluksiz animatsiya
+   shu blok bo'lmasa vestibulyar sezgir foydalanuvchilar uchun muammo. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

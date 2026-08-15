@@ -7,6 +7,7 @@ import {
   Code2,
   ShieldCheck,
   ArrowRight,
+  Plus,
 } from 'lucide-react';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
@@ -119,44 +120,80 @@ const faqs: Record<string, QA[]> = {
   ],
 };
 
-const accentMap: Record<string, string> = {
-  orange: 'text-orange-400 bg-orange-500/8 border-orange-500/20',
-  green: 'text-green-400  bg-green-500/8  border-green-500/20',
-  blue: 'text-blue-400   bg-blue-500/8   border-blue-500/20',
-};
 
-/* ── QA Card ─────────────────────────────────────── */
-function QACard({ qa, index }: { qa: QA; index: number }) {
-  const accent = accentMap[qa.accent ?? 'orange'];
+/* ── Accordion ────────────────────────────────────
+   Ilgari barcha javoblar doim ochiq turardi — bo'lim juda uzun edi va
+   savolni ko'z bilan topish qiyin. Endi bir vaqtda bittasi ochiq:
+   ro'yxatni bir qarashda skanerlash mumkin.                          */
+function QARow({
+  qa,
+  index,
+  open,
+  onToggle,
+}: {
+  qa: QA;
+  index: number;
+  open: boolean;
+  onToggle: () => void;
+}) {
+  const panelId = `faq-panel-${index}`;
 
   return (
     <div
-      className="group relative p-5 rounded-2xl border border-zinc-800 bg-zinc-900 hover:border-zinc-700 transition-all duration-200"
-      style={{ animation: `fade-up 0.4s ease-out ${index * 0.06}s both` }}
+      className={cn(
+        'overflow-hidden rounded-panel border bg-surface transition-colors',
+        open ? 'border-accent-line shadow-card' : 'border-line-subtle',
+      )}
     >
-      {/* Number */}
-      <div className="flex items-start gap-4">
-        <div
+      <button
+        onClick={onToggle}
+        aria-expanded={open}
+        aria-controls={panelId}
+        className="flex w-full items-center gap-4 px-5 py-4 text-left"
+      >
+        <span
           className={cn(
-            'w-7 h-7 rounded-lg border flex items-center justify-center shrink-0 mt-0.5 text-[11px] font-bold tabular-nums',
-            accent,
+            'shrink-0 font-mono text-caption tabular-nums transition-colors',
+            open ? 'text-accent-ink' : 'text-ink-3',
           )}
         >
           {String(index + 1).padStart(2, '0')}
-        </div>
+        </span>
 
-        <div className="flex-1 min-w-0">
-          <h3 className="text-sm font-semibold text-zinc-100 mb-2 leading-snug">
-            {qa.q}
-          </h3>
-          <p className="text-sm text-zinc-400 leading-relaxed">{qa.a}</p>
+        <h3 className="min-w-0 flex-1 text-body font-semibold leading-snug text-ink">
+          {qa.q}
+        </h3>
 
-          {/* Code snippet */}
-          {qa.code && (
-            <div className="mt-3 px-3 py-2.5 rounded-lg bg-zinc-950 border border-zinc-800 font-mono text-[11px] text-green-400 leading-relaxed whitespace-pre">
-              {qa.code}
-            </div>
+        {/* «+» ochilganda «×» ga aylanadi — holatni bitta belgi bildiradi */}
+        <span
+          aria-hidden="true"
+          className={cn(
+            'relative flex h-7 w-7 shrink-0 items-center justify-center rounded-full transition-all',
+            open
+              ? 'rotate-45 bg-accent text-on-accent'
+              : 'bg-surface-sunken text-ink-3',
           )}
+        >
+          <Plus className="h-4 w-4" />
+        </span>
+      </button>
+
+      <div
+        id={panelId}
+        className={cn(
+          'grid transition-all duration-[var(--mx-dur-transition)] ease-standard',
+          open ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]',
+        )}
+      >
+        <div className="overflow-hidden">
+          <div className="px-5 pb-5 pl-[3.25rem]">
+            <p className="text-small leading-relaxed text-ink-2">{qa.a}</p>
+            {qa.code && (
+              <pre className="mt-3 overflow-x-auto rounded-control border border-line-subtle bg-surface-sunken px-3 py-2.5 font-mono text-caption leading-relaxed text-accent-ink">
+                {qa.code}
+              </pre>
+            )}
+          </div>
         </div>
       </div>
     </div>
@@ -166,142 +203,87 @@ function QACard({ qa, index }: { qa: QA; index: number }) {
 /* ── Section ──────────────────────────────────────── */
 export default function FaqSection() {
   const [active, setActive] = useState('general');
+  const [openIndex, setOpenIndex] = useState(0);
   const questions = faqs[active] ?? [];
 
-  return (
-    <section className="relative py-24 overflow-hidden">
-      {/* Background */}
-      <div className="absolute inset-0 pointer-events-none">
-        <div
-          className="absolute inset-0 opacity-[0.1]"
-          style={{
-            backgroundImage:
-              'radial-gradient(circle, #52525b 1px, transparent 1px)',
-            backgroundSize: '28px 28px',
-          }}
-        />
-        <div
-          className="absolute top-1/2 right-0 w-[500px] h-[500px] bg-orange-500/5 blur-[100px]"
-          style={{ animation: 'blob 16s ease-in-out 3s infinite' }}
-        />
-        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-zinc-800 to-transparent" />
-        <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-zinc-800 to-transparent" />
-      </div>
+  function switchCategory(id: string) {
+    setActive(id);
+    setOpenIndex(0);
+  }
 
-      <div className="relative z-10 max-w-6xl mx-auto px-4">
-        {/* Heading */}
-        <div
-          className="mb-12"
-          style={{ animation: 'fade-up 0.6s ease-out both' }}
-        >
-          <p className="text-xs uppercase tracking-widest text-orange-500/80 font-medium mb-3">
-            FAQ
-          </p>
-          <h2 className="text-4xl font-bold tracking-tight leading-[1.1] mb-4">
-            <span className="text-zinc-100">Savol bormi?</span>
+  return (
+    <section id="haqida" className="relative border-t border-line-subtle py-20 lg:py-28">
+      <div className="relative z-10 mx-auto w-full max-w-landing px-4">
+        {/* Sarlavha — boshqa bo'limlar bilan bir xil, markazda */}
+        <div className="mx-auto max-w-2xl text-center">
+          <p className="text-eyebrow uppercase text-accent-ink">FAQ</p>
+          <h2 className="mt-3 text-[2rem] font-extrabold leading-[1.1] tracking-[-0.03em] text-ink text-balance sm:text-[2.75rem]">
+            Savol bormi?
             <br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-amber-400">
-              Javob bor.
-            </span>
+            <span className="text-accent">Javob bor.</span>
           </h2>
-          <p className="text-sm text-zinc-500 max-w-md leading-relaxed">
-            Eng ko&apos;p so&apos;raladigan savollarni kategoriyalar bo&apos;yicha topishingiz
-            mumkin.
+          <p className="mx-auto mt-5 max-w-xl text-body leading-relaxed text-ink-2">
+            Eng ko&apos;p so&apos;raladigan savollar — kategoriya tanlang.
           </p>
         </div>
 
-        {/* Body: sidebar + content */}
-        <div className="grid grid-cols-1 md:grid-cols-[220px_1fr] gap-6">
-          {/* ── Left: category nav ──────────────────── */}
-          <div
-            className="flex md:flex-col gap-2 overflow-x-auto md:overflow-visible pb-2 md:pb-0"
-            style={{ animation: 'fade-up 0.6s ease-out 0.1s both' }}
-          >
-            {categories.map((cat) => {
-              const isActive = active === cat.id;
-              const Icon = cat.icon;
-              return (
-                <button
-                  key={cat.id}
-                  onClick={() => setActive(cat.id)}
+        {/* Kategoriyalar — gorizontal, markazda. Ilgari chapdagi ustunda
+            edi va markazlashtirilgan sarlavha bilan mos kelmasdi. */}
+        <div className="mt-10 flex flex-wrap items-center justify-center gap-2">
+          {categories.map(({ id, label, icon: Icon }) => {
+            const isActive = active === id;
+            return (
+              <button
+                key={id}
+                onClick={() => switchCategory(id)}
+                className={cn(
+                  'flex h-10 items-center gap-2 rounded-full border px-4 text-small font-medium transition-all active:translate-y-px',
+                  isActive
+                    ? 'border-transparent bg-accent text-on-accent shadow-card'
+                    : 'border-line bg-surface text-ink-2 shadow-tile hover:bg-surface-hover hover:text-ink',
+                )}
+              >
+                <Icon className="h-4 w-4 shrink-0" />
+                {label}
+                <span
                   className={cn(
-                    'flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl border text-left transition-all duration-200 shrink-0 md:shrink group w-full',
-                    isActive
-                      ? 'border-orange-500/30 bg-orange-500/8 text-zinc-100'
-                      : 'border-zinc-800 bg-zinc-900 text-zinc-500 hover:text-zinc-300 hover:border-zinc-700',
+                    'text-eyebrow tabular-nums',
+                    isActive ? 'text-on-accent/70' : 'text-ink-3',
                   )}
                 >
-                  <div
-                    className={cn(
-                      'w-7 h-7 rounded-lg flex items-center justify-center shrink-0 transition-colors',
-                      isActive
-                        ? 'bg-orange-500/15 border border-orange-500/25'
-                        : 'bg-zinc-800 border border-zinc-700/60 group-hover:bg-zinc-700/50',
-                    )}
-                  >
-                    <Icon
-                      className={cn(
-                        'w-3.5 h-3.5 transition-colors',
-                        isActive
-                          ? 'text-orange-400'
-                          : 'text-zinc-500 group-hover:text-zinc-400',
-                      )}
-                    />
-                  </div>
-                  <div>
-                    <p className="text-xs font-semibold leading-none">
-                      {cat.label}
-                    </p>
-                    <p
-                      className={cn(
-                        'text-[10px] mt-1 transition-colors',
-                        isActive ? 'text-zinc-500' : 'text-zinc-700',
-                      )}
-                    >
-                      {faqs[cat.id].length} ta savol
-                    </p>
-                  </div>
-                  {isActive && (
-                    <div className="ml-auto w-1.5 h-1.5 rounded-full bg-orange-500 shrink-0" />
-                  )}
-                </button>
-              );
-            })}
-
-            {/* Contact hint */}
-            <div className="hidden md:block mt-6 p-4 rounded-xl border border-zinc-800 bg-zinc-900/60">
-              <p className="text-xs font-medium text-zinc-300 mb-1">
-                Javob topa olmadingizmi?
-              </p>
-              <p className="text-[11px] text-zinc-600 mb-3 leading-relaxed">
-                Bizga to&apos;g&apos;ridan-to&apos;g&apos;ri yozing
-              </p>
-              <Link
-                href="mailto:hello@metrix.io"
-                className="inline-flex items-center gap-1 text-[11px] font-medium text-orange-400 hover:text-orange-300 transition-colors"
-              >
-                hello@metrix.io
-                <ArrowRight className="w-3 h-3" />
-              </Link>
-            </div>
-          </div>
-
-          {/* ── Right: Q&A cards ────────────────────── */}
-          <div className="space-y-3">
-            {questions.map((qa, i) => (
-              <QACard key={qa.q} qa={qa} index={i} />
-            ))}
-          </div>
+                  {faqs[id].length}
+                </span>
+              </button>
+            );
+          })}
         </div>
 
-        {/* Mobile contact */}
-        <div className="md:hidden mt-8 text-center">
-          <p className="text-xs text-zinc-600 mb-2">Javob topa olmadingizmi?</p>
+        {/* Savollar — o'qish uchun qulay kenglikda, sahifa bo'ylab emas */}
+        <div className="mx-auto mt-8 flex max-w-3xl flex-col gap-3">
+          {questions.map((qa, i) => (
+            <QARow
+              key={qa.q}
+              qa={qa}
+              index={i}
+              open={openIndex === i}
+              onToggle={() => setOpenIndex(openIndex === i ? -1 : i)}
+            />
+          ))}
+        </div>
+
+        {/* Aloqa */}
+        <div className="mx-auto mt-10 flex max-w-3xl flex-col items-center gap-3 rounded-panel border border-line-subtle bg-surface px-6 py-7 text-center shadow-card">
+          <p className="text-heading text-ink">Javob topa olmadingizmi?</p>
+          <p className="text-small text-ink-2">
+            Bizga to&apos;g&apos;ridan-to&apos;g&apos;ri yozing — odatda bir
+            necha soatda javob beramiz.
+          </p>
           <Link
             href="mailto:hello@metrix.io"
-            className="text-sm font-medium text-orange-400"
+            className="mt-1 inline-flex h-10 items-center gap-2 rounded-control border border-line bg-surface px-4 text-small font-semibold text-accent-ink shadow-tile transition-all hover:bg-surface-hover active:translate-y-px"
           >
             hello@metrix.io
+            <ArrowRight className="h-4 w-4" />
           </Link>
         </div>
       </div>

@@ -31,7 +31,7 @@ const CONTENT_TYPE_LABELS: Record<string, string> = {
 function StatChip({
   icon: Icon,
   value,
-  color = 'text-zinc-500',
+  color = 'text-ink-3',
 }: {
   icon: React.FC<{ className?: string }>;
   value: string | null;
@@ -58,7 +58,7 @@ export function PostCard({
       <CardContent className="p-4">
         <div className="flex gap-4">
           {/* Thumbnail */}
-          <div className="w-20 h-14 rounded-lg bg-zinc-800/60 border border-zinc-700/50 flex items-center justify-center shrink-0 overflow-hidden">
+          <div className="w-20 h-14 rounded-control bg-surface-sunken border border-line flex items-center justify-center shrink-0 overflow-hidden">
             {post.thumbnailUrl ? (
               <Image
                 src={post.thumbnailUrl}
@@ -69,7 +69,7 @@ export function PostCard({
                 className="w-full h-full object-cover"
               />
             ) : (
-              Icon && <Icon className="w-6 h-6 text-zinc-600" />
+              Icon && <Icon className="w-6 h-6 text-ink-3" />
             )}
           </div>
 
@@ -88,17 +88,17 @@ export function PostCard({
                     href={post.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-sm font-medium text-zinc-200 hover:text-white truncate block transition-colors"
+                    className="text-sm font-medium text-ink hover:text-ink truncate block transition-colors"
                   >
                     {post.title ?? post.caption?.slice(0, 80) ?? 'Nomsiz post'}
                   </a>
                 ) : (
-                  <p className="text-sm font-medium text-zinc-200 truncate">
+                  <p className="text-sm font-medium text-ink truncate">
                     {post.title ?? post.caption?.slice(0, 80) ?? 'Nomsiz post'}
                   </p>
                 )}
                 {post.publishedAt && (
-                  <p className="text-xs text-zinc-600 mt-0.5">
+                  <p className="text-xs text-ink-3 mt-0.5">
                     {new Date(post.publishedAt).toLocaleDateString('uz-UZ')}
                   </p>
                 )}
@@ -113,7 +113,7 @@ export function PostCard({
             {/* Stats */}
             <div className="flex items-center gap-3 flex-wrap text-xs">
               {post.follows !== null && post.follows > 0 && (
-                <span className="flex items-center gap-1 text-green-400 font-medium">
+                <span className="flex items-center gap-1 text-positive-ink font-medium">
                   <UserPlus className="w-3.5 h-3.5" />
                   <span>+{fmt(post.follows)} obunachi</span>
                 </span>
@@ -121,38 +121,38 @@ export function PostCard({
               <StatChip
                 icon={Eye}
                 value={fmt(post.views)}
-                color="text-zinc-400"
+                color="text-ink-2"
               />
               <StatChip
                 icon={Heart}
                 value={fmt(post.likes)}
-                color="text-red-400"
+                color="text-negative-ink"
               />
               {post.dislikes !== null && post.dislikes > 0 && (
                 <StatChip
                   icon={TrendingUp}
                   value={`-${fmt(post.dislikes)}`}
-                  color="text-zinc-600"
+                  color="text-ink-3"
                 />
               )}
               <StatChip
                 icon={MessageCircle}
                 value={fmt(post.comments)}
-                color="text-blue-400"
+                color="text-info-ink"
               />
               <StatChip
                 icon={Share2}
                 value={fmt(post.shares)}
-                color="text-green-400"
+                color="text-positive-ink"
               />
               {post.reach !== null && (
-                <span className="flex items-center gap-1 text-zinc-500">
+                <span className="flex items-center gap-1 text-ink-3">
                   <Users className="w-3.5 h-3.5" />
                   <span>{fmt(post.reach)} reach</span>
                 </span>
               )}
               {post.impressions !== null && (
-                <span className="flex items-center gap-1 text-zinc-500">
+                <span className="flex items-center gap-1 text-ink-3">
                   <BarChart2 className="w-3.5 h-3.5" />
                   <span>{fmt(post.impressions)} imp</span>
                 </span>

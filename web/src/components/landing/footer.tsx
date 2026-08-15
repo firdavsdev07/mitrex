@@ -22,20 +22,20 @@ const links = {
 
 export default function Footer() {
   return (
-    <footer className="border-t border-zinc-800/50 py-10">
-      <div className="max-w-6xl mx-auto px-4">
+    <footer className="border-t border-line-subtle py-10">
+      <div className="max-w-landing mx-auto px-4">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-10">
           {/* Brand */}
           <div className="col-span-2 md:col-span-1">
             <div className="flex items-center gap-1.5 mb-3">
-              <div className="w-6 h-6 rounded-md bg-orange-500/10 border border-orange-500/20 flex items-center justify-center">
-                <Zap className="w-3.5 h-3.5 text-orange-500" />
+              <div className="w-6 h-6 rounded-control bg-accent-quiet border border-accent-line flex items-center justify-center">
+                <Zap className="w-3.5 h-3.5 text-accent-ink" />
               </div>
-              <span className="text-sm font-semibold text-zinc-100">
+              <span className="text-sm font-semibold text-ink">
                 Metrix
               </span>
             </div>
-            <p className="text-xs text-zinc-600 leading-relaxed max-w-[180px]">
+            <p className="text-xs text-ink-3 leading-relaxed max-w-[180px]">
               Barcha analitikangiz bitta minimalist dashboardda.
             </p>
           </div>
@@ -43,7 +43,7 @@ export default function Footer() {
           {/* Links */}
           {Object.entries(links).map(([section, items]) => (
             <div key={section}>
-              <p className="text-xs font-medium text-zinc-400 mb-3">
+              <p className="text-xs font-medium text-ink-2 mb-3">
                 {section}
               </p>
               <ul className="space-y-2">
@@ -51,7 +51,7 @@ export default function Footer() {
                   <li key={item.label}>
                     <Link
                       href={item.href}
-                      className="text-xs text-zinc-600 hover:text-zinc-400 transition-colors"
+                      className="text-xs text-ink-3 hover:text-ink transition-colors"
                     >
                       {item.label}
                     </Link>
@@ -63,20 +63,20 @@ export default function Footer() {
         </div>
 
         {/* Bottom */}
-        <div className="border-t border-zinc-800/30 pt-4 flex flex-col sm:flex-row items-center justify-between gap-2">
-          <p className="text-xs text-zinc-700">
+        <div className="border-t border-line-subtle pt-4 flex flex-col sm:flex-row items-center justify-between gap-2">
+          <p className="text-xs text-ink-3">
             © 2025 Metrix. Barcha huquqlar himoyalangan.
           </p>
           <div className="flex items-center gap-4">
             <Link
               href="#"
-              className="text-xs text-zinc-700 hover:text-zinc-500 transition-colors"
+              className="text-xs text-ink-3 hover:text-ink-3 transition-colors"
             >
               Maxfiylik siyosati
             </Link>
             <Link
               href="#"
-              className="text-xs text-zinc-700 hover:text-zinc-500 transition-colors"
+              className="text-xs text-ink-3 hover:text-ink-3 transition-colors"
             >
               Foydalanish shartlari
             </Link>

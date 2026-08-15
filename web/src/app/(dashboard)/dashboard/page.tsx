@@ -33,6 +33,8 @@ import { useAuthStore } from '@/store/auth';
 import { useWorkspaceStore } from '@/store/workspace';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { StatTile } from '@/components/ui/stat-tile';
+import { uzDateFull } from '@/lib/date';
 import {
   YouTubeIcon,
   TelegramIcon,
@@ -92,6 +94,7 @@ function fmtDate(iso: string) {
   return `${d.getMonth() + 1}/${d.getDate()}`;
 }
 
+
 // "5 daqiqa oldin" — foydalanuvchi "Yangilash" bosgandan keyin ma'lumot
 // haqiqatan yangilanganini darhol ko'rishi uchun.
 function timeAgo(iso: string): string {
@@ -126,8 +129,8 @@ function ChartTooltip({
 }) {
   if (!active || !payload?.length) return null;
   return (
-    <div className="bg-zinc-900 border border-zinc-700 rounded-lg px-3 py-2 text-xs shadow-xl">
-      <p className="text-zinc-500 mb-1">{label}</p>
+    <div className="bg-surface border border-line rounded-control px-3 py-2 text-xs shadow-xl">
+      <p className="text-ink-3 mb-1">{label}</p>
       {payload.map((p) => (
         <p key={p.name} style={{ color: p.color }} className="font-semibold">
           {fmt(p.value ?? 0)} {unit}
@@ -213,25 +216,33 @@ export default function DashboardPage() {
     : 'Xush kelibsiz';
 
   return (
-    <div className="max-w-5xl mx-auto space-y-6">
-      {/* ── Header ── */}
-      <div className="flex items-center justify-between">
-        <div>
-          <p className="text-xs text-zinc-600 uppercase tracking-wider mb-0.5">
-            Umumiy ko&apos;rinish
+    <div className="max-w-wide mx-auto space-y-8">
+      {/* ── Header ──
+          Salomlashuv sahifadagi eng yirik element: u foydalanuvchini
+          «hisobot» emas, «kunlik xulosa» kayfiyatiga qo'yadi. Ostidagi
+          qator — sana va nima kuzatilayotgani, ya'ni kontekst. */}
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div className="min-w-0">
+          <h1 className="text-[1.75rem] font-bold leading-tight tracking-tight text-ink">
+            {greeting}
+          </h1>
+          <p className="mt-1 text-body text-ink-3">
+            {uzDateFull(new Date())}
+            {data
+              ? ` · ${data.platforms.length + data.websites.length} ta manba`
+              : ''}
           </p>
-          <h1 className="text-lg font-semibold text-zinc-100">{greeting}</h1>
         </div>
-        <div className="flex items-center gap-2">
-          <div className="flex items-center gap-0.5 bg-zinc-900 border border-zinc-800 rounded-lg p-0.5">
+        <div className="flex shrink-0 flex-wrap items-center gap-2">
+          <div className="flex items-center gap-0.5 bg-surface border border-line rounded-control p-0.5">
             {(['today', 'week', 'month'] as Period[]).map((p) => (
               <button
                 key={p}
                 onClick={() => setPeriod(p)}
-                className={`text-xs px-3 py-1.5 rounded-md transition-all duration-150 ${
+                className={`text-xs px-3 py-1.5 rounded-control transition-all duration-150 ${
                   period === p
-                    ? 'bg-orange-500/12 text-orange-400 border border-orange-500/20'
-                    : 'text-zinc-600 hover:text-zinc-300'
+                    ? 'bg-accent-quiet text-accent-ink border border-accent-line'
+                    : 'text-ink-3 hover:text-ink'
                 }`}
               >
                 {PERIOD_LABELS[p]}
@@ -253,7 +264,7 @@ export default function DashboardPage() {
 
       {/* ── Error banner ── */}
       {error && !loading && (
-        <div className="flex items-center justify-between gap-3 bg-red-500/10 border border-red-500/20 text-red-400 text-sm px-4 py-3 rounded-xl">
+        <div className="flex items-center justify-between gap-3 bg-negative-quiet border border-negative-line text-negative-ink text-sm px-4 py-3 rounded-panel">
           <span>Statistikani yuklab bo&apos;lmadi. Internetni tekshiring.</span>
           <Button
             variant="secondary"
@@ -265,25 +276,39 @@ export default function DashboardPage() {
         </div>
       )}
 
-      {/* ── Summary cards ── */}
-      <div className="grid grid-cols-3 gap-3">
-        <SummaryCard
-          icon={<Link2 className="w-4 h-4 text-orange-400" />}
-          label="Ulangan platformalar"
-          value={loading ? null : (data?.summary.totalPlatforms ?? 0)}
-          bg="bg-orange-500/8 border-orange-500/15"
-        />
-        <SummaryCard
-          icon={<Globe className="w-4 h-4 text-blue-400" />}
-          label="Saytlar"
-          value={loading ? null : (data?.summary.totalWebsites ?? 0)}
-          bg="bg-blue-500/8 border-blue-500/15"
-        />
-        <SummaryCard
-          icon={<Eye className="w-4 h-4 text-green-400" />}
+      {/* ── Summary tiles ── */}
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <StatTile
+          tone="a"
+          icon={<Eye />}
           label="Sayt tashriflari"
-          value={loading ? null : (data?.summary.totalWebViews ?? 0)}
-          bg="bg-green-500/8 border-green-500/15"
+          hint={PERIOD_LABELS[period]}
+          value={loading ? '—' : fmt(data?.summary.totalWebViews ?? 0)}
+          loading={loading}
+        />
+        <StatTile
+          tone="b"
+          icon={<Link2 />}
+          label="Ulangan platformalar"
+          hint={
+            data?.platforms.length
+              ? `${data.platforms.length} ta kanal kuzatilmoqda`
+              : 'Hali ulanmagan'
+          }
+          value={loading ? '—' : (data?.summary.totalPlatforms ?? 0)}
+          loading={loading}
+        />
+        <StatTile
+          tone="d"
+          icon={<Globe />}
+          label="Saytlar"
+          hint={
+            data?.websites.length
+              ? `${data.websites.length} ta sayt kuzatilmoqda`
+              : "Hali qo'shilmagan"
+          }
+          value={loading ? '—' : (data?.summary.totalWebsites ?? 0)}
+          loading={loading}
         />
       </div>
 
@@ -292,28 +317,28 @@ export default function DashboardPage() {
         <CardContent className="p-5">
           <div className="flex items-center justify-between mb-4">
             <div>
-              <p className="text-sm font-medium text-zinc-200">
+              <p className="text-sm font-medium text-ink">
                 Sayt tashriflari
               </p>
               {trend.length > 0 && (
-                <p className="text-xl font-bold text-zinc-100 tabular-nums mt-0.5">
+                <p className="text-xl font-bold text-ink tabular-nums mt-0.5">
                   {fmt(trend.reduce((s, t) => s + t.views, 0))}
-                  <span className="text-xs font-normal text-zinc-600 ml-1">
+                  <span className="text-xs font-normal text-ink-3 ml-1">
                     jami
                   </span>
                 </p>
               )}
             </div>
             {/* Days selector */}
-            <div className="flex items-center gap-0.5 bg-zinc-800/60 border border-zinc-800 rounded-lg p-0.5">
+            <div className="flex items-center gap-0.5 bg-surface-sunken border border-line rounded-control p-0.5">
               {DAYS_OPTIONS.map((opt) => (
                 <button
                   key={opt.value}
                   onClick={() => setTrendDays(opt.value)}
-                  className={`text-xs px-2.5 py-1 rounded-md transition-all ${
+                  className={`text-xs px-2.5 py-1 rounded-control transition-all ${
                     trendDays === opt.value
-                      ? 'bg-zinc-700 text-zinc-100'
-                      : 'text-zinc-500 hover:text-zinc-300'
+                      ? 'bg-surface-hover text-ink'
+                      : 'text-ink-3 hover:text-ink'
                   }`}
                 >
                   {opt.label}
@@ -323,12 +348,12 @@ export default function DashboardPage() {
           </div>
 
           {loading ? (
-            <div className="h-44 bg-zinc-800/30 rounded-lg animate-pulse" />
+            <div className="h-44 bg-surface-sunken rounded-control animate-pulse" />
           ) : trend.length === 0 ? (
             <div className="h-44 flex flex-col items-center justify-center gap-2">
-              <Globe className="w-8 h-8 text-zinc-700" />
-              <p className="text-sm text-zinc-600">Ma&apos;lumot yo&apos;q</p>
-              <p className="text-xs text-zinc-700">
+              <Globe className="w-8 h-8 text-ink-3" />
+              <p className="text-sm text-ink-3">Ma&apos;lumot yo&apos;q</p>
+              <p className="text-xs text-ink-3">
                 Sayt qo&apos;shing va tracking skriptini joylashtiring
               </p>
             </div>
@@ -339,23 +364,23 @@ export default function DashboardPage() {
               >
                 <defs>
                   <linearGradient id="viewsGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#f97316" stopOpacity={0.2} />
-                    <stop offset="95%" stopColor="#f97316" stopOpacity={0} />
+                    <stop offset="5%" stopColor="var(--mx-accent)" stopOpacity={0.2} />
+                    <stop offset="95%" stopColor="var(--mx-accent)" stopOpacity={0} />
                   </linearGradient>
                 </defs>
                 <CartesianGrid
                   strokeDasharray="3 3"
-                  stroke="#27272a"
+                  stroke="var(--mx-chart-grid)"
                   vertical={false}
                 />
                 <XAxis
                   dataKey="date"
-                  tick={{ fill: '#52525b', fontSize: 11 }}
+                  tick={{ fill: 'var(--mx-chart-axis)', fontSize: 11 }}
                   axisLine={false}
                   tickLine={false}
                 />
                 <YAxis
-                  tick={{ fill: '#52525b', fontSize: 11 }}
+                  tick={{ fill: 'var(--mx-chart-axis)', fontSize: 11 }}
                   axisLine={false}
                   tickLine={false}
                   width={36}
@@ -365,11 +390,11 @@ export default function DashboardPage() {
                 <Area
                   type="monotone"
                   dataKey="views"
-                  stroke="#f97316"
+                  stroke="var(--mx-accent)"
                   strokeWidth={2}
                   fill="url(#viewsGrad)"
                   dot={false}
-                  activeDot={{ r: 4, fill: '#f97316' }}
+                  activeDot={{ r: 4, fill: 'var(--mx-accent)' }}
                 />
               </AreaChart>
             </ResponsiveContainer>
@@ -382,10 +407,10 @@ export default function DashboardPage() {
         {/* Platforms */}
         <div>
           <div className="flex items-center justify-between mb-3">
-            <h2 className="text-sm font-medium text-zinc-300">Platformalar</h2>
+            <h2 className="text-sm font-medium text-ink-2">Platformalar</h2>
             <Link
               href="/connections"
-              className="text-xs text-zinc-600 hover:text-zinc-400 transition-colors"
+              className="text-xs text-ink-3 hover:text-ink transition-colors"
             >
               Barchasi →
             </Link>
@@ -399,7 +424,7 @@ export default function DashboardPage() {
             <div className="flex flex-col gap-3">
               {data.platforms.map((p) => {
                 const Icon = PLATFORM_ICONS[p.platform] ?? Globe;
-                const color = PLATFORM_COLORS[p.platform] ?? '#f97316';
+                const color = PLATFORM_COLORS[p.platform] ?? 'var(--mx-accent)';
                 const history = platformHistory[p.id] ?? [];
                 const chartData = history.map((h) => ({
                   date: fmtDate(h.date),
@@ -408,32 +433,32 @@ export default function DashboardPage() {
 
                 return (
                   <Link key={p.id} href={`/connections/${p.id}`} className="block">
-                  <Card className="hover:border-zinc-700 transition-colors">
+                  <Card className="hover:border-line-strong transition-colors">
                     <CardContent className="p-4">
                       <div className="flex items-center gap-3 mb-3">
-                        <div className="w-8 h-8 rounded-lg bg-zinc-800/60 border border-zinc-700/50 flex items-center justify-center shrink-0">
+                        <div className="w-8 h-8 rounded-control bg-surface-sunken border border-line flex items-center justify-center shrink-0">
                           <Icon className="w-4 h-4" />
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-zinc-200">
+                          <p className="text-sm font-medium text-ink">
                             {PLATFORM_LABELS[p.platform] ?? p.platform}
                           </p>
                           {p.username && (
-                            <p className="text-xs text-zinc-600 truncate">
+                            <p className="text-xs text-ink-3 truncate">
                               @{p.username}
                             </p>
                           )}
                         </div>
                         <div className="text-right shrink-0">
-                          <p className="text-sm font-bold text-zinc-100 tabular-nums">
+                          <p className="text-sm font-bold text-ink tabular-nums">
                             {fmt(p.followers)}
-                            <span className="text-xs font-normal text-zinc-600 ml-1">
+                            <span className="text-xs font-normal text-ink-3 ml-1">
                               obunachi
                             </span>
                           </p>
                           {p.growth !== null && (
                             <div
-                              className={`flex items-center gap-0.5 justify-end text-xs ${p.growth >= 0 ? 'text-green-400' : 'text-red-400'}`}
+                              className={`flex items-center gap-0.5 justify-end text-xs ${p.growth >= 0 ? 'text-positive-ink' : 'text-negative-ink'}`}
                             >
                               {p.growth >= 0 ? (
                                 <TrendingUp className="w-3 h-3" />
@@ -450,11 +475,11 @@ export default function DashboardPage() {
                       {(p.likes != null ||
                         p.comments != null ||
                         p.engagement != null) && (
-                        <div className="flex items-center gap-3 mb-2 text-xs text-zinc-500">
+                        <div className="flex items-center gap-3 mb-2 text-xs text-ink-3">
                           {p.likes != null && (
                             <span>
                               ❤{' '}
-                              <span className="text-zinc-300">
+                              <span className="text-ink-2">
                                 {fmt(p.likes)}
                               </span>
                             </span>
@@ -462,18 +487,18 @@ export default function DashboardPage() {
                           {p.comments != null && (
                             <span>
                               💬{' '}
-                              <span className="text-zinc-300">
+                              <span className="text-ink-2">
                                 {fmt(p.comments)}
                               </span>
                             </span>
                           )}
                           {p.engagement != null && (
-                            <span className="text-orange-400 font-medium">
+                            <span className="text-accent-ink font-medium">
                               {(p.engagement as number).toFixed(1)}% eng
                             </span>
                           )}
                           {p.lastSync && (
-                            <span className="ml-auto text-zinc-600">
+                            <span className="ml-auto text-ink-3">
                               {timeAgo(p.lastSync)}
                             </span>
                           )}
@@ -481,7 +506,7 @@ export default function DashboardPage() {
                       )}
                       {!(p.likes != null || p.comments != null || p.engagement != null) &&
                         p.lastSync && (
-                          <p className="text-xs text-zinc-600 mb-2 text-right">
+                          <p className="text-xs text-ink-3 mb-2 text-right">
                             {timeAgo(p.lastSync)}
                           </p>
                         )}
@@ -504,7 +529,7 @@ export default function DashboardPage() {
                         </ResponsiveContainer>
                       ) : (
                         <div className="h-10 flex items-center justify-center">
-                          <p className="text-xs text-zinc-700">
+                          <p className="text-xs text-ink-3">
                             Trend ma&apos;lumoti yo&apos;q
                           </p>
                         </div>
@@ -521,10 +546,10 @@ export default function DashboardPage() {
         {/* Websites */}
         <div>
           <div className="flex items-center justify-between mb-3">
-            <h2 className="text-sm font-medium text-zinc-300">Saytlar</h2>
+            <h2 className="text-sm font-medium text-ink-2">Saytlar</h2>
             <Link
               href="/websites"
-              className="text-xs text-zinc-600 hover:text-zinc-400 transition-colors"
+              className="text-xs text-ink-3 hover:text-ink transition-colors"
             >
               Barchasi →
             </Link>
@@ -544,30 +569,30 @@ export default function DashboardPage() {
                       href={`/websites/${site.id}`}
                       className="flex items-center gap-3 mb-3 group"
                     >
-                      <div className="w-8 h-8 rounded-lg bg-zinc-800/60 border border-zinc-700/50 flex items-center justify-center shrink-0">
-                        <Globe className="w-4 h-4 text-zinc-400" />
+                      <div className="w-8 h-8 rounded-control bg-surface-sunken border border-line flex items-center justify-center shrink-0">
+                        <Globe className="w-4 h-4 text-ink-2" />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-zinc-200 truncate group-hover:text-white transition-colors">
+                        <p className="text-sm font-medium text-ink truncate group-hover:text-ink transition-colors">
                           {site.name}
                         </p>
                         {site.domain && (
-                          <p className="text-xs text-zinc-600 truncate">
+                          <p className="text-xs text-ink-3 truncate">
                             {site.domain}
                           </p>
                         )}
                       </div>
                       <div className="text-right shrink-0">
-                        <p className="text-sm font-bold text-zinc-100 tabular-nums">
+                        <p className="text-sm font-bold text-ink tabular-nums">
                           {fmt(site.views)}
                         </p>
-                        <p className="text-xs text-zinc-600">tashrif</p>
+                        <p className="text-xs text-ink-3">tashrif</p>
                       </div>
                     </Link>
 
                     {/* Top pages */}
                     {site.topPages.length > 0 ? (
-                      <div className="border-t border-zinc-800/50 pt-3 space-y-1.5">
+                      <div className="border-t border-line-subtle pt-3 space-y-1.5">
                         {site.topPages.map((page) => {
                           const pct =
                             site.views > 0
@@ -578,17 +603,17 @@ export default function DashboardPage() {
                               key={page.path}
                               className="flex items-center gap-2"
                             >
-                              <p className="text-xs text-zinc-500 font-mono truncate flex-1 min-w-0">
+                              <p className="text-xs text-ink-3 font-mono truncate flex-1 min-w-0">
                                 {page.path}
                               </p>
                               <div className="flex items-center gap-1.5 shrink-0">
-                                <div className="w-16 h-1 bg-zinc-800 rounded-full overflow-hidden">
+                                <div className="w-16 h-1 bg-surface-sunken rounded-full overflow-hidden">
                                   <div
-                                    className="h-full bg-orange-500/60 rounded-full"
+                                    className="h-full bg-accent-quiet rounded-full"
                                     style={{ width: `${pct}%` }}
                                   />
                                 </div>
-                                <span className="text-xs text-zinc-400 tabular-nums w-6 text-right">
+                                <span className="text-xs text-ink-2 tabular-nums w-6 text-right">
                                   {fmt(page.views)}
                                 </span>
                               </div>
@@ -597,7 +622,7 @@ export default function DashboardPage() {
                         })}
                       </div>
                     ) : (
-                      <p className="text-xs text-zinc-700 pt-2 border-t border-zinc-800/50">
+                      <p className="text-xs text-ink-3 pt-2 border-t border-line-subtle">
                         Bu davrda ma&apos;lumot yo&apos;q
                       </p>
                     )}
@@ -606,7 +631,7 @@ export default function DashboardPage() {
               ))}
 
               <Link href="/websites">
-                <div className="rounded-xl border border-zinc-800 border-dashed p-3 flex items-center justify-center gap-2 text-xs text-zinc-600 hover:text-zinc-400 hover:border-zinc-700 transition-all cursor-pointer">
+                <div className="rounded-panel border border-line border-dashed p-3 flex items-center justify-center gap-2 text-xs text-ink-3 hover:text-ink hover:border-line-strong transition-all cursor-pointer">
                   <Plus className="w-3.5 h-3.5" />
                   Yangi sayt qo&apos;shish
                 </div>
@@ -621,41 +646,13 @@ export default function DashboardPage() {
 
 // ─── sub-components ───────────────────────────────────────────────────────────
 
-function SummaryCard({
-  icon,
-  label,
-  value,
-  bg,
-}: {
-  icon: React.ReactNode;
-  label: string;
-  value: number | null;
-  bg: string;
-}) {
-  return (
-    <div className={`rounded-xl border p-4 ${bg}`}>
-      <div className="flex items-center gap-2 mb-2">
-        {icon}
-        <span className="text-xs text-zinc-500">{label}</span>
-      </div>
-      {value === null ? (
-        <div className="h-8 w-16 bg-zinc-800/50 rounded animate-pulse" />
-      ) : (
-        <p className="text-2xl font-bold text-zinc-100 tabular-nums">
-          {value >= 1000 ? `${(value / 1000).toFixed(1)}K` : value}
-        </p>
-      )}
-    </div>
-  );
-}
-
 function PlatformsSkeleton() {
   return (
     <div className="flex flex-col gap-3">
       {[1, 2].map((i) => (
         <div
           key={i}
-          className="h-28 rounded-xl border border-zinc-800 bg-zinc-900/60 animate-pulse"
+          className="h-28 rounded-panel border border-line bg-surface animate-pulse"
         />
       ))}
     </div>
@@ -668,7 +665,7 @@ function WebsitesSkeleton() {
       {[1, 2].map((i) => (
         <div
           key={i}
-          className="h-16 rounded-xl border border-zinc-800 bg-zinc-900/60 animate-pulse"
+          className="h-16 rounded-panel border border-line bg-surface animate-pulse"
         />
       ))}
     </div>
@@ -677,10 +674,10 @@ function WebsitesSkeleton() {
 
 function EmptyPlatforms() {
   return (
-    <div className="rounded-xl border border-zinc-800 border-dashed bg-zinc-900/30 p-6 text-center">
-      <Link2 className="w-8 h-8 text-zinc-700 mx-auto mb-3" />
-      <p className="text-sm text-zinc-500 mb-1">Hali platforma ulanmagan</p>
-      <p className="text-xs text-zinc-700 mb-4">
+    <div className="rounded-panel border border-line border-dashed bg-surface p-6 text-center">
+      <Link2 className="w-8 h-8 text-ink-3 mx-auto mb-3" />
+      <p className="text-sm text-ink-3 mb-1">Hali platforma ulanmagan</p>
+      <p className="text-xs text-ink-3 mb-4">
         YouTube, Telegram va boshqalarni ulang
       </p>
       <Link href="/connections">
@@ -695,10 +692,10 @@ function EmptyPlatforms() {
 
 function EmptyWebsites() {
   return (
-    <div className="rounded-xl border border-zinc-800 border-dashed bg-zinc-900/30 p-6 text-center">
-      <Globe className="w-8 h-8 text-zinc-700 mx-auto mb-3" />
-      <p className="text-sm text-zinc-500 mb-1">Hali sayt qo&apos;shilmagan</p>
-      <p className="text-xs text-zinc-700 mb-4">
+    <div className="rounded-panel border border-line border-dashed bg-surface p-6 text-center">
+      <Globe className="w-8 h-8 text-ink-3 mx-auto mb-3" />
+      <p className="text-sm text-ink-3 mb-1">Hali sayt qo&apos;shilmagan</p>
+      <p className="text-xs text-ink-3 mb-4">
         Saytingizni qo&apos;shing va statistika kuzating
       </p>
       <Link href="/websites">
