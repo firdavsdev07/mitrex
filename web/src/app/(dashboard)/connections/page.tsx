@@ -22,6 +22,7 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Modal } from '@/components/ui/modal';
+import { useWorkspaceStore } from '@/store/workspace';
 import {
   YouTubeIcon,
   TelegramIcon,
@@ -29,6 +30,9 @@ import {
   DiscordIcon,
   BlueskyIcon,
   RedditIcon,
+  FacebookIcon,
+  ThreadsIcon,
+  PinterestIcon,
 } from '@/components/icons/platform-icons';
 
 const PLATFORM_ICONS: Record<string, React.FC<{ className?: string }>> = {
@@ -38,6 +42,9 @@ const PLATFORM_ICONS: Record<string, React.FC<{ className?: string }>> = {
   DISCORD: DiscordIcon,
   BLUESKY: BlueskyIcon,
   REDDIT: RedditIcon,
+  FACEBOOK: FacebookIcon,
+  THREADS: ThreadsIcon,
+  PINTEREST: PinterestIcon,
 };
 
 const ALL_PLATFORMS = [
@@ -47,6 +54,9 @@ const ALL_PLATFORMS = [
   'DISCORD',
   'BLUESKY',
   'REDDIT',
+  'FACEBOOK',
+  'THREADS',
+  'PINTEREST',
 ];
 
 const PLATFORM_LABELS: Record<string, string> = {
@@ -56,6 +66,21 @@ const PLATFORM_LABELS: Record<string, string> = {
   bluesky: 'Bluesky',
   telegram: 'Telegram',
   reddit: 'Reddit',
+  facebook: 'Facebook',
+  threads: 'Threads',
+  pinterest: 'Pinterest',
+};
+
+// OAuth oqimi orqali ulanadigan platformalar. Facebook Instagram bilan bitta
+// Meta OAuth oqimini bo'lishadi; Threads esa alohida API va alohida token
+// (graph.threads.net) — shuning uchun o'z endpointi bor.
+const OAUTH_ENDPOINTS: Record<string, string> = {
+  YOUTUBE: '/youtube/connect',
+  INSTAGRAM: '/instagram/connect',
+  DISCORD: '/discord/connect',
+  FACEBOOK: '/instagram/connect',
+  THREADS: '/threads/connect',
+  PINTEREST: '/pinterest/connect',
 };
 
 // "5 daqiqa oldin" kabi nisbiy vaqt — foydalanuvchi "Yangilash" bosgandan
@@ -82,8 +107,9 @@ function ConnectionsInner() {
   const [redditModal, setRedditModal] = useState(false);
   const [syncingId, setSyncingId] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
-  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [errorMsg, setErrorMsg] = useState<React.ReactNode | null>(null);
   const [loadError, setLoadError] = useState(false);
+  const { activeWorkspace } = useWorkspaceStore();
 
   const loadConnections = useCallback(async () => {
     setIsLoading(true);
@@ -117,8 +143,23 @@ function ConnectionsInner() {
     const oauthError = searchParams.get('error');
     if (oauthError) {
       const name = PLATFORM_LABELS[oauthError] ?? oauthError;
-      const message = searchParams.get('message');
-      setErrorMsg(`${name}: ${message ?? "ulanishda xatolik yuz berdi"}`);
+      const message = searchParams.get('message') || '';
+      if (message.toLowerCase().includes('limit')) {
+        setErrorMsg(
+          <span>
+            {name}: Tarifingiz chekloviga yetdingiz. Iltimos,{' '}
+            <Link
+              href="/settings?billing=true"
+              className="text-orange-400 underline hover:text-orange-300 font-semibold"
+            >
+              tarifni yangilang
+            </Link>
+            .
+          </span>,
+        );
+      } else {
+        setErrorMsg(`${name}: ${message || "ulanishda xatolik yuz berdi"}`);
+      }
       setTimeout(() => setErrorMsg(null), 8000);
       window.history.replaceState({}, '', '/connections');
     }
@@ -208,7 +249,10 @@ function ConnectionsInner() {
         {ALL_PLATFORMS.map((platform) => {
           const meta = PLATFORM_META[platform];
           const Icon = PLATFORM_ICONS[platform];
-          const platformConns = connections.filter(
+          const filteredConnections = connections.filter((conn) =>
+            activeWorkspace ? conn.workspaceId === activeWorkspace.id : !conn.workspaceId
+          );
+          const platformConns = filteredConnections.filter(
             (c) => c.platform === platform,
           );
 
@@ -227,6 +271,7 @@ function ConnectionsInner() {
                 onBluesky={() => setBlueskyModal(true)}
                 onTelegram={openTelegramModal}
                 onReddit={() => setRedditModal(true)}
+                onError={setErrorMsg}
               />
             );
           }
@@ -247,6 +292,7 @@ function ConnectionsInner() {
                   onBluesky={() => setBlueskyModal(true)}
                   onTelegram={openTelegramModal}
                   onReddit={() => setRedditModal(true)}
+                  onError={setErrorMsg}
                 />
               ))}
 
@@ -261,6 +307,7 @@ function ConnectionsInner() {
                 onBluesky={() => setBlueskyModal(true)}
                 onTelegram={openTelegramModal}
                 onReddit={() => setRedditModal(true)}
+                onError={setErrorMsg}
                 label={`Yana ${meta.label} akkaunt qo'shish`}
                 icon={<Plus className="w-3.5 h-3.5" />}
                 variant="add"
@@ -329,6 +376,7 @@ function ConnectionRow({
   onBluesky,
   onTelegram,
   onReddit,
+  onError,
 }: {
   platform: string;
   meta: { label: string; connectType: string };
@@ -341,8 +389,10 @@ function ConnectionRow({
   onBluesky: () => void;
   onTelegram: () => void;
   onReddit: () => void;
+  onError: (msg: React.ReactNode) => void;
 }) {
   const isConnected = !!conn;
+  const { workspaces } = useWorkspaceStore();
 
   return (
     <Card>
@@ -379,10 +429,34 @@ function ConnectionRow({
               )}
             </div>
             {conn?.platformUsername && (
-              <p className="text-xs text-zinc-600">@{conn.platformUsername}</p>
+              <div className="flex items-center gap-2 mt-1">
+                <span className="text-xs text-zinc-600">@{conn.platformUsername}</span>
+                <span className="text-zinc-800 text-[10px]">•</span>
+                <select
+                  value={conn.workspaceId ?? 'personal'}
+                  onChange={async (e) => {
+                    const val = e.target.value;
+                    const newWs = val === 'personal' ? null : val;
+                    try {
+                      await connectionsApi.updateWorkspace(conn.id, newWs);
+                      window.location.reload();
+                    } catch {
+                      alert("Ulanish jamoasini o'zgartirishda xatolik yuz berdi");
+                    }
+                  }}
+                  className="text-[10px] bg-zinc-900 border border-zinc-850 rounded px-1.5 py-0.5 text-zinc-500 outline-none hover:text-zinc-355 cursor-pointer transition-colors max-w-28 truncate font-medium"
+                >
+                  <option value="personal">Shaxsiy</option>
+                  {workspaces.map((w) => (
+                    <option key={w.id} value={w.id}>
+                      {w.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
             )}
             {!isConnected && (
-              <p className="text-xs text-zinc-600">Ulanmagan</p>
+              <p className="text-xs text-zinc-650">Ulanmagan</p>
             )}
           </div>
 
@@ -399,6 +473,7 @@ function ConnectionRow({
                     onBluesky={onBluesky}
                     onTelegram={onTelegram}
                     onReddit={onReddit}
+                    onError={onError}
                     label="Qayta ulash"
                     icon={<RotateCcw className="w-3.5 h-3.5" />}
                   />
@@ -443,6 +518,7 @@ function ConnectionRow({
                 onBluesky={onBluesky}
                 onTelegram={onTelegram}
                 onReddit={onReddit}
+                onError={onError}
               />
             )}
           </div>
@@ -522,6 +598,7 @@ function ConnectButton({
   onBluesky,
   onTelegram,
   onReddit,
+  onError,
   label = 'Ulash',
   icon,
   variant = 'default',
@@ -532,6 +609,7 @@ function ConnectButton({
   onBluesky: () => void;
   onTelegram: () => void;
   onReddit: () => void;
+  onError: (msg: React.ReactNode) => void;
   label?: string;
   icon?: React.ReactNode;
   variant?: 'default' | 'add';
@@ -555,20 +633,31 @@ function ConnectButton({
     };
 
     async function handleOAuth() {
-      const oauthEndpointMap: Record<string, string> = {
-        YOUTUBE: '/youtube/connect',
-        INSTAGRAM: '/instagram/connect',
-        DISCORD: '/discord/connect',
-        FACEBOOK: '/instagram/connect',
-      };
-      const endpoint = oauthEndpointMap[platform];
+      const endpoint = OAUTH_ENDPOINTS[platform];
       if (!endpoint) return;
       setConnecting(true);
       try {
         const url = await connectionsApi.getOAuthUrl(endpoint);
         window.location.href = url;
-      } catch {
+      } catch (err: unknown) {
         setConnecting(false);
+        const status = (err as { response?: { status?: number } })?.response?.status;
+        if (status === 403) {
+          onError(
+            <span>
+              Tarifingiz chekloviga yetdingiz. Iltimos,{' '}
+              <Link
+                href="/settings?billing=true"
+                className="text-orange-400 underline hover:text-orange-300 font-semibold"
+              >
+                tarifni yangilang
+              </Link>
+              .
+            </span>,
+          );
+        } else {
+          onError("Ulanish sahifasini yuklab bo'lmadi.");
+        }
       }
     }
 
@@ -625,14 +714,7 @@ function ConnectButton({
   }
 
   // OAuth — JWT bilan endpoint dan URL olamiz
-  const oauthEndpointMap: Record<string, string> = {
-    YOUTUBE: '/youtube/connect',
-    INSTAGRAM: '/instagram/connect',
-    DISCORD: '/discord/connect',
-    FACEBOOK: '/instagram/connect',
-  };
-
-  const endpoint = oauthEndpointMap[platform];
+  const endpoint = OAUTH_ENDPOINTS[platform];
   if (!endpoint) return null;
 
   async function handleOAuth() {
@@ -640,8 +722,25 @@ function ConnectButton({
     try {
       const url = await connectionsApi.getOAuthUrl(endpoint);
       window.location.href = url;
-    } catch {
+    } catch (err: unknown) {
       setConnecting(false);
+      const status = (err as { response?: { status?: number } })?.response?.status;
+      if (status === 403) {
+        onError(
+          <span>
+            Tarifingiz chekloviga yetdingiz. Iltimos,{' '}
+            <Link
+              href="/settings?billing=true"
+              className="text-orange-400 underline hover:text-orange-300 font-semibold"
+            >
+              tarifni yangilang
+            </Link>
+            .
+          </span>,
+        );
+      } else {
+        onError("Ulanish sahifasini yuklab bo'lmadi.");
+      }
     }
   }
 
@@ -712,7 +811,7 @@ function ConnectModal({
   const [values, setValues] = useState<Record<string, string>>(() =>
     Object.fromEntries(fields.map((f) => [f.key, ''])),
   );
-  const [error, setError] = useState('');
+  const [error, setError] = useState<React.ReactNode>('');
   const [loading, setLoading] = useState(false);
 
   async function handleSubmit(e: React.SyntheticEvent<HTMLFormElement>) {
@@ -730,9 +829,24 @@ function ConnectModal({
       await onSubmit(values);
       onSuccess();
     } catch (err: unknown) {
-      const msg = (err as { response?: { data?: { message?: string } } })
-        ?.response?.data?.message;
-      setError(msg ?? defaultErrorMessage);
+      const axiosErr = err as { response?: { status?: number; data?: { message?: string } } };
+      if (axiosErr.response?.status === 403) {
+        setError(
+          <span>
+            Tarifingiz chekloviga yetdingiz. Iltimos,{' '}
+            <Link
+              href="/settings?billing=true"
+              className="text-orange-400 underline hover:text-orange-300 font-semibold"
+            >
+              tarifni yangilang
+            </Link>
+            .
+          </span>,
+        );
+      } else {
+        const msg = axiosErr.response?.data?.message;
+        setError(msg ?? defaultErrorMessage);
+      }
     } finally {
       setLoading(false);
     }
@@ -830,7 +944,7 @@ function YoutubeModal({
   onSuccess: () => void;
 }) {
   const [handle, setHandle] = useState('');
-  const [error, setError] = useState('');
+  const [error, setError] = useState<React.ReactNode>('');
   const [loading, setLoading] = useState(false);
   const [oauthLoading, setOauthLoading] = useState(false);
 
@@ -846,12 +960,27 @@ function YoutubeModal({
       await connectionsApi.connectYoutube(handle.trim());
       onSuccess();
     } catch (err: unknown) {
-      const msg = (err as { response?: { data?: { message?: string } } })
-        ?.response?.data?.message;
-      setError(
-        msg ??
-          "Kanal topilmadi. Handle, URL yoki Channel ID ni to'g'ri kiriting.",
-      );
+      const axiosErr = err as { response?: { status?: number; data?: { message?: string } } };
+      if (axiosErr.response?.status === 403) {
+        setError(
+          <span>
+            Tarifingiz chekloviga yetdingiz. Iltimos,{' '}
+            <Link
+              href="/settings?billing=true"
+              className="text-orange-400 underline hover:text-orange-300 font-semibold"
+            >
+              tarifni yangilang
+            </Link>
+            .
+          </span>,
+        );
+      } else {
+        const msg = axiosErr.response?.data?.message;
+        setError(
+          msg ??
+            "Kanal topilmadi. Handle, URL yoki Channel ID ni to'g'ri kiriting.",
+        );
+      }
     } finally {
       setLoading(false);
     }

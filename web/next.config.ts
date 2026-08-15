@@ -1,7 +1,7 @@
 import type { NextConfig } from "next";
 import { withSentryConfig } from "@sentry/nextjs";
 
-const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3000";
+const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:5000";
 const isDev = process.env.NODE_ENV !== "production";
 
 // Next dev (Turbopack) needs 'unsafe-eval' for React's dev-mode debugging

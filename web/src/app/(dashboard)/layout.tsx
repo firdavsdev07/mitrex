@@ -14,17 +14,21 @@ import {
   Settings,
   LogOut,
   ChevronRight,
+  Users,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuthStore } from '@/store/auth';
 import { getToken, bootstrapSession, logoutSession } from '@/lib/api/client';
 import { authApi } from '@/lib/api/auth';
+import { workspacesApi } from '@/lib/api/workspaces';
+import { useWorkspaceStore } from '@/store/workspace';
 import { NotificationBell } from '@/components/ui/notification-bell';
 
 const navItems = [
   { label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
   { label: 'Saytlar', href: '/websites', icon: Globe },
   { label: 'Ulashlar', href: '/connections', icon: Link2 },
+  { label: 'Jamoalar', href: '/workspaces', icon: Users },
   { label: 'Postlar', href: '/posts', icon: FileText },
   { label: 'AI Insights', href: '/insights', icon: Sparkles },
   { label: 'Alertlar', href: '/alerts', icon: Bell },
@@ -38,6 +42,7 @@ export default function DashboardLayout({
   const router = useRouter();
   const pathname = usePathname();
   const { user, logout, setUser } = useAuthStore();
+  const { workspaces, activeWorkspace, setWorkspaces, setActiveWorkspace } = useWorkspaceStore();
   const [authChecked, setAuthChecked] = useState(false);
 
   useEffect(() => {
@@ -58,6 +63,8 @@ export default function DashboardLayout({
       try {
         const me = await authApi.me();
         setUser(me);
+        const ws = await workspacesApi.list().catch(() => []);
+        setWorkspaces(ws);
         setAuthChecked(true);
       } catch {
         logout();
@@ -165,14 +172,39 @@ export default function DashboardLayout({
       <main className="flex-1 min-w-0 flex flex-col">
         {/* Top bar */}
         <header className="h-12 border-b border-zinc-800/60 flex items-center justify-between px-6 shrink-0">
-          <div className="flex items-center gap-1 text-xs text-zinc-600">
-            <span>Metrix</span>
-            <ChevronRight className="w-3 h-3" />
-            <span className="text-zinc-400 capitalize">
-              {pathname === '/dashboard'
-                ? 'Dashboard'
-                : pathname.split('/').pop()}
-            </span>
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-1 text-xs text-zinc-600">
+              <span>Metrix</span>
+              <ChevronRight className="w-3 h-3" />
+              <span className="text-zinc-400 capitalize">
+                {pathname === '/dashboard'
+                  ? 'Dashboard'
+                  : pathname.split('/').pop()}
+              </span>
+            </div>
+
+            {/* Workspace Switcher */}
+            <div className="h-4 w-px bg-zinc-800" />
+            <select
+              value={activeWorkspace?.id ?? 'personal'}
+              onChange={(e) => {
+                const val = e.target.value;
+                if (val === 'personal') {
+                  setActiveWorkspace(null);
+                } else {
+                  const ws = workspaces.find((w) => w.id === val);
+                  if (ws) setActiveWorkspace(ws);
+                }
+              }}
+              className="text-[11px] bg-zinc-900 border border-zinc-800 rounded px-2 py-0.5 text-zinc-400 outline-none focus:border-zinc-700 max-w-40 truncate cursor-pointer font-medium hover:text-zinc-200 transition-colors"
+            >
+              <option value="personal">Shaxsiy (Mening saytlarim)</option>
+              {workspaces.map((w) => (
+                <option key={w.id} value={w.id}>
+                  {w.name}
+                </option>
+              ))}
+            </select>
           </div>
           <div className="flex items-center gap-2">
             <NotificationBell />

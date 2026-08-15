@@ -6,7 +6,9 @@ import type { TelegramService } from '../telegram/telegram.service';
 import type { DiscordService } from '../discord/discord.service';
 import type { BlueskyService } from '../bluesky/bluesky.service';
 import type { InstagramService } from '../instagram/instagram.service';
+import type { ThreadsService } from '../threads/threads.service';
 import type { RedditService } from '../reddit/reddit.service';
+import type { PinterestService } from '../pinterest/pinterest.service';
 import type { PostsService } from '../posts/posts.service';
 
 function makeService(overrides?: { discordThrows?: Error }) {
@@ -40,13 +42,20 @@ function makeService(overrides?: { discordThrows?: Error }) {
   } as unknown as DiscordService;
 
   const noop = { fetchAndSaveStats: jest.fn(() => Promise.resolve()) };
-  const postsNoop = {
+  // Meta platformalari (INSTAGRAM/FACEBOOK/THREADS) uchun marshrutlashni
+  // tekshirish kerak — shuning uchun umumiy `noop` emas, alohida mock.
+  const instagram = { fetchAndSaveStats: jest.fn(() => Promise.resolve()) };
+  const threads = { fetchAndSaveStats: jest.fn(() => Promise.resolve()) };
+  const posts = {
     syncYoutubePosts: jest.fn(() => Promise.resolve()),
     syncTelegramPosts: jest.fn(() => Promise.resolve()),
     syncBlueskyPosts: jest.fn(() => Promise.resolve()),
     syncInstagramPosts: jest.fn(() => Promise.resolve()),
     syncInstagramStories: jest.fn(() => Promise.resolve()),
-  } as unknown as PostsService;
+    syncFacebookPosts: jest.fn(() => Promise.resolve()),
+    syncThreadsPosts: jest.fn(() => Promise.resolve()),
+  };
+  const postsNoop = posts as unknown as PostsService;
 
   const service = new SyncService(
     prisma,
@@ -54,15 +63,17 @@ function makeService(overrides?: { discordThrows?: Error }) {
     noop as unknown as TelegramService,
     discordService,
     noop as unknown as BlueskyService,
-    noop as unknown as InstagramService,
+    instagram as unknown as InstagramService,
+    threads as unknown as ThreadsService,
     noop as unknown as RedditService,
+    noop as unknown as PinterestService,
     postsNoop,
     // @Optional() queue — Redis mavjud bo'lmaganda production'da ham
     // undefined keladi (sync.service.ts'dagi fallback shu holatni kutadi).
     undefined as never,
   );
 
-  return { service, prisma, updateCalls };
+  return { service, prisma, updateCalls, instagram, threads, posts };
 }
 
 describe('SyncService#syncOne', () => {
@@ -101,6 +112,33 @@ describe('SyncService#syncOne', () => {
     await expect(service.syncOne('conn-1', Platform.DISCORD)).rejects.toThrow();
 
     expect(updateCalls[0].data.lastSyncError).toHaveLength(500);
+  });
+});
+
+// FACEBOOK Meta (Instagram) servisi orqali, THREADS esa o'zining alohida
+// servisi orqali sinxronlanadi (API'lari boshqa host va boshqa token) — bu
+// marshrutlash oson chalkashib ketadigan joy, shuning uchun tekshiriladi.
+describe('SyncService#syncOne — Meta platformalari', () => {
+  it('syncs Facebook page stats and page posts together', async () => {
+    const { service, instagram, posts } = makeService();
+
+    await service.syncOne('conn-fb', Platform.FACEBOOK);
+
+    expect(instagram.fetchAndSaveStats).toHaveBeenCalledWith('conn-fb');
+    expect(posts.syncFacebookPosts).toHaveBeenCalledWith('conn-fb');
+    // Instagram postlari Facebook ulanishi uchun tortilmasligi kerak
+    expect(posts.syncInstagramPosts).not.toHaveBeenCalled();
+  });
+
+  it('routes Threads to its own service, not the Meta one', async () => {
+    const { service, instagram, threads, posts } = makeService();
+
+    await service.syncOne('conn-th', Platform.THREADS);
+
+    expect(threads.fetchAndSaveStats).toHaveBeenCalledWith('conn-th');
+    expect(posts.syncThreadsPosts).toHaveBeenCalledWith('conn-th');
+    // Threads tokeni Meta Graph'da ishlamaydi — u yerga yuborilmasligi shart
+    expect(instagram.fetchAndSaveStats).not.toHaveBeenCalled();
   });
 });
 

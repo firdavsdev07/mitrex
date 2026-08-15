@@ -11,9 +11,21 @@ import {
   History,
   Monitor,
   LogOut,
+  CreditCard,
+  Calendar,
+  Download,
+  Key,
+  Plus,
+  Copy,
+  CheckCircle,
+  Clock,
+  AlertTriangle,
 } from 'lucide-react';
+import { billingApi, type BillingDetailsResponse, type Invoice } from '@/lib/api/billing';
+import { exportApi, triggerDownload } from '@/lib/api/export';
 import { apiClient } from '@/lib/api/client';
 import { authApi, type LoginEvent } from '@/lib/api/auth';
+import { apiKeysApi, type ApiKey } from '@/lib/api/api-keys';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -39,8 +51,19 @@ export default function SettingsPage() {
   const { user, setUser } = useAuthStore();
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<
-    'profile' | 'password' | 'security' | 'usage' | 'danger'
+    'profile' | 'password' | 'security' | 'billing' | 'usage' | 'apikeys' | 'danger'
   >('profile');
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('billing')) {
+        setTimeout(() => {
+          setActiveTab('billing');
+        }, 0);
+      }
+    }
+  }, []);
 
   return (
     <div className="max-w-2xl mx-auto">
@@ -57,13 +80,15 @@ export default function SettingsPage() {
           { key: 'profile' as const, label: 'Profil', icon: User },
           { key: 'password' as const, label: 'Parol', icon: Lock },
           { key: 'security' as const, label: 'Xavfsizlik', icon: ShieldCheck },
+          { key: 'billing' as const, label: 'Obuna', icon: CreditCard },
           { key: 'usage' as const, label: 'Foydalanish', icon: BarChart2 },
+          { key: 'apikeys' as const, label: 'API Kalitlar', icon: Key },
           { key: 'danger' as const, label: 'Xavfli', icon: Trash2 },
         ].map(({ key, label, icon: Icon }) => (
           <button
-            key={key}
-            onClick={() => setActiveTab(key)}
-            className={`flex items-center gap-1.5 px-4 py-2 text-sm transition-all border-b-2 -mb-px ${
+             key={key}
+             onClick={() => setActiveTab(key)}
+             className={`flex items-center gap-1.5 px-4 py-2 text-sm transition-all border-b-2 -mb-px ${
               activeTab === key
                 ? 'border-orange-500 text-orange-400'
                 : 'border-transparent text-zinc-500 hover:text-zinc-300'
@@ -86,7 +111,9 @@ export default function SettingsPage() {
           onLoggedOutAll={() => router.push('/login')}
         />
       )}
+      {activeTab === 'billing' && <BillingTab />}
       {activeTab === 'usage' && <UsageTab />}
+      {activeTab === 'apikeys' && <ApiKeysTab />}
       {activeTab === 'danger' && (
         <DangerTab onDeleted={() => router.push('/login')} />
       )}
@@ -662,7 +689,21 @@ function DangerTab({ onDeleted }: { onDeleted: () => void }) {
   const [confirm, setConfirm] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [exporting, setExporting] = useState(false);
   const { logout } = useAuthStore();
+
+  async function handleExportData() {
+    setExporting(true);
+    try {
+      const blob = await exportApi.exportMyData();
+      triggerDownload(blob, 'metrix-my-data.json');
+    } catch (err) {
+      console.error('Export error:', err);
+      alert("Ma'lumotlarni eksport qilishda xatolik yuz berdi");
+    } finally {
+      setExporting(false);
+    }
+  }
 
   async function handleDelete(e: React.SyntheticEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -682,57 +723,726 @@ function DangerTab({ onDeleted }: { onDeleted: () => void }) {
   }
 
   return (
-    <Card className="border-red-500/20">
-      <CardHeader>
-        <CardTitle className="text-red-400">Xavfli zona</CardTitle>
-        <CardDescription>
-          Hisobni o&apos;chirish qaytarib bo&apos;lmaydigan jarayon.
-          Ma&apos;lumotlaringiz 30 kun ichida o&apos;chiriladi.
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        {!confirm ? (
+    <div className="flex flex-col gap-6">
+      {/* GDPR Export Card */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Ma&apos;lumotlarni yuklab olish (GDPR)</CardTitle>
+          <CardDescription>
+            Sizning barcha profilingiz, veb-saytlaringiz va ulanishlaringiz ma&apos;lumotlarini o&apos;z ichiga olgan JSON formatidagi faylni yuklab oling.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
           <Button
-            variant="danger"
-            onClick={() => setConfirm(true)}
+            variant="secondary"
+            loading={exporting}
+            onClick={handleExportData}
             className="gap-1.5"
           >
-            <Trash2 className="w-4 h-4" />
-            Hisobni o&apos;chirish
+            <Download className="w-4 h-4" />
+            Ma&apos;lumotlarimni yuklab olish
           </Button>
-        ) : (
-          <form onSubmit={handleDelete} className="flex flex-col gap-3">
-            <p className="text-sm text-zinc-400">
-              Tasdiqlash uchun parolingizni kiriting:
-            </p>
-            <Input
-              label="Parol"
-              type="password"
-              autoComplete="current-password"
-              placeholder="Parol"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
-            {error && (
-              <p className="text-xs text-red-400 bg-red-500/10 border border-red-500/20 rounded-md px-3 py-2">
-                {error}
+        </CardContent>
+      </Card>
+
+      {/* Delete Account Card */}
+      <Card className="border-red-500/20">
+        <CardHeader>
+          <CardTitle className="text-red-400">Xavfli zona</CardTitle>
+          <CardDescription>
+            Hisobni o&apos;chirish qaytarib bo&apos;lmaydigan jarayon.
+            Ma&apos;lumotlaringiz 30 kun ichida o&apos;chiriladi.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          {!confirm ? (
+            <Button
+              variant="danger"
+              onClick={() => setConfirm(true)}
+              className="gap-1.5"
+            >
+              <Trash2 className="w-4 h-4" />
+              Hisobni o&apos;chirish
+            </Button>
+          ) : (
+            <form onSubmit={handleDelete} className="flex flex-col gap-3">
+              <p className="text-sm text-zinc-400">
+                Tasdiqlash uchun parolingizni kiriting:
               </p>
+              <Input
+                label="Parol"
+                type="password"
+                autoComplete="current-password"
+                placeholder="Parol"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+              {error && (
+                <p className="text-xs text-red-400 bg-red-500/10 border border-red-500/20 rounded-md px-3 py-2">
+                  {error}
+                </p>
+              )}
+              <div className="flex gap-2">
+                <Button
+                  type="button"
+                  variant="secondary"
+                  onClick={() => setConfirm(false)}
+                >
+                  Bekor
+                </Button>
+                <Button type="submit" variant="danger" loading={loading}>
+                  Ha, o&apos;chirish
+                </Button>
+              </div>
+            </form>
+          )}
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
+function BillingTab() {
+  const [data, setData] = useState<BillingDetailsResponse | null>(null);
+  const [invoices, setInvoices] = useState<Invoice[]>([]);
+  const [usage, setUsage] = useState<UsageStats | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [checkoutLoading, setCheckoutLoading] = useState<string | null>(null);
+  const [cancelLoading, setCancelLoading] = useState(false);
+  const [cancelOpen, setCancelOpen] = useState(false);
+  const [successMsg, setSuccessMsg] = useState('');
+  const [errorMsg, setErrorMsg] = useState('');
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('billing') === 'success') {
+        setTimeout(() => {
+          setSuccessMsg("To'lov muvaffaqiyatli amalga oshirildi! Obunangiz yangilandi.");
+        }, 0);
+        window.history.replaceState({}, document.title, window.location.pathname);
+      } else if (params.get('billing') === 'canceled') {
+        setTimeout(() => {
+          setErrorMsg("To'lov jarayoni bekor qilindi.");
+        }, 0);
+        window.history.replaceState({}, document.title, window.location.pathname);
+      }
+    }
+
+    async function loadData() {
+      try {
+        const [res, invRes, usageRes] = await Promise.all([
+          billingApi.getSubscription(),
+          billingApi.getInvoices().catch(() => ({ invoices: [] })),
+          apiClient.get<UsageStats>('/users/me/usage').then((r) => r.data).catch(() => null),
+        ]);
+        setData(res);
+        setInvoices(invRes.invoices);
+        setUsage(usageRes);
+      } catch (err) {
+        console.error("Billing ma'lumotlarini yuklashda xato:", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadData();
+  }, []);
+
+  async function handleCheckout(planSlug: string) {
+    setCheckoutLoading(planSlug);
+    setErrorMsg('');
+    setSuccessMsg('');
+    try {
+      const res = await billingApi.checkout(planSlug);
+      if (res.checkoutUrl) {
+        window.location.assign(res.checkoutUrl);
+      } else {
+        setSuccessMsg(res.message || "Plan muvaffaqiyatli bepulga o'tkazildi.");
+        const fresh = await billingApi.getSubscription();
+        setData(fresh);
+      }
+    } catch (err: unknown) {
+      const msg =
+        (err as { response?: { data?: { message?: string } } })?.response?.data?.message ||
+        "Checkout yaratib bo'lmadi.";
+      setErrorMsg(msg);
+    } finally {
+      setCheckoutLoading(null);
+    }
+  }
+
+  async function handleCancelSubscription() {
+    setCancelLoading(true);
+    setErrorMsg('');
+    setSuccessMsg('');
+    try {
+      const res = await billingApi.cancel();
+      setSuccessMsg(res.message || "Obuna bekor qilindi.");
+      setCancelOpen(false);
+      const fresh = await billingApi.getSubscription();
+      setData(fresh);
+    } catch (err: unknown) {
+      const msg =
+        (err as { response?: { data?: { message?: string } } })?.response?.data?.message ||
+        "Obunani bekor qilib bo'lmadi.";
+      setErrorMsg(msg);
+    } finally {
+      setCancelLoading(false);
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className="space-y-4">
+        {[1, 2, 3].map((i) => (
+          <div key={i} className="h-20 bg-zinc-900/40 rounded-xl animate-pulse border border-zinc-800" />
+        ))}
+      </div>
+    );
+  }
+
+  const sub = data?.subscription;
+  const currentPlan = data?.plan || { slug: 'free', name: 'Free', price: '0', currency: 'USD' };
+
+  return (
+    <div className="flex flex-col gap-6">
+      {successMsg && (
+        <div className="text-sm text-green-400 bg-green-500/10 border border-green-500/20 rounded-lg p-3">
+          {successMsg}
+        </div>
+      )}
+      {errorMsg && (
+        <div className="text-sm text-red-400 bg-red-500/10 border border-red-500/20 rounded-lg p-3">
+          {errorMsg}
+        </div>
+      )}
+
+      <Card className="overflow-hidden border-orange-500/20 relative">
+        <div className="absolute top-0 right-0 p-6 flex flex-col items-end">
+          <Badge variant={sub?.status === 'ACTIVE' || sub?.status === 'TRIALING' ? 'success' : 'default'}>
+            {sub ? (sub.status === 'ACTIVE' ? 'Faol' : sub.status === 'CANCELED' ? 'Bekor qilingan' : sub.status) : 'Bepul plan'}
+          </Badge>
+        </div>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <CreditCard className="w-5 h-5 text-orange-500" />
+            Joriy tarif: {currentPlan.name}
+          </CardTitle>
+          <CardDescription>
+            {currentPlan.slug === 'free'
+              ? "Siz bepul tarifdan foydalanmoqdasiz. Qo'shimcha imkoniyatlar uchun Starter yoki Pro tariflariga o'ting."
+              : `Obunangiz narxi: $${Number(currentPlan.price)} / oy.`}
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex flex-col gap-4">
+            {usage && (
+              <div className="grid grid-cols-3 gap-4 pb-2">
+                <div className="bg-zinc-900/40 border border-zinc-850 rounded-xl p-3">
+                  <p className="text-[10px] text-zinc-500 uppercase tracking-wider">Saytlar</p>
+                  <p className="text-sm font-semibold text-zinc-200 mt-0.5">
+                    {usage.websites.used} / {usage.websites.limit ?? '∞'}
+                  </p>
+                </div>
+                <div className="bg-zinc-900/40 border border-zinc-850 rounded-xl p-3">
+                  <p className="text-[10px] text-zinc-500 uppercase tracking-wider">Platformalar</p>
+                  <p className="text-sm font-semibold text-zinc-200 mt-0.5">
+                    {usage.platforms.used} / {usage.platforms.limit ?? '∞'}
+                  </p>
+                </div>
+                <div className="bg-zinc-900/40 border border-zinc-850 rounded-xl p-3">
+                  <p className="text-[10px] text-zinc-500 uppercase tracking-wider">Oylik tashriflar</p>
+                  <p className="text-sm font-semibold text-zinc-200 mt-0.5">
+                    {usage.views.used.toLocaleString()} / {usage.views.limit ? usage.views.limit.toLocaleString() : '∞'}
+                  </p>
+                </div>
+              </div>
             )}
-            <div className="flex gap-2">
-              <Button
-                type="button"
-                variant="secondary"
-                onClick={() => setConfirm(false)}
-              >
-                Bekor
+
+            {sub && (
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between border-t border-zinc-800/60 pt-4 gap-3">
+                <div className="flex items-center gap-2 text-sm text-zinc-400">
+                  <Calendar className="w-4 h-4 text-zinc-500" />
+                  {sub.canceledAt ? (
+                    <span>Obuna bekor qilingan. Amaldagi muddat: <strong className="text-zinc-200">{new Date(sub.currentPeriodEnd!).toLocaleDateString('uz-UZ')}</strong></span>
+                  ) : (
+                    <span>Navbatdagi to&apos;lov sanasi: <strong className="text-zinc-200">{new Date(sub.currentPeriodEnd!).toLocaleDateString('uz-UZ')}</strong></span>
+                  )}
+                </div>
+
+                {!sub.canceledAt && (
+                  <Button variant="danger" size="sm" onClick={() => setCancelOpen(true)}>
+                    Obunani bekor qilish
+                  </Button>
+                )}
+              </div>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Tarifni o&apos;zgartirish</CardTitle>
+          <CardDescription>O&apos;zingizga ma&apos;qul tarifni tanlang. Istalgan vaqtda bekor qilish mumkin.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {[
+              {
+                slug: 'free',
+                name: 'Free',
+                price: '$0',
+                desc: 'Oddiy kuzatuv',
+                features: ['1 ta veb-sayt', '5K oylik tashrif', '30 kunlik saqlash', 'Platformalar yo\'q'],
+              },
+              {
+                slug: 'starter',
+                name: 'Starter',
+                price: '$9',
+                desc: 'Kreatorlar uchun',
+                features: ['3 ta veb-sayt', '50K oylik tashrif', '1 yillik ma\'lumot', 'Barcha platformalar', 'AI haftalik hisobot'],
+              },
+              {
+                slug: 'pro',
+                name: 'Pro',
+                price: '$19',
+                desc: 'Professional',
+                features: ['Cheksiz veb-sayt', 'Cheksiz tashrif', 'Cheksiz tarix', 'Barcha platformalar', 'Custom AI + Alertlar', 'API kirish'],
+              },
+            ].map((plan) => {
+              const isCurrent = currentPlan.slug === plan.slug;
+              return (
+                <div
+                  key={plan.slug}
+                  className={`flex flex-col p-5 rounded-xl border transition-all ${
+                    isCurrent
+                      ? 'border-orange-500/40 bg-orange-500/5'
+                      : 'border-zinc-800 bg-zinc-900/40 hover:border-zinc-700'
+                  }`}
+                >
+                  <h4 className="font-semibold text-zinc-100 mb-1">{plan.name}</h4>
+                  <p className="text-xs text-zinc-500 mb-3">{plan.desc}</p>
+                  <div className="text-2xl font-bold text-zinc-100 mb-4">
+                    {plan.price}
+                    <span className="text-xs text-zinc-500 font-normal">/oy</span>
+                  </div>
+
+                  <ul className="space-y-2 mb-6 flex-1">
+                    {plan.features.map((f, i) => (
+                      <li key={i} className="text-xs text-zinc-400 flex items-center gap-1.5">
+                        <span className="w-1.5 h-1.5 rounded-full bg-orange-500/60" />
+                        {f}
+                      </li>
+                    ))}
+                  </ul>
+
+                  <Button
+                    disabled={isCurrent || checkoutLoading !== null}
+                    loading={checkoutLoading === plan.slug}
+                    variant={isCurrent ? 'secondary' : 'primary'}
+                    onClick={() => handleCheckout(plan.slug)}
+                    className="w-full"
+                  >
+                    {isCurrent ? 'Amaldagi tarif' : plan.slug === 'free' ? 'Downgrade' : 'Yangilash'}
+                  </Button>
+                </div>
+              );
+            })}
+          </div>
+        </CardContent>
+      </Card>
+
+      {invoices.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle>To&apos;lovlar tarixi</CardTitle>
+            <CardDescription>Barcha muvaffaqiyatli hisob-kitoblar ro&apos;yxati</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm text-left text-zinc-300">
+                <thead className="text-xs uppercase bg-zinc-900/60 text-zinc-500 border-b border-zinc-800">
+                  <tr>
+                    <th className="px-4 py-3">Faktura ID</th>
+                    <th className="px-4 py-3">Sana</th>
+                    <th className="px-4 py-3">Tarif</th>
+                    <th className="px-4 py-3">Summa</th>
+                    <th className="px-4 py-3 text-right">Hujjat</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-zinc-800/60">
+                  {invoices.map((inv) => (
+                    <tr key={inv.id} className="hover:bg-zinc-900/20">
+                      <td className="px-4 py-3.5 font-mono text-xs">{inv.id}</td>
+                      <td className="px-4 py-3.5 text-xs">
+                        {new Date(inv.date).toLocaleDateString('uz-UZ')}
+                      </td>
+                      <td className="px-4 py-3.5">{inv.plan}</td>
+                      <td className="px-4 py-3.5 tabular-nums">
+                        ${inv.amount.toFixed(2)} {inv.currency}
+                      </td>
+                      <td className="px-4 py-3.5 text-right">
+                        {inv.downloadUrl ? (
+                          <a
+                            href={inv.downloadUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-xs text-orange-400 hover:text-orange-300 hover:underline"
+                          >
+                            Yuklab olish
+                          </a>
+                        ) : (
+                          <span className="text-xs text-zinc-600">—</span>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {cancelOpen && (
+        <Modal title="Obunani bekor qilish" onClose={() => setCancelOpen(false)}>
+          <div className="flex flex-col gap-4">
+            <p className="text-sm text-zinc-400 leading-relaxed">
+              Haqiqatan ham obunangizni bekor qilmoqchimisiz? Bekor qilingandan so&apos;ng, joriy to&apos;lov muddati{' '}
+              {sub?.currentPeriodEnd && (
+                <strong className="text-zinc-200">({new Date(sub.currentPeriodEnd).toLocaleDateString('uz-UZ')})</strong>
+              )}{' '}
+              tugaguniga qadar barcha imkoniyatlar siz uchun ochiq qoladi.
+            </p>
+            <div className="flex gap-2 justify-end mt-2">
+              <Button variant="secondary" onClick={() => setCancelOpen(false)}>
+                Orqaga
               </Button>
-              <Button type="submit" variant="danger" loading={loading}>
-                Ha, o&apos;chirish
+              <Button variant="danger" loading={cancelLoading} onClick={handleCancelSubscription}>
+                Ha, bekor qilinsin
+              </Button>
+            </div>
+          </div>
+        </Modal>
+      )}
+    </div>
+  );
+}
+
+function ApiKeysTab() {
+  const [keys, setKeys] = useState<ApiKey[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [createOpen, setCreateOpen] = useState(false);
+  const [newKeyName, setNewKeyName] = useState('');
+  const [expiresInDays, setExpiresInDays] = useState<string>('0');
+  const [createdKey, setCreatedKey] = useState<ApiKey | null>(null);
+  const [copied, setCopied] = useState(false);
+  const [revokeKey, setRevokeKey] = useState<ApiKey | null>(null);
+  const [revokeLoading, setRevokeLoading] = useState(false);
+  const [createLoading, setCreateLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
+
+  async function loadKeys() {
+    setLoading(true);
+    setError('');
+    try {
+      const data = await apiKeysApi.list();
+      setKeys(data);
+    } catch {
+      setError("API kalitlarni yuklashda xatolik yuz berdi");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- qasddan: fetch-on-mount, asosiy render tugagach ishlaydi
+    loadKeys();
+  }, []);
+
+  async function handleCreate(e: React.FormEvent) {
+    e.preventDefault();
+    if (!newKeyName.trim()) {
+      setError('Kalit nomini kiriting');
+      return;
+    }
+    setError('');
+    setCreateLoading(true);
+    try {
+      const days = expiresInDays === '0' ? undefined : Number(expiresInDays);
+      const res = await apiKeysApi.create(newKeyName.trim(), days);
+      setCreatedKey(res);
+      setKeys((prev) => [res, ...prev]);
+      setCreateOpen(false);
+      setNewKeyName('');
+      setExpiresInDays('0');
+      setSuccess("Yangi API kalit yaratildi!");
+      setTimeout(() => setSuccess(''), 4000);
+    } catch (err: unknown) {
+      const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message;
+      setError(msg ?? "Kalit yaratishda xatolik yuz berdi");
+    } finally {
+      setCreateLoading(false);
+    }
+  }
+
+  async function handleRevoke() {
+    if (!revokeKey) return;
+    setError('');
+    setRevokeLoading(true);
+    try {
+      await apiKeysApi.revoke(revokeKey.id);
+      setKeys((prev) =>
+        prev.map((k) => (k.id === revokeKey.id ? { ...k, isActive: false } : k))
+      );
+      setRevokeKey(null);
+      setSuccess("API kalit o'chirildi (bekor qilindi)!");
+      setTimeout(() => setSuccess(''), 4000);
+    } catch {
+      setError("Kalitni o'chirishda xatolik yuz berdi");
+    } finally {
+      setRevokeLoading(false);
+    }
+  }
+
+  function copyKeyToClipboard() {
+    if (!createdKey?.key) return;
+    navigator.clipboard.writeText(createdKey.key);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  }
+
+  return (
+    <div className="flex flex-col gap-6">
+      {success && (
+        <div className="text-sm text-green-400 bg-green-500/10 border border-green-500/20 rounded-lg p-3">
+          {success}
+        </div>
+      )}
+      {error && (
+        <div className="text-sm text-red-400 bg-red-500/10 border border-red-500/20 rounded-lg p-3">
+          {error}
+        </div>
+      )}
+
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle className="flex items-center gap-2">
+                <Key className="w-5 h-5 text-orange-500" />
+                API Kalitlar
+              </CardTitle>
+              <CardDescription>
+                Tizimga dasturiy (programmatic) ulanish uchun maxsus kalitlar. Maksimal 5 tagacha faol kalit yaratish mumkin.
+              </CardDescription>
+            </div>
+            <Button
+              onClick={() => {
+                setError('');
+                setCreateOpen(true);
+              }}
+              className="gap-1.5 shrink-0"
+              disabled={keys.filter((k) => k.isActive).length >= 5}
+            >
+              <Plus className="w-4 h-4" />
+              Kalit yaratish
+            </Button>
+          </div>
+        </CardHeader>
+        <CardContent>
+          {loading ? (
+            <div className="space-y-3">
+              {[1, 2].map((i) => (
+                <div key={i} className="h-14 bg-zinc-900/40 border border-zinc-800 rounded-xl animate-pulse" />
+              ))}
+            </div>
+          ) : keys.length === 0 ? (
+            <div className="text-center py-8 border border-dashed border-zinc-800 rounded-xl bg-zinc-950/40">
+              <Key className="w-8 h-8 text-zinc-700 mx-auto mb-3" />
+              <p className="text-sm text-zinc-400 mb-1">API kalitlar mavjud emas</p>
+              <p className="text-xs text-zinc-600">Integratsiyani boshlash uchun birinchi API kalitini yarating</p>
+            </div>
+          ) : (
+            <div className="flex flex-col gap-3">
+              {keys.map((k) => (
+                <div
+                  key={k.id}
+                  className={`p-4 rounded-xl border flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-all ${
+                    k.isActive ? 'border-zinc-800 bg-zinc-900/20' : 'border-zinc-900/60 bg-zinc-950/20 opacity-60'
+                  }`}
+                >
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-1">
+                      <p className="text-sm font-semibold text-zinc-200 truncate">{k.name}</p>
+                      <Badge variant={k.isActive ? 'success' : 'default'}>
+                        {k.isActive ? 'Faol' : "Bekor qilingan"}
+                      </Badge>
+                    </div>
+                    <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-zinc-500">
+                      <span className="font-mono text-zinc-400 bg-zinc-900/60 px-1 py-0.5 rounded">
+                        {k.keyPrefix ?? 'mk_live_'}...
+                      </span>
+                      <span>
+                        Yaratildi: {new Date(k.createdAt).toLocaleDateString('uz-UZ')}
+                      </span>
+                      {k.expiresAt && (
+                        <span className="flex items-center gap-1">
+                          <Clock className="w-3 h-3 text-zinc-600" />
+                          Muddati: {new Date(k.expiresAt).toLocaleDateString('uz-UZ')}
+                        </span>
+                      )}
+                      {k.lastUsedAt && (
+                        <span>
+                          Oxirgi foydalanish: {new Date(k.lastUsedAt).toLocaleDateString('uz-UZ')}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                  {k.isActive && (
+                    <Button
+                      variant="danger"
+                      size="sm"
+                      onClick={() => setRevokeKey(k)}
+                      className="gap-1.5 self-start sm:self-center"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                      O&apos;chirish
+                    </Button>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* API Documentation */}
+      <Card className="border-zinc-800 bg-zinc-900/30">
+        <CardHeader>
+          <CardTitle className="text-sm font-semibold">Tizimga API orqali ulanish</CardTitle>
+          <CardDescription className="text-xs">
+            Yaratilgan API kalitingizdan foydalanib Metrix tizimidagi veb-saytlaringiz statistikasini dasturiy ravishda olishingiz mumkin.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <p className="text-xs text-zinc-400">
+            So&apos;rov yuborishda <code className="text-orange-400 font-mono bg-orange-950/20 px-1 py-0.5 rounded">X-API-Key</code> sarlavhasini (header) qo&apos;shing.
+          </p>
+          <div className="relative">
+            <pre className="text-xs font-mono bg-zinc-950 border border-zinc-850 rounded-lg p-3 overflow-x-auto text-zinc-300">
+              {`curl -X GET \\
+  -H "X-API-Key: YOUR_API_KEY" \\
+  "http://localhost:5000/api/v1/stats?domain=example.com&period=week"`}
+            </pre>
+          </div>
+          <div className="text-xs space-y-1.5 text-zinc-500">
+            <p className="font-semibold text-zinc-400">Parametrlar:</p>
+            <div className="flex flex-col gap-1 pl-2">
+              <p>• <code className="text-zinc-350 font-mono">domain</code>: Saytingiz domeni (masalan: <code className="text-zinc-450">myblog.com</code>)</p>
+              <p>• <code className="text-zinc-350 font-mono">period</code>: Statistika davri (<code className="text-zinc-450">today | week | month</code>)</p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Create Modal */}
+      {createOpen && (
+        <Modal title="Yangi API kalit yaratish" onClose={() => setCreateOpen(false)}>
+          <form onSubmit={handleCreate} className="flex flex-col gap-4">
+            <Input
+              label="Kalit nomi"
+              placeholder="Script yoki Tashqi monitoring"
+              value={newKeyName}
+              onChange={(e) => setNewKeyName(e.target.value)}
+              hint="Kalit nima maqsad uchun ishlatilishini yozing"
+              autoFocus
+            />
+            <div className="flex flex-col gap-1.5">
+              <label htmlFor="expires-select" className="text-sm text-zinc-300">Amal qilish muddati</label>
+              <select
+                id="expires-select"
+                value={expiresInDays}
+                onChange={(e) => setExpiresInDays(e.target.value)}
+                className="w-full px-3 py-2 text-sm rounded-md border border-zinc-800 bg-zinc-900 text-zinc-100 outline-none transition-all focus:border-zinc-600"
+              >
+                <option value="0">Muddatsiz (Hech qachon tugamaydi)</option>
+                <option value="30">30 kun</option>
+                <option value="90">90 kun</option>
+                <option value="365">365 kun (1 yil)</option>
+              </select>
+            </div>
+            <div className="flex gap-2 justify-end mt-2">
+              <Button type="button" variant="secondary" className="flex-1" onClick={() => setCreateOpen(false)}>
+                Bekor qilish
+              </Button>
+              <Button type="submit" className="flex-1" loading={createLoading}>
+                Yaratish
               </Button>
             </div>
           </form>
-        )}
-      </CardContent>
-    </Card>
+        </Modal>
+      )}
+
+      {/* Show Key Modal (Only Once) */}
+      {createdKey && (
+        <Modal title="API Kaliti Yaratildi" onClose={() => setCreatedKey(null)}>
+          <div className="flex flex-col gap-4">
+            <div className="p-3 bg-yellow-500/10 border border-yellow-500/20 text-xs text-yellow-300 rounded-lg flex gap-2.5 items-start">
+              <AlertTriangle className="w-5 h-5 shrink-0 text-yellow-500" />
+              <div>
+                <p className="font-semibold">Muhim ogohlantirish!</p>
+                <p className="mt-0.5">Ushbu kalit faqat bir marta ko&apos;rsatiladi. Uni hoziroq nusxalab oling va xavfsiz joyga saqlang.</p>
+              </div>
+            </div>
+            <div className="relative">
+              <pre className="text-xs font-mono bg-zinc-950 border border-zinc-850 rounded-lg p-3 pr-10 overflow-x-auto text-orange-400 break-all select-all font-semibold">
+                {createdKey.key}
+              </pre>
+              <button
+                type="button"
+                onClick={copyKeyToClipboard}
+                className="absolute right-2 top-2 p-1 text-zinc-500 hover:text-zinc-200 transition-colors"
+                aria-label="Kalitni nusxalash"
+              >
+                {copied ? (
+                  <CheckCircle className="w-4 h-4 text-green-400" />
+                ) : (
+                  <Copy className="w-4 h-4" />
+                )}
+              </button>
+            </div>
+            <Button
+              type="button"
+              className="w-full"
+              onClick={() => setCreatedKey(null)}
+            >
+              Men kalitni saqlab oldim
+            </Button>
+          </div>
+        </Modal>
+      )}
+
+      {/* Revoke Confirm Modal */}
+      {revokeKey && (
+        <Modal title="API kalitini bekor qilish" onClose={() => setRevokeKey(null)}>
+          <div className="flex flex-col gap-4">
+            <p className="text-sm text-zinc-400 leading-relaxed">
+              Haqiqatan ham <strong className="text-zinc-200">{revokeKey.name}</strong> nomli API kalitini o&apos;chirmoqchimisiz? Kalit o&apos;chirilgandan so&apos;ng undan foydalangan barcha skript va integratsiyalar ishlamay qoladi. Bu amalni ortga qaytarib bo&apos;lmaydi.
+            </p>
+            <div className="flex gap-2 justify-end mt-2">
+              <Button type="button" variant="secondary" onClick={() => setRevokeKey(null)}>
+                Orqaga
+              </Button>
+              <Button type="button" variant="danger" loading={revokeLoading} onClick={handleRevoke}>
+                Ha, o&apos;chirilsin
+              </Button>
+            </div>
+          </div>
+        </Modal>
+      )}
+    </div>
   );
 }

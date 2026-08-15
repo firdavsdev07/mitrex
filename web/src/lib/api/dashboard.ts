@@ -51,14 +51,14 @@ export interface PlatformHistoryPoint {
 }
 
 export const dashboardApi = {
-  overview: (period: Period = 'week') =>
+  overview: (period: Period = 'week', workspaceId?: string) =>
     apiClient
-      .get<DashboardOverview>('/dashboard', { params: { period } })
+      .get<DashboardOverview>('/dashboard', { params: { period, workspaceId } })
       .then((r) => r.data),
 
-  webTrend: (days = 14) =>
+  webTrend: (days = 14, workspaceId?: string) =>
     apiClient
-      .get<TrendPoint[]>('/dashboard/web-trend', { params: { days } })
+      .get<TrendPoint[]>('/dashboard/web-trend', { params: { days, workspaceId } })
       .then((r) => r.data),
 
   connectionHistory: (connectionId: string, days = 30) =>

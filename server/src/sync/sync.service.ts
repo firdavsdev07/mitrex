@@ -6,7 +6,9 @@ import { TelegramService } from '../telegram/telegram.service';
 import { DiscordService } from '../discord/discord.service';
 import { BlueskyService } from '../bluesky/bluesky.service';
 import { InstagramService } from '../instagram/instagram.service';
+import { ThreadsService } from '../threads/threads.service';
 import { RedditService } from '../reddit/reddit.service';
+import { PinterestService } from '../pinterest/pinterest.service';
 import { PostsService } from '../posts/posts.service';
 import { QueueService } from '../queue/queue.service';
 import { Platform } from '@metrix/prisma-client';
@@ -23,7 +25,9 @@ export class SyncService {
     private readonly discordService: DiscordService,
     private readonly blueskyService: BlueskyService,
     private readonly instagramService: InstagramService,
+    private readonly threadsService: ThreadsService,
     private readonly redditService: RedditService,
+    private readonly pinterestService: PinterestService,
     private readonly postsService: PostsService,
     @Optional() private readonly queue: QueueService,
   ) {}
@@ -114,11 +118,24 @@ export class SyncService {
           ]);
           break;
         case Platform.FACEBOOK:
+          // Instagram'dagi kabi — sahifa statistikasi va postlar bir-biriga
+          // bog'liq bo'lmagan Meta API chaqiruvlari, parallel bajariladi.
+          await Promise.all([
+            this.instagramService.fetchAndSaveStats(connectionId),
+            this.postsService.syncFacebookPosts(connectionId),
+          ]);
+          break;
         case Platform.THREADS:
-          await this.instagramService.fetchAndSaveStats(connectionId);
+          await Promise.all([
+            this.threadsService.fetchAndSaveStats(connectionId),
+            this.postsService.syncThreadsPosts(connectionId),
+          ]);
           break;
         case Platform.REDDIT:
           await this.redditService.fetchAndSaveStats(connectionId);
+          break;
+        case Platform.PINTEREST:
+          await this.pinterestService.fetchAndSaveStats(connectionId);
           break;
       }
       // Muvaffaqiyatli sync — oldingi xato holatini tozalaymiz, shu bilan

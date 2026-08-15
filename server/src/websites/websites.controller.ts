@@ -2,6 +2,7 @@ import {
   Controller,
   Get,
   Post,
+  Patch,
   Delete,
   Body,
   Param,
@@ -15,6 +16,7 @@ import {
   ApiResponse,
   ApiParam,
   ApiQuery,
+  ApiBody,
 } from '@nestjs/swagger';
 import { PlanGuard, PlanLimit } from '../common/guards/plan.guard';
 import { WebsitesService } from './websites.service';
@@ -257,6 +259,33 @@ export class WebsitesController {
   @ApiResponse({ status: 200, description: 'Website deleted' })
   remove(@CurrentUser('id') userId: string, @Param('id') id: string) {
     return this.websitesService.remove(userId, id);
+  }
+
+  @Patch(':id/workspace')
+  @ApiOperation({ summary: 'Link/unlink website to/from workspace' })
+  @ApiParam({ name: 'id', description: 'Website ID' })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        workspaceId: {
+          type: 'string',
+          nullable: true,
+          example: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
+        },
+      },
+    },
+  })
+  updateWorkspace(
+    @CurrentUser('id') userId: string,
+    @Param('id') id: string,
+    @Body('workspaceId') workspaceId?: string | null,
+  ) {
+    return this.websitesService.updateWorkspace(
+      userId,
+      id,
+      workspaceId || null,
+    );
   }
 
   @Post(':id/share')

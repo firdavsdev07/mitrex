@@ -4,6 +4,11 @@ import { PrismaService } from '../prisma/prisma.service';
 import { Platform, Prisma } from '@metrix/prisma-client';
 import { TelegramMtprotoService } from '../telegram/telegram-mtproto.service';
 import { META_BASE } from '../instagram/instagram.service';
+import {
+  THREADS_BASE,
+  readInsight,
+  ThreadsService,
+} from '../threads/threads.service';
 import { YoutubeService } from '../youtube/youtube.service';
 import { decrypt } from '../common/utils/crypto.util';
 import { todayUtcDate } from '../common/utils/date.util';
@@ -52,8 +57,39 @@ interface InstagramMediaItem {
 interface InstagramMediaListResponse {
   data?: InstagramMediaItem[];
 }
-interface InstagramInsightsResponse {
+// Instagram media, story va Facebook Page postlarining insight javoblari bir
+// xil shaklda keladi (Meta Graph API) — shuning uchun bitta umumiy tip.
+interface MetaInsightsResponse {
   data?: Array<{ name: string; values?: Array<{ value: number }> }>;
+}
+interface FacebookPostItem {
+  id: string;
+  // Oddiy postda `message`, lekin "X sahifasi rasm qo'shdi" kabi tizim
+  // postlarida matn faqat `story` maydonida bo'ladi.
+  message?: string;
+  story?: string;
+  created_time?: string;
+  permalink_url?: string;
+  full_picture?: string;
+  shares?: { count?: number };
+  likes?: { summary?: { total_count?: number } };
+  comments?: { summary?: { total_count?: number } };
+}
+interface FacebookPostsResponse {
+  data?: FacebookPostItem[];
+}
+interface ThreadsPostItem {
+  id: string;
+  text?: string;
+  media_type?: string;
+  media_url?: string;
+  thumbnail_url?: string;
+  permalink?: string;
+  timestamp?: string;
+  is_quote_post?: boolean;
+}
+interface ThreadsPostsResponse {
+  data?: ThreadsPostItem[];
 }
 interface BlueskyPost {
   uri: string;
@@ -74,6 +110,7 @@ export class PostsService {
     private readonly prisma: PrismaService,
     private readonly telegramMtproto: TelegramMtprotoService,
     private readonly youtubeService: YoutubeService,
+    private readonly threadsService: ThreadsService,
   ) {}
 
   // ─── Get posts list ──────────────────────────────────────────────────────
@@ -328,12 +365,9 @@ export class PostsService {
             : 'views,reach,shares';
 
           return axios
-            .get<InstagramInsightsResponse>(
-              `${META_BASE}/${media.id}/insights`,
-              {
-                params: { metric: metrics, access_token: accessToken },
-              },
-            )
+            .get<MetaInsightsResponse>(`${META_BASE}/${media.id}/insights`, {
+              params: { metric: metrics, access_token: accessToken },
+            })
             .catch(() => null);
         }),
       );
@@ -417,16 +451,12 @@ export class PostsService {
       const insightsPerStory = await Promise.all(
         items.map((story) =>
           axios
-            .get<InstagramInsightsResponse>(
-              `${META_BASE}/${story.id}/insights`,
-              {
-                params: {
-                  metric:
-                    'reach,follows,shares,replies,total_interactions,views',
-                  access_token: accessToken,
-                },
+            .get<MetaInsightsResponse>(`${META_BASE}/${story.id}/insights`, {
+              params: {
+                metric: 'reach,follows,shares,replies,total_interactions,views',
+                access_token: accessToken,
               },
-            )
+            })
             .catch(() => null),
         ),
       );
@@ -475,6 +505,201 @@ export class PostsService {
       }
     } catch (err: unknown) {
       this.logger.error(`Instagram story sync error: ${getErrorMessage(err)}`);
+    }
+  }
+
+  // ─── Facebook Page postlari ──────────────────────────────────────────────
+  // FACEBOOK ulanishining accessToken'i aynan PAGE tokeni bilan to'ldiriladi
+  // (qarang instagram.service.ts#handleCallback) — user tokeni bilan
+  // /{page-id}/posts so'rovi ruxsat xatosi beradi.
+  //
+  // Post-darajasidagi insight'lar (impressions/reach) faqat sahifa egasiga va
+  // faqat pages_read_engagement ruxsati bo'lganda ochiladi. Ruxsat bo'lmasa
+  // har bir insight so'rovi alohida "yutiladi" va post baribir asosiy
+  // metrikalari (like/izoh/ulashish) bilan saqlanadi — butun sync bitta
+  // ruxsat yetishmovchiligi tufayli yo'qolib ketmasligi kerak.
+  async syncFacebookPosts(connectionId: string) {
+    const conn = await this.prisma.connection.findUnique({
+      where: { id: connectionId },
+    });
+    if (!conn?.accessToken || !conn?.platformUserId) return;
+    const accessToken = decrypt(conn.accessToken);
+
+    try {
+      const postsRes = await axios.get<FacebookPostsResponse>(
+        `${META_BASE}/${conn.platformUserId}/posts`,
+        {
+          params: {
+            // summary(true).limit(0) — faqat umumiy sonni oladi, obyektlar
+            // ro'yxatini emas (javob hajmi bir necha barobar kichrayadi).
+            fields:
+              'id,message,story,created_time,permalink_url,full_picture,shares,likes.summary(true).limit(0),comments.summary(true).limit(0)',
+            limit: 25,
+            access_token: accessToken,
+          },
+        },
+      );
+
+      const items: FacebookPostItem[] = postsRes.data?.data || [];
+
+      // Instagram'dagi bilan bir xil sabab — mustaqil so'rovlar parallel.
+      const insightsPerPost = await Promise.all(
+        items.map((post) =>
+          axios
+            .get<MetaInsightsResponse>(`${META_BASE}/${post.id}/insights`, {
+              params: {
+                metric: 'post_impressions,post_impressions_unique,post_clicks',
+                access_token: accessToken,
+              },
+            })
+            .catch(() => null),
+        ),
+      );
+
+      for (let i = 0; i < items.length; i++) {
+        const post = items[i];
+
+        const insightValues: Record<string, number> = {};
+        for (const entry of insightsPerPost[i]?.data?.data || []) {
+          insightValues[entry.name] = entry.values?.[0]?.value ?? 0;
+        }
+        // Meta "impressions" (umumiy ko'rsatilish) va "impressions_unique"
+        // (nechta alohida odam ko'rgani = reach) deb ajratadi.
+        const impressions = insightValues.post_impressions ?? null;
+        const reach = insightValues.post_impressions_unique ?? null;
+
+        await this.prisma.postStat.upsert({
+          where: { connectionId_postId: { connectionId, postId: post.id } },
+          create: {
+            connectionId,
+            platform: Platform.FACEBOOK,
+            postId: post.id,
+            caption: (post.message ?? post.story)?.slice(0, 500),
+            thumbnailUrl: post.full_picture ?? null,
+            url: post.permalink_url ?? null,
+            publishedAt: post.created_time ? new Date(post.created_time) : null,
+            likes: post.likes?.summary?.total_count ?? 0,
+            comments: post.comments?.summary?.total_count ?? 0,
+            shares: post.shares?.count ?? 0,
+            views: impressions,
+            impressions,
+            reach,
+            raw: post as unknown as Prisma.InputJsonValue,
+          },
+          update: {
+            caption: (post.message ?? post.story)?.slice(0, 500),
+            likes: post.likes?.summary?.total_count ?? 0,
+            comments: post.comments?.summary?.total_count ?? 0,
+            shares: post.shares?.count ?? 0,
+            views: impressions,
+            impressions,
+            reach,
+            syncedAt: new Date(),
+            raw: post as unknown as Prisma.InputJsonValue,
+          },
+        });
+      }
+      this.logger.log(
+        `Facebook: ${items.length} post sinxronlandi (conn: ${connectionId})`,
+      );
+    } catch (err: unknown) {
+      this.logger.error(`Facebook post sync error: ${getErrorMessage(err)}`);
+    }
+  }
+
+  // ─── Threads postlari ────────────────────────────────────────────────────
+  // Threads Instagram bilan bir akkauntda bo'lsa ham API'si alohida
+  // (graph.threads.net) — token ham alohida, shuning uchun ThreadsService
+  // orqali yangilangan token olinadi.
+  async syncThreadsPosts(connectionId: string) {
+    const conn = await this.prisma.connection.findUnique({
+      where: { id: connectionId },
+    });
+    if (!conn?.accessToken || !conn?.platformUserId) return;
+
+    try {
+      const accessToken = await this.threadsService.ensureFreshToken({
+        id: conn.id,
+        accessToken: decrypt(conn.accessToken),
+        tokenExpiresAt: conn.tokenExpiresAt,
+      });
+
+      const postsRes = await axios.get<ThreadsPostsResponse>(
+        `${THREADS_BASE}/${conn.platformUserId}/threads`,
+        {
+          params: {
+            fields:
+              'id,text,media_type,media_url,thumbnail_url,permalink,timestamp,is_quote_post',
+            limit: 25,
+            access_token: accessToken,
+          },
+        },
+      );
+
+      const items: ThreadsPostItem[] = postsRes.data?.data || [];
+
+      // Instagram'dagi bilan bir xil sabab — mustaqil so'rovlar parallel.
+      const insightsPerPost = await Promise.all(
+        items.map((post) =>
+          axios
+            .get<Parameters<typeof readInsight>[0]>(
+              `${THREADS_BASE}/${post.id}/insights`,
+              {
+                params: {
+                  metric: 'views,likes,replies,reposts,quotes,shares',
+                  access_token: accessToken,
+                },
+              },
+            )
+            .catch(() => null),
+        ),
+      );
+
+      for (let i = 0; i < items.length; i++) {
+        const post = items[i];
+        const insights = insightsPerPost[i]?.data;
+
+        // reposts va quotes ikkalasi ham "ulashish" turi — Threads ularni
+        // alohida beradi, bizda esa bitta `shares` maydoni bor.
+        const reposts = readInsight(insights, 'reposts');
+        const quotes = readInsight(insights, 'quotes');
+        const shares =
+          reposts == null && quotes == null
+            ? null
+            : (reposts ?? 0) + (quotes ?? 0);
+
+        await this.prisma.postStat.upsert({
+          where: { connectionId_postId: { connectionId, postId: post.id } },
+          create: {
+            connectionId,
+            platform: Platform.THREADS,
+            postId: post.id,
+            caption: post.text?.slice(0, 500),
+            thumbnailUrl: post.thumbnail_url ?? post.media_url ?? null,
+            url: post.permalink ?? null,
+            publishedAt: post.timestamp ? new Date(post.timestamp) : null,
+            views: readInsight(insights, 'views'),
+            likes: readInsight(insights, 'likes'),
+            comments: readInsight(insights, 'replies'),
+            shares,
+            raw: { ...post, insights } as unknown as Prisma.InputJsonValue,
+          },
+          update: {
+            caption: post.text?.slice(0, 500),
+            views: readInsight(insights, 'views'),
+            likes: readInsight(insights, 'likes'),
+            comments: readInsight(insights, 'replies'),
+            shares,
+            syncedAt: new Date(),
+            raw: { ...post, insights } as unknown as Prisma.InputJsonValue,
+          },
+        });
+      }
+      this.logger.log(
+        `Threads: ${items.length} post sinxronlandi (conn: ${connectionId})`,
+      );
+    } catch (err: unknown) {
+      this.logger.error(`Threads post sync error: ${getErrorMessage(err)}`);
     }
   }
 

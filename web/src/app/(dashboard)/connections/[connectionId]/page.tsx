@@ -18,7 +18,10 @@ import {
   TrendingUp,
   TrendingDown,
   Info,
+  Download,
 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { exportApi, triggerDownload } from '@/lib/api/export';
 import {
   YouTubeIcon,
   TelegramIcon,
@@ -26,6 +29,8 @@ import {
   DiscordIcon,
   BlueskyIcon,
   RedditIcon,
+  FacebookIcon,
+  ThreadsIcon,
 } from '@/components/icons/platform-icons';
 import { dashboardApi, type PlatformHistoryPoint } from '@/lib/api/dashboard';
 import { postsApi, type Post, type SortMetric } from '@/lib/api/posts';
@@ -53,6 +58,8 @@ const PLATFORM_ICONS: Record<string, React.FC<{ className?: string }>> = {
   DISCORD: DiscordIcon,
   BLUESKY: BlueskyIcon,
   REDDIT: RedditIcon,
+  FACEBOOK: FacebookIcon,
+  THREADS: ThreadsIcon,
 };
 
 const PLATFORM_LABELS: Record<string, string> = {
@@ -62,6 +69,8 @@ const PLATFORM_LABELS: Record<string, string> = {
   DISCORD: 'Discord',
   BLUESKY: 'Bluesky',
   REDDIT: 'Reddit',
+  FACEBOOK: 'Facebook',
+  THREADS: 'Threads',
 };
 
 // Discord va Reddit'da "post" tushunchasi yo'q (server/subreddit-darajasidagi
@@ -156,6 +165,34 @@ export default function ConnectionDetailPage({
   const [contentFilter, setContentFilter] = useState<string>('ALL');
   const [loading, setLoading] = useState(true);
   const [postsLoading, setPostsLoading] = useState(true);
+  const [exportingStats, setExportingStats] = useState(false);
+  const [exportingPosts, setExportingPosts] = useState(false);
+
+  async function handleExportStats() {
+    setExportingStats(true);
+    try {
+      const blob = await exportApi.exportPlatformStats(connectionId);
+      triggerDownload(blob, `connection-${platform || 'stats'}-${connectionId}.csv`);
+    } catch (err) {
+      console.error('Export stats error:', err);
+      alert("Ma'lumotlarni eksport qilishda xatolik");
+    } finally {
+      setExportingStats(false);
+    }
+  }
+
+  async function handleExportPosts() {
+    setExportingPosts(true);
+    try {
+      const blob = await exportApi.exportPosts(connectionId);
+      triggerDownload(blob, `posts-${platform || 'stats'}-${connectionId}.csv`);
+    } catch (err) {
+      console.error('Export posts error:', err);
+      alert("Postlarni eksport qilishda xatolik");
+    } finally {
+      setExportingPosts(false);
+    }
+  }
 
   const supportsPosts = platform ? SUPPORTS_POSTS.has(platform) : false;
   const Icon = platform ? PLATFORM_ICONS[platform] : undefined;
@@ -282,20 +319,32 @@ export default function ConnectionDetailPage({
             </h1>
           </div>
         </div>
-        <div className="flex items-center gap-0.5 bg-zinc-900 border border-zinc-800 rounded-lg p-0.5">
-          {(['today', 'week', 'month'] as Period[]).map((p) => (
-            <button
-              key={p}
-              onClick={() => setPeriod(p)}
-              className={`text-xs px-3 py-1.5 rounded-md transition-all ${
-                period === p
-                  ? 'bg-orange-500/12 text-orange-400 border border-orange-500/20'
-                  : 'text-zinc-600 hover:text-zinc-300'
-              }`}
-            >
-              {PERIOD_LABELS[p]}
-            </button>
-          ))}
+        <div className="flex items-center gap-2">
+          <Button
+            variant="secondary"
+            size="sm"
+            loading={exportingStats}
+            onClick={handleExportStats}
+            className="gap-1.5"
+          >
+            <Download className="w-3.5 h-3.5" />
+            Eksport (CSV)
+          </Button>
+          <div className="flex items-center gap-0.5 bg-zinc-900 border border-zinc-800 rounded-lg p-0.5">
+            {(['today', 'week', 'month'] as Period[]).map((p) => (
+              <button
+                key={p}
+                onClick={() => setPeriod(p)}
+                className={`text-xs px-3 py-1.5 rounded-md transition-all ${
+                  period === p
+                    ? 'bg-orange-500/12 text-orange-400 border border-orange-500/20'
+                    : 'text-zinc-600 hover:text-zinc-300'
+                }`}
+              >
+                {PERIOD_LABELS[p]}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
@@ -446,6 +495,16 @@ export default function ConnectionDetailPage({
             <p className="text-sm font-medium text-zinc-200">
               Barcha kontent{postsTotal > 0 ? ` (${postsTotal})` : ''}
             </p>
+            <Button
+              variant="secondary"
+              size="sm"
+              loading={exportingPosts}
+              onClick={handleExportPosts}
+              className="gap-1.5"
+            >
+              <Download className="w-3.5 h-3.5" />
+              Postlarni eksport qilish (CSV)
+            </Button>
           </div>
 
           {CAVEATS[platform] && (

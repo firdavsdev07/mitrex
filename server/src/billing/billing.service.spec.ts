@@ -1,36 +1,27 @@
-process.env.STRIPE_SECRET_KEY = 'sk_test_dummy';
-process.env.STRIPE_WEBHOOK_SECRET = 'whsec_dummy';
+/* eslint-disable @typescript-eslint/unbound-method, @typescript-eslint/no-unsafe-assignment */
+process.env.LEMONSQUEEZY_API_KEY = 'ls_api_dummy';
+process.env.LEMONSQUEEZY_STORE_ID = '12345';
+process.env.LEMONSQUEEZY_WEBHOOK_SECRET = 'ls_whsec_dummy';
 
-const mockStripeInstance = {
-  customers: { create: jest.fn() },
-  checkout: { sessions: { create: jest.fn() } },
-  subscriptions: {
-    cancel: jest.fn(),
-    update: jest.fn(),
-    retrieve: jest.fn(),
-  },
-  invoices: { list: jest.fn() },
-  webhooks: { constructEvent: jest.fn() },
-};
-
-jest.mock('stripe', () => {
-  return jest.fn().mockImplementation(() => mockStripeInstance);
-});
+import axios from 'axios';
+import * as crypto from 'crypto';
+jest.mock('axios');
+const mockedAxios = axios as jest.Mocked<typeof axios>;
 
 import { BillingService } from './billing.service';
 import { NotFoundException, BadRequestException } from '@nestjs/common';
 import type { PrismaService } from '../prisma/prisma.service';
-import type Stripe from 'stripe';
+import { SubscriptionStatus } from '@metrix/prisma-client';
 
 interface FakeSubscription {
   id: string;
   userId: string;
   planId: string;
-  status: string;
+  status: SubscriptionStatus;
   currentPeriodEnd: Date | null;
   canceledAt: Date | null;
-  stripeCustomerId: string | null;
-  stripeSubscriptionId: string | null;
+  lemonCustomerId: string | null;
+  lemonSubscriptionId: string | null;
 }
 
 function makePrisma(opts?: {
@@ -41,7 +32,7 @@ function makePrisma(opts?: {
       id: string;
       slug: string;
       isActive: boolean;
-      stripePriceId: string | null;
+      lemonVariantId: string | null;
       name: string;
     }
   >;
@@ -55,11 +46,11 @@ function makePrisma(opts?: {
             id: 'sub-1',
             userId: 'user-1',
             planId: 'plan-starter',
-            status: 'ACTIVE',
+            status: SubscriptionStatus.ACTIVE,
             currentPeriodEnd: null,
             canceledAt: null,
-            stripeCustomerId: null,
-            stripeSubscriptionId: null,
+            lemonCustomerId: null,
+            lemonSubscriptionId: null,
             ...opts.subscription,
           };
 
@@ -68,14 +59,14 @@ function makePrisma(opts?: {
       id: 'plan-free',
       slug: 'free',
       isActive: true,
-      stripePriceId: null,
+      lemonVariantId: null,
       name: 'Free',
     },
     starter: {
       id: 'plan-starter',
       slug: 'starter',
       isActive: true,
-      stripePriceId: 'price_starter_123',
+      lemonVariantId: 'variant_starter_123',
       name: 'Starter',
     },
   };
@@ -89,16 +80,41 @@ function makePrisma(opts?: {
         ({
           where,
         }: {
-          where: { userId?: string; stripeSubscriptionId?: string };
+          where: { userId?: string; lemonSubscriptionId?: string };
         }) => {
           if (!sub) return Promise.resolve(null);
           if (where.userId && sub.userId !== where.userId)
             return Promise.resolve(null);
           if (
-            where.stripeSubscriptionId &&
-            sub.stripeSubscriptionId !== where.stripeSubscriptionId
+            where.lemonSubscriptionId &&
+            sub.lemonSubscriptionId !== where.lemonSubscriptionId
           )
             return Promise.resolve(null);
+          const plan = Object.values(plans).find((p) => p.id === sub!.planId);
+          return Promise.resolve({ ...sub, plan });
+        },
+      ),
+      findFirst: jest.fn(
+        (args: {
+          where: {
+            userId?: string;
+            lemonSubscriptionId?: { not: string };
+            status?: SubscriptionStatus;
+          };
+        }) => {
+          if (!sub) return Promise.resolve(null);
+          const where = args.where;
+          if (where.userId && sub.userId !== where.userId)
+            return Promise.resolve(null);
+          if (where.status && sub.status !== where.status)
+            return Promise.resolve(null);
+          if (
+            where.lemonSubscriptionId &&
+            where.lemonSubscriptionId.not &&
+            sub.lemonSubscriptionId === where.lemonSubscriptionId.not
+          ) {
+            return Promise.resolve(null);
+          }
           const plan = Object.values(plans).find((p) => p.id === sub!.planId);
           return Promise.resolve({ ...sub, plan });
         },
@@ -152,7 +168,9 @@ describe('BillingService#checkout', () => {
   });
 
   it('rejects re-subscribing to the plan the user is already active on', async () => {
-    const { prisma } = makePrisma({ subscription: { status: 'ACTIVE' } });
+    const { prisma } = makePrisma({
+      subscription: { status: SubscriptionStatus.ACTIVE },
+    });
     const service = new BillingService(prisma);
 
     await expect(
@@ -160,11 +178,14 @@ describe('BillingService#checkout', () => {
     ).rejects.toBeInstanceOf(BadRequestException);
   });
 
-  it('downgrades to free locally and cancels the Stripe subscription if one exists', async () => {
+  it('downgrades to free locally and cancels the Lemon Squeezy subscription if one exists', async () => {
     const { prisma, getSub } = makePrisma({
-      subscription: { stripeSubscriptionId: 'sub_stripe_1', status: 'ACTIVE' },
+      subscription: {
+        lemonSubscriptionId: 'sub_ls_1',
+        status: SubscriptionStatus.ACTIVE,
+      },
     });
-    mockStripeInstance.subscriptions.cancel.mockResolvedValue({});
+    mockedAxios.delete.mockResolvedValue({ data: {} });
     const service = new BillingService(prisma);
 
     const result = await service.checkout('user-1', 'u@example.com', 'free');
@@ -174,13 +195,14 @@ describe('BillingService#checkout', () => {
       plan: 'free',
       message: 'Downgraded to Free plan',
     });
-    expect(mockStripeInstance.subscriptions.cancel).toHaveBeenCalledWith(
-      'sub_stripe_1',
+    expect(mockedAxios.delete).toHaveBeenCalledWith(
+      'https://api.lemonsqueezy.com/v1/subscriptions/sub_ls_1',
+      expect.any(Object),
     );
-    expect(getSub()?.status).toBe('CANCELED');
+    expect(getSub()?.status).toBe(SubscriptionStatus.CANCELED);
   });
 
-  it('throws when the plan has no stripePriceId provisioned yet', async () => {
+  it('throws when the plan has no lemonVariantId provisioned yet', async () => {
     const { prisma } = makePrisma({
       subscription: null,
       plans: {
@@ -188,7 +210,7 @@ describe('BillingService#checkout', () => {
           id: 'plan-starter',
           slug: 'starter',
           isActive: true,
-          stripePriceId: null,
+          lemonVariantId: null,
           name: 'Starter',
         },
       },
@@ -197,34 +219,42 @@ describe('BillingService#checkout', () => {
 
     await expect(
       service.checkout('user-1', 'u@example.com', 'starter'),
-    ).rejects.toThrow(/stripePriceId/);
+    ).rejects.toThrow(/lemonVariantId/);
   });
 
-  it('creates a Stripe customer and checkout session, returning the checkout URL', async () => {
+  it('creates a Lemon Squeezy checkout session, returning the checkout URL', async () => {
     const { prisma } = makePrisma({ subscription: null });
-    mockStripeInstance.customers.create.mockResolvedValue({ id: 'cus_123' });
-    mockStripeInstance.checkout.sessions.create.mockResolvedValue({
-      url: 'https://checkout.stripe.com/session_abc',
+    mockedAxios.post.mockResolvedValue({
+      data: {
+        data: {
+          attributes: {
+            url: 'https://checkout.lemonsqueezy.com/checkout/session_abc',
+          },
+        },
+      },
     });
     const service = new BillingService(prisma);
 
     const result = await service.checkout('user-1', 'u@example.com', 'starter');
 
-    expect(mockStripeInstance.customers.create).toHaveBeenCalledWith({
-      email: 'u@example.com',
-      metadata: { userId: 'user-1' },
-    });
-    expect(mockStripeInstance.checkout.sessions.create).toHaveBeenCalledWith(
+    expect(mockedAxios.post).toHaveBeenCalledWith(
+      'https://api.lemonsqueezy.com/v1/checkouts',
       expect.objectContaining({
-        customer: 'cus_123',
-        mode: 'subscription',
-        line_items: [{ price: 'price_starter_123', quantity: 1 }],
-        client_reference_id: 'user-1',
+        data: expect.objectContaining({
+          type: 'checkouts',
+          attributes: expect.objectContaining({
+            checkout_data: {
+              email: 'u@example.com',
+              custom: { userId: 'user-1', planSlug: 'starter' },
+            },
+          }),
+        }),
       }),
+      expect.any(Object),
     );
     expect(result).toEqual({
       success: true,
-      checkoutUrl: 'https://checkout.stripe.com/session_abc',
+      checkoutUrl: 'https://checkout.lemonsqueezy.com/checkout/session_abc',
     });
   });
 });
@@ -239,31 +269,32 @@ describe('BillingService#cancel', () => {
     );
   });
 
-  it('sets cancel_at_period_end on Stripe when a Stripe subscription exists', async () => {
-    const { prisma } = makePrisma({
-      subscription: { stripeSubscriptionId: 'sub_stripe_1' },
+  it('cancels on Lemon Squeezy when a subscription exists', async () => {
+    const { prisma, getSub } = makePrisma({
+      subscription: { lemonSubscriptionId: 'sub_ls_1' },
     });
-    mockStripeInstance.subscriptions.update.mockResolvedValue({});
+    mockedAxios.delete.mockResolvedValue({ data: {} });
     const service = new BillingService(prisma);
 
     await service.cancel('user-1');
 
-    expect(mockStripeInstance.subscriptions.update).toHaveBeenCalledWith(
-      'sub_stripe_1',
-      { cancel_at_period_end: true },
+    expect(mockedAxios.delete).toHaveBeenCalledWith(
+      'https://api.lemonsqueezy.com/v1/subscriptions/sub_ls_1',
+      expect.any(Object),
     );
+    expect(getSub()?.canceledAt).toBeInstanceOf(Date);
   });
 
-  it('cancels locally without touching Stripe when there is no Stripe subscription', async () => {
+  it('cancels locally when there is no Lemon Squeezy subscription', async () => {
     const { prisma, getSub } = makePrisma({
-      subscription: { stripeSubscriptionId: null },
+      subscription: { lemonSubscriptionId: null },
     });
     const service = new BillingService(prisma);
 
     await service.cancel('user-1');
 
-    expect(mockStripeInstance.subscriptions.update).not.toHaveBeenCalled();
-    expect(getSub()?.status).toBe('CANCELED');
+    expect(mockedAxios.delete).not.toHaveBeenCalled();
+    expect(getSub()?.status).toBe(SubscriptionStatus.CANCELED);
   });
 });
 
@@ -275,32 +306,36 @@ describe('BillingService#getInvoices', () => {
     expect(await service.getInvoices('user-1')).toEqual({ invoices: [] });
   });
 
-  it('returns an empty list when the subscription has no Stripe customer', async () => {
+  it('returns an empty list when the subscription has no Lemon Squeezy subscription ID', async () => {
     const { prisma } = makePrisma({
-      subscription: { stripeCustomerId: null },
+      subscription: { lemonSubscriptionId: null },
     });
     const service = new BillingService(prisma);
 
     expect(await service.getInvoices('user-1')).toEqual({ invoices: [] });
   });
 
-  it('maps Stripe invoices to the app shape', async () => {
+  it('maps Lemon Squeezy invoices to the app shape', async () => {
     const { prisma } = makePrisma({
-      subscription: { stripeCustomerId: 'cus_123' },
+      subscription: { lemonSubscriptionId: 'sub_ls_1' },
     });
-    mockStripeInstance.invoices.list.mockResolvedValue({
-      data: [
-        {
-          id: 'in_1',
-          created: 1700000000,
-          amount_paid: 900,
-          total: 900,
-          currency: 'usd',
-          status: 'paid',
-          hosted_invoice_url: 'https://stripe.com/invoice/1',
-          invoice_pdf: null,
-        },
-      ],
+    mockedAxios.get.mockResolvedValue({
+      data: {
+        data: [
+          {
+            id: 'inv_1',
+            attributes: {
+              created_at: '2026-08-09T17:16:11.000Z',
+              total: 900,
+              currency: 'usd',
+              status: 'paid',
+              urls: {
+                invoice_url: 'https://invoices.lemonsqueezy.com/inv_1',
+              },
+            },
+          },
+        ],
+      },
     });
     const service = new BillingService(prisma);
 
@@ -308,102 +343,140 @@ describe('BillingService#getInvoices', () => {
 
     expect(result.invoices).toEqual([
       {
-        id: 'in_1',
-        date: new Date(1700000000 * 1000),
+        id: 'inv_1',
+        date: new Date('2026-08-09T17:16:11.000Z'),
         amount: 9,
         currency: 'USD',
         status: 'paid',
         plan: 'Starter',
-        downloadUrl: 'https://stripe.com/invoice/1',
+        downloadUrl: 'https://invoices.lemonsqueezy.com/inv_1',
       },
     ]);
   });
 });
 
 describe('BillingService webhook handling', () => {
-  it('constructEvent verifies the signature via the Stripe SDK', () => {
+  it('constructEvent verifies the signature and parses body', () => {
     const { prisma } = makePrisma();
     const service = new BillingService(prisma);
-    mockStripeInstance.webhooks.constructEvent.mockReturnValue({
-      type: 'checkout.session.completed',
-    });
 
-    const event = service.constructEvent(Buffer.from('{}'), 'sig_abc');
+    const rawBody = Buffer.from('{"test":"ok"}');
+    const hmac = crypto.createHmac('sha256', 'ls_whsec_dummy');
+    const signature = hmac.update(rawBody).digest('hex');
 
-    expect(mockStripeInstance.webhooks.constructEvent).toHaveBeenCalledWith(
-      Buffer.from('{}'),
-      'sig_abc',
-      'whsec_dummy',
-    );
-    expect(event).toEqual({ type: 'checkout.session.completed' });
+    const event = service.constructEvent(rawBody, signature);
+
+    expect(event).toEqual({ test: 'ok' });
   });
 
-  it('activates the subscription on checkout.session.completed', async () => {
+  it('activates the subscription on subscription_created', async () => {
     const { prisma, getSub } = makePrisma({ subscription: null });
-    mockStripeInstance.subscriptions.retrieve.mockResolvedValue({
-      status: 'active',
-      items: { data: [{ current_period_end: 1700003600 }] },
-    });
     const service = new BillingService(prisma);
 
     await service.handleWebhookEvent({
-      type: 'checkout.session.completed',
+      meta: {
+        event_name: 'subscription_created',
+        custom_data: { userId: 'user-1', planSlug: 'starter' },
+      },
       data: {
-        object: {
-          id: 'cs_1',
-          client_reference_id: 'user-1',
-          metadata: { userId: 'user-1', planSlug: 'starter' },
-          customer: 'cus_123',
-          subscription: 'sub_stripe_1',
+        id: 'sub_ls_1',
+        type: 'subscriptions',
+        attributes: {
+          customer_id: 'cus_123',
+          status: 'active',
+          renews_at: '2026-09-09T17:16:11.000Z',
+          ends_at: null,
         },
       },
-    } as unknown as Stripe.Event);
+    });
 
     const sub = getSub();
-    expect(sub?.status).toBe('ACTIVE');
-    expect(sub?.stripeCustomerId).toBe('cus_123');
-    expect(sub?.stripeSubscriptionId).toBe('sub_stripe_1');
+    expect(sub?.status).toBe(SubscriptionStatus.ACTIVE);
+    expect(sub?.lemonCustomerId).toBe('cus_123');
+    expect(sub?.lemonSubscriptionId).toBe('sub_ls_1');
+    expect(sub?.currentPeriodEnd).toEqual(new Date('2026-09-09T17:16:11.000Z'));
   });
 
-  it('syncs status on customer.subscription.updated', async () => {
+  it('syncs status on subscription_updated', async () => {
     const { prisma, getSub } = makePrisma({
-      subscription: { stripeSubscriptionId: 'sub_stripe_1', status: 'ACTIVE' },
+      subscription: {
+        lemonSubscriptionId: 'sub_ls_1',
+        status: SubscriptionStatus.ACTIVE,
+      },
     });
     const service = new BillingService(prisma);
 
     await service.handleWebhookEvent({
-      type: 'customer.subscription.updated',
+      meta: {
+        event_name: 'subscription_updated',
+      },
       data: {
-        object: {
-          id: 'sub_stripe_1',
+        id: 'sub_ls_1',
+        type: 'subscriptions',
+        attributes: {
+          customer_id: 'cus_123',
           status: 'past_due',
-          items: { data: [{ current_period_end: 1700003600 }] },
+          renews_at: '2026-09-09T17:16:11.000Z',
+          ends_at: null,
         },
       },
-    } as unknown as Stripe.Event);
+    });
 
-    expect(getSub()?.status).toBe('EXPIRED');
+    expect(getSub()?.status).toBe(SubscriptionStatus.EXPIRED);
   });
 
-  it('marks the subscription canceled on customer.subscription.deleted', async () => {
+  it('marks the subscription canceled on subscription_cancelled', async () => {
     const { prisma, getSub } = makePrisma({
-      subscription: { stripeSubscriptionId: 'sub_stripe_1', status: 'ACTIVE' },
+      subscription: {
+        lemonSubscriptionId: 'sub_ls_1',
+        status: SubscriptionStatus.ACTIVE,
+      },
     });
     const service = new BillingService(prisma);
 
     await service.handleWebhookEvent({
-      type: 'customer.subscription.deleted',
+      meta: {
+        event_name: 'subscription_cancelled',
+      },
       data: {
-        object: {
-          id: 'sub_stripe_1',
-          status: 'canceled',
-          items: { data: [] },
+        id: 'sub_ls_1',
+        type: 'subscriptions',
+        attributes: {
+          customer_id: 'cus_123',
+          status: 'cancelled',
+          ends_at: '2026-09-09T17:16:11.000Z',
         },
       },
-    } as unknown as Stripe.Event);
+    });
 
     const sub = getSub();
-    expect(sub?.status).toBe('CANCELED');
+    expect(sub?.status).toBe(SubscriptionStatus.CANCELED);
     expect(sub?.canceledAt).toBeInstanceOf(Date);
+    expect(sub?.currentPeriodEnd).toEqual(new Date('2026-09-09T17:16:11.000Z'));
+  });
+
+  it('marks subscription expired on subscription_expired', async () => {
+    const { prisma, getSub } = makePrisma({
+      subscription: {
+        lemonSubscriptionId: 'sub_ls_1',
+        status: SubscriptionStatus.CANCELED,
+      },
+    });
+    const service = new BillingService(prisma);
+
+    await service.handleWebhookEvent({
+      meta: {
+        event_name: 'subscription_expired',
+      },
+      data: {
+        id: 'sub_ls_1',
+        type: 'subscriptions',
+        attributes: {
+          status: 'expired',
+        },
+      },
+    });
+
+    expect(getSub()?.status).toBe(SubscriptionStatus.EXPIRED);
   });
 });

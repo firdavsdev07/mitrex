@@ -25,13 +25,13 @@ describe('redirectWithOAuthError', () => {
     );
   });
 
-  it('falls back to localhost:3001 when FRONTEND_URL is unset', () => {
+  it('falls back to localhost:3000 when FRONTEND_URL is unset', () => {
     const { res, redirect } = mockResponse();
 
     redirectWithOAuthError(res, 'youtube', 'denied');
 
     expect(redirect).toHaveBeenCalledWith(
-      expect.stringContaining('http://localhost:3001/connections?'),
+      expect.stringContaining('http://localhost:3000/connections?'),
     );
   });
 });

@@ -3,6 +3,23 @@ import { PrismaService } from '../prisma/prisma.service';
 import { Platform, Prisma } from '@metrix/prisma-client';
 import { CreatePlanDto, UpdatePlanDto } from '../plans/dto/create-plan.dto';
 
+// Sync cron'i har 6 soatda ishlaydi; 12 soat — ketma-ket ikki siklning
+// o'tkazib yuborilgani, ya'ni tasodifiy kechikish emas.
+const STALE_SYNC_HOURS = 12;
+
+// Ulanishlarning yarmidan ko'pi eskirgan bo'lsa muammo tizimli (cron yoki
+// Redis to'xtagan); bir qismi eskirgan bo'lsa — alohida ulanishlar muammosi.
+export function syncStatusOf(
+  lastSyncAt: Date | null,
+  stale: number,
+  total: number,
+): 'ok' | 'degraded' | 'down' | 'idle' {
+  if (total === 0) return 'idle';
+  if (!lastSyncAt) return 'down';
+  if (stale === 0) return 'ok';
+  return stale >= total / 2 ? 'down' : 'degraded';
+}
+
 @Injectable()
 export class AdminService {
   constructor(private readonly prisma: PrismaService) {}
@@ -35,6 +52,74 @@ export class AdminService {
       activeConnections,
       totalWebsites,
       totalViews,
+    };
+  }
+
+  // ─── Sync salomatligi ─────────────────────────────────────────────────────
+  // 6 soatlik cron jimgina to'xtab qolsa (Redis uzildi, konteyner qayta
+  // ishga tushmadi, xato tashlandi) buni hech kim sezmaydi: ma'lumot
+  // yangilanmaydi, lekin xato ham ko'rinmaydi. Shu sabab "oxirgi marta
+  // qachon sinxronlangan" va "nechtasi eskirib qolgan" ko'rsatkichlari
+  // admin panelga chiqariladi.
+
+  async getSyncHealth() {
+    const now = Date.now();
+    // Cron har 6 soatda ishlaydi — 12 soatdan oshgani ikki siklni
+    // o'tkazib yuborgani, ya'ni tizimda muammo borligini bildiradi.
+    const staleThreshold = new Date(now - STALE_SYNC_HOURS * 60 * 60 * 1000);
+
+    const [total, stale, failing, lastSynced, byPlatformRaw] =
+      await Promise.all([
+        this.prisma.connection.count({ where: { isActive: true } }),
+        this.prisma.connection.count({
+          where: {
+            isActive: true,
+            OR: [{ lastSyncAt: null }, { lastSyncAt: { lt: staleThreshold } }],
+          },
+        }),
+        this.prisma.connection.count({
+          where: { isActive: true, lastSyncError: { not: null } },
+        }),
+        this.prisma.connection.findFirst({
+          where: { isActive: true, lastSyncAt: { not: null } },
+          orderBy: { lastSyncAt: 'desc' },
+          select: { lastSyncAt: true },
+        }),
+        this.prisma.connection.groupBy({
+          by: ['platform'],
+          where: { isActive: true },
+          _count: { _all: true },
+          _max: { lastSyncAt: true },
+        }),
+      ]);
+
+    // Xato bergan ulanishlarni platforma kesimida sanash — groupBy'ni
+    // ikkinchi marta filtr bilan chaqirish o'rniga bitta so'rov.
+    const failingByPlatform = await this.prisma.connection.groupBy({
+      by: ['platform'],
+      where: { isActive: true, lastSyncError: { not: null } },
+      _count: { _all: true },
+    });
+    const failingMap = new Map(
+      failingByPlatform.map((r) => [r.platform, r._count._all]),
+    );
+
+    const lastSyncAt = lastSynced?.lastSyncAt ?? null;
+
+    return {
+      // Umumiy holat — UI shu bitta qiymatga qarab rang tanlashi mumkin.
+      status: syncStatusOf(lastSyncAt, stale, total),
+      lastSyncAt,
+      staleThresholdHours: STALE_SYNC_HOURS,
+      connections: { total, stale, failing },
+      byPlatform: byPlatformRaw
+        .map((row) => ({
+          platform: row.platform,
+          total: row._count._all,
+          failing: failingMap.get(row.platform) ?? 0,
+          lastSyncAt: row._max.lastSyncAt,
+        }))
+        .sort((a, b) => b.total - a.total),
     };
   }
 

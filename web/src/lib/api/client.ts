@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3000';
+const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:5000';
 
 // Access token endi faqat xotirada saqlanadi (JS o'qiy oladigan cookie'da
 // EMAS) — XSS bo'lsa ham uni o'g'irlab bo'lmaydi. Sessiya uzayishi uchun

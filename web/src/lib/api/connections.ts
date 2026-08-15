@@ -6,6 +6,7 @@ export interface Connection {
   platformUsername: string | null;
   isActive: boolean;
   tokenStatus: 'ok' | 'expiring_soon' | 'expired';
+  workspaceId?: string | null;
   createdAt: string;
   stats: {
     followers: number | null;
@@ -26,6 +27,9 @@ export const connectionsApi = {
 
   syncOne: (connectionId: string) =>
     apiClient.post(`/connections/${connectionId}/sync`).then((r) => r.data),
+
+  updateWorkspace: (connectionId: string, workspaceId: string | null) =>
+    apiClient.patch(`/connections/${connectionId}/workspace`, { workspaceId }).then((r) => r.data),
 
   // OAuth URL olish (JWT bilan) — keyin window.location.href ga yo'naltirish
   getOAuthUrl: (endpoint: string) =>
@@ -73,5 +77,11 @@ export const PLATFORM_META: Record<
   DISCORD: { label: 'Discord', color: 'text-indigo-400', connectType: 'oauth' },
   BLUESKY: { label: 'Bluesky', color: 'text-sky-400', connectType: 'bluesky' },
   FACEBOOK: { label: 'Facebook', color: 'text-blue-500', connectType: 'oauth' },
+  THREADS: { label: 'Threads', color: 'text-zinc-200', connectType: 'oauth' },
   REDDIT: { label: 'Reddit', color: 'text-orange-500', connectType: 'reddit' },
+  PINTEREST: {
+    label: 'Pinterest',
+    color: 'text-red-500',
+    connectType: 'oauth',
+  },
 };

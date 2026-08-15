@@ -62,7 +62,7 @@ export class TrackingController {
   @Get('track.js')
   @SkipThrottle({ short: true, medium: true, long: true })
   serveScript(@Res() res: Response) {
-    const appUrl = process.env.APP_URL || 'http://localhost:3000';
+    const appUrl = process.env.APP_URL || 'http://localhost:5000';
     const script = `(function(){
   var s=document.currentScript;
   var key=s&&s.getAttribute('data-site');

@@ -10,7 +10,7 @@ export function redirectWithOAuthError(
   platform: string,
   message: string,
 ): void {
-  const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3001';
+  const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
   const params = new URLSearchParams({ error: platform, message });
   res.redirect(`${frontendUrl}/connections?${params.toString()}`);
 }

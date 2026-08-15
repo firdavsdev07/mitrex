@@ -65,11 +65,19 @@ interface DecryptedConn {
 // pages_show_list → list pages
 // pages_read_engagement → page engagement data
 // business_management → business suite access (optional, needed for some features)
+// pages_read_user_content → Page postlarini (/{page-id}/posts) o'qish uchun
+//   shart; pages_read_engagement yolg'iz o'zi faqat sahifa metama'lumotini
+//   beradi, postlar ro'yxatiga ruxsat bermaydi.
+// threads_basic / threads_manage_insights → Threads profili va post
+//   statistikasi (graph.threads.net) uchun.
 const REQUIRED_SCOPES = [
   'instagram_business_basic',
   'instagram_business_manage_insights',
   'pages_show_list',
   'pages_read_engagement',
+  'pages_read_user_content',
+  'threads_basic',
+  'threads_manage_insights',
   'public_profile',
   'email',
 ].join(',');
@@ -81,7 +89,7 @@ export class InstagramService {
   private readonly appSecret = process.env.INSTAGRAM_APP_SECRET;
   private readonly redirectUri =
     process.env.INSTAGRAM_REDIRECT_URI ||
-    'http://localhost:3000/instagram/callback';
+    'http://localhost:5000/instagram/callback';
   private readonly webhookVerifyToken = process.env.META_WEBHOOK_VERIFY_TOKEN;
 
   constructor(private readonly prisma: PrismaService) {}
@@ -218,30 +226,11 @@ export class InstagramService {
           },
         });
 
-        // Also connect Threads (same IG account, different platform)
-        await this.prisma.connection.upsert({
-          where: {
-            userId_platform_platformUserId: {
-              userId,
-              platform: Platform.THREADS,
-              platformUserId: igId,
-            },
-          },
-          create: {
-            userId,
-            platform: Platform.THREADS,
-            accessToken: encryptedPageToken,
-            tokenExpiresAt: expiresAt,
-            platformUserId: igId,
-            platformUsername: igRes.data?.username || igId,
-          },
-          update: {
-            accessToken: encryptedPageToken,
-            tokenExpiresAt: expiresAt,
-            isActive: true,
-          },
-        });
-        connectedCount += 2;
+        // Threads shu IG akkauntga tegishli bo'lsa-da, bu yerda ULANMAYDI:
+        // uning API'si alohida hostda (graph.threads.net) va Meta Graph
+        // tokenini qabul qilmaydi. Threads uchun o'z OAuth oqimi bor —
+        // qarang threads.service.ts (/threads/connect).
+        connectedCount++;
       }
     }
 
@@ -334,8 +323,6 @@ export class InstagramService {
         await this.syncInstagramStats(decryptedConn, today);
       } else if (conn.platform === Platform.FACEBOOK) {
         await this.syncFacebookStats(decryptedConn, today);
-      } else if (conn.platform === Platform.THREADS) {
-        await this.syncThreadsStats(decryptedConn, today);
       }
     } catch (err: unknown) {
       this.logger.error(
@@ -397,43 +384,6 @@ export class InstagramService {
       engagement: res.data.talking_about_count || 0,
       raw: res.data as unknown as Prisma.InputJsonValue,
     });
-  }
-
-  private async syncThreadsStats(conn: DecryptedConn, today: Date) {
-    // Threads uses Instagram Graph API with threads_* scopes
-    // Currently using same IG user ID but different endpoints
-    try {
-      const res = await withRetry(() =>
-        axios.get<MetaProfileResponse>(
-          `${META_BASE}/${conn.platformUserId}/threads_publishing_limit`,
-          {
-            params: {
-              fields: 'config,quota_usage',
-              access_token: conn.accessToken,
-            },
-          },
-        ),
-      ).catch(() => null);
-
-      // Fallback: get IG profile (Threads shares same account)
-      const emptyProfile: MetaProfileResponse = {};
-      const profileRes = await withRetry(() =>
-        axios.get<MetaProfileResponse>(`${META_BASE}/${conn.platformUserId}`, {
-          params: { fields: 'followers_count', access_token: conn.accessToken },
-        }),
-      ).catch(() => ({ data: emptyProfile }));
-
-      await this.upsertStat(conn.id, today, {
-        followers: profileRes.data?.followers_count || 0,
-        raw: {
-          threads: res?.data,
-          profile: profileRes.data,
-        } as unknown as Prisma.InputJsonValue,
-      });
-    } catch (err: unknown) {
-      this.logger.warn(`Threads stats: ${getErrorMessage(err)}`);
-      throw err;
-    }
   }
 
   private async upsertStat(

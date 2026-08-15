@@ -114,7 +114,7 @@ export class EmailService {
             <div style="background:#f4f3ec;border-radius:8px;padding:20px;margin:16px 0">
               ${html}
             </div>
-            <a href="${process.env.FRONTEND_URL || 'http://localhost:5173'}/dashboard"
+            <a href="${process.env.FRONTEND_URL || 'http://localhost:3000'}/dashboard"
                style="display:inline-block;padding:12px 24px;background:#aa3bff;
                       color:#fff;border-radius:6px;text-decoration:none">
               Go to dashboard
@@ -147,7 +147,7 @@ export class EmailService {
             <div style="background:#fff3cd;border:1px solid #ffc107;border-radius:6px;padding:16px;margin:16px 0">
               <p style="margin:0">${message}</p>
             </div>
-            <a href="${process.env.FRONTEND_URL || 'http://localhost:5173'}/dashboard"
+            <a href="${process.env.FRONTEND_URL || 'http://localhost:3000'}/dashboard"
                style="display:inline-block;padding:12px 24px;background:#aa3bff;
                       color:#fff;border-radius:6px;text-decoration:none">
               View Dashboard
@@ -180,7 +180,7 @@ export class EmailService {
             (${used.toLocaleString()} ta ishlatildi).</p>
             <p>Yangi ko'rishlar oy oxirigacha qabul qilinmaydi. Statistika yig'ilishda davom etishi
             uchun planni yangilang.</p>
-            <a href="${process.env.FRONTEND_URL || 'http://localhost:3001'}/settings"
+            <a href="${process.env.FRONTEND_URL || 'http://localhost:3000'}/settings"
                style="display:inline-block;padding:12px 24px;background:#aa3bff;
                       color:#fff;border-radius:6px;text-decoration:none;margin:16px 0">
               Planni yangilash

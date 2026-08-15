@@ -57,7 +57,7 @@ export class YoutubeService {
   private get oauthRedirectUri() {
     return (
       process.env.YOUTUBE_OAUTH_REDIRECT_URI ||
-      'http://localhost:3000/youtube/oauth/callback'
+      'http://localhost:5000/youtube/oauth/callback'
     );
   }
 

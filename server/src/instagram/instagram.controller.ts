@@ -91,7 +91,7 @@ export class InstagramController {
       return redirectWithOAuthError(res, 'instagram', describeOAuthError(err));
     }
 
-    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3001';
+    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
     res.redirect(`${frontendUrl}/connections?connected=instagram`);
   }
 

@@ -1,6 +1,6 @@
 process.env.JWT_SECRET = process.env.JWT_SECRET || 'e2e-test-jwt-secret';
 process.env.ENCRYPTION_KEY = process.env.ENCRYPTION_KEY || 'a'.repeat(64);
-process.env.FRONTEND_URL = 'http://localhost:3001';
+process.env.FRONTEND_URL = 'http://localhost:3000';
 process.env.GOOGLE_CLIENT_ID = 'e2e-google-client-id';
 process.env.GOOGLE_CLIENT_SECRET = 'e2e-google-client-secret';
 // YOUTUBE_API_KEY/GOOGLE_API_KEY qasddan o'rnatilmagan — fetchAndSaveStats()
@@ -143,7 +143,7 @@ describe('YouTube — Google OAuth connect callback (e2e)', () => {
       .expect(302);
 
     expect(res.headers.location).toBe(
-      'http://localhost:3001/connections?connected=youtube',
+      'http://localhost:3000/connections?connected=youtube',
     );
 
     const conn = [...connectionsById.values()].find((c) => c.userId === userId);
@@ -166,7 +166,7 @@ describe('YouTube — Google OAuth connect callback (e2e)', () => {
 
     const location = new URL(res.headers.location);
     expect(location.origin + location.pathname).toBe(
-      'http://localhost:3001/connections',
+      'http://localhost:3000/connections',
     );
     expect(location.searchParams.get('error')).toBe('youtube');
   });
@@ -182,7 +182,7 @@ describe('YouTube — Google OAuth connect callback (e2e)', () => {
 
     const location = new URL(res.headers.location);
     expect(location.origin + location.pathname).toBe(
-      'http://localhost:3001/connections',
+      'http://localhost:3000/connections',
     );
     expect(location.searchParams.get('error')).toBe('youtube');
     expect(location.searchParams.get('message')).toBe('User denied access');

@@ -31,7 +31,7 @@ export class DiscordService {
   // Platform uchun alohida redirect (login dan farqli)
   private readonly redirectUri =
     process.env.DISCORD_PLATFORM_REDIRECT_URI ||
-    'http://localhost:3000/discord/callback';
+    'http://localhost:5000/discord/callback';
 
   constructor(private readonly prisma: PrismaService) {}
 

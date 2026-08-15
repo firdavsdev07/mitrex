@@ -6,6 +6,7 @@ export interface Website {
   domain: string | null;
   trackingKey: string;
   shareId?: string | null;
+  workspaceId?: string | null;
   createdAt: string;
 }
 
@@ -108,11 +109,14 @@ export const websitesApi = {
   getOne: (id: string) =>
     apiClient.get<Website>(`/websites/${id}`).then((r) => r.data),
 
-  create: (data: { name: string; domain?: string }) =>
+  create: (data: { name: string; domain?: string; workspaceId?: string }) =>
     apiClient.post<Website>('/websites', data).then((r) => r.data),
 
   remove: (id: string) =>
     apiClient.delete(`/websites/${id}`).then((r) => r.data),
+
+  updateWorkspace: (id: string, workspaceId: string | null) =>
+    apiClient.patch<Website>(`/websites/${id}/workspace`, { workspaceId }).then((r) => r.data),
 
   getScript: (id: string) =>
     apiClient

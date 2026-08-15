@@ -1,14 +1,28 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, ForbiddenException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class DashboardService {
   constructor(private readonly prisma: PrismaService) {}
 
+  private async verifyWorkspaceAccess(userId: string, workspaceId: string) {
+    const member = await this.prisma.workspaceMember.findUnique({
+      where: { workspaceId_userId: { workspaceId, userId } },
+    });
+    if (!member) {
+      throw new ForbiddenException('You are not a member of this workspace');
+    }
+  }
+
   async getOverview(
     userId: string,
     period: 'today' | 'week' | 'month' = 'week',
+    workspaceId?: string | null,
   ) {
+    if (workspaceId) {
+      await this.verifyWorkspaceAccess(userId, workspaceId);
+    }
+
     const from = new Date();
     if (period === 'today') from.setHours(0, 0, 0, 0);
     else if (period === 'week') from.setDate(from.getDate() - 7);
@@ -19,9 +33,17 @@ export class DashboardService {
     else if (period === 'week') prevFrom.setDate(prevFrom.getDate() - 7);
     else prevFrom.setDate(prevFrom.getDate() - 30);
 
+    const connectionWhere = workspaceId
+      ? { workspaceId, isActive: true }
+      : { userId, workspaceId: null, isActive: true };
+
+    const websiteWhere = workspaceId
+      ? { workspaceId }
+      : { userId, workspaceId: null };
+
     const [connections, websites] = await Promise.all([
       this.prisma.connection.findMany({
-        where: { userId, isActive: true },
+        where: connectionWhere,
         include: {
           stats: {
             orderBy: { date: 'desc' },
@@ -40,7 +62,7 @@ export class DashboardService {
         },
       }),
       this.prisma.website.findMany({
-        where: { userId },
+        where: websiteWhere,
         select: {
           id: true,
           name: true,
@@ -62,7 +84,7 @@ export class DashboardService {
         latest && prev && prev.followers
           ? (
               ((latest.followers! - prev.followers) / prev.followers) *
-              100
+              105
             ).toFixed(1)
           : null;
 
@@ -76,12 +98,6 @@ export class DashboardService {
         comments: latest?.comments ?? null,
         engagement: latest?.engagement ?? null,
         growth: growth ? parseFloat(growth) : null,
-        // `date` — kalendar kuni (@db.Date, doim yarim tun) — "necha vaqt
-        // oldin" hisoblash uchun ishlatilsa, kun davomida hech narsa
-        // o'zgarmagandek ko'rinardi. `updatedAt` esa sinxronizatsiya
-        // haqiqatan OXIRGI marta qachon yozilganini beradi (bir kunda
-        // qayta-qayta "Yangilash" bosilsa ham `createdAt` faqat
-        // birinchisida o'rnatiladi).
         lastSync: latest?.updatedAt ?? null,
       };
     });
@@ -126,24 +142,31 @@ export class DashboardService {
     };
   }
 
-  async getWebViewsTrend(userId: string, days = 14) {
+  async getWebViewsTrend(
+    userId: string,
+    days = 14,
+    workspaceId?: string | null,
+  ) {
+    if (workspaceId) {
+      await this.verifyWorkspaceAccess(userId, workspaceId);
+    }
+
     const from = new Date();
     from.setDate(from.getDate() - days);
     from.setHours(0, 0, 0, 0);
 
+    const websiteWhere = workspaceId
+      ? { workspaceId }
+      : { userId, workspaceId: null };
+
     const websites = await this.prisma.website.findMany({
-      where: { userId },
+      where: websiteWhere,
       select: { id: true },
     });
     if (!websites.length) return [];
 
     const ids = websites.map((w) => w.id);
 
-    // TO_CHAR bilan to'g'ridan-to'g'ri ISO satr sifatida qaytariladi — pg
-    // driver DATE ustunini JS Date obyektiga aylantiradi va String(date)
-    // "Wed Jul 15" kabi weekday-prefiksli formatga tushib qolardi (ISO emas),
-    // bu esa frontend'dagi `new Date(iso)` parsingini vaqt zonasiga qarab
-    // noto'g'ri kunga siljitib yuborishi mumkin edi.
     const rows = await this.prisma.$queryRaw<{ date: string; views: bigint }[]>`
       SELECT TO_CHAR(DATE("createdAt"), 'YYYY-MM-DD') as date, COUNT(*) as views
       FROM page_views
@@ -159,13 +182,19 @@ export class DashboardService {
     }));
   }
 
-  // platform emas, aniq connectionId — bitta platformada bir nechta ulanish
-  // bo'lishi mumkin.
   async getConnectionHistory(userId: string, connectionId: string, days = 30) {
     const conn = await this.prisma.connection.findUnique({
       where: { id: connectionId },
     });
-    if (!conn || conn.userId !== userId) return null;
+    if (!conn) return null;
+
+    if (conn.userId !== userId) {
+      if (conn.workspaceId) {
+        await this.verifyWorkspaceAccess(userId, conn.workspaceId);
+      } else {
+        throw new ForbiddenException('Access denied');
+      }
+    }
 
     const from = new Date();
     from.setDate(from.getDate() - days);

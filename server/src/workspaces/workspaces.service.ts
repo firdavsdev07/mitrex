@@ -225,7 +225,7 @@ export class WorkspacesService {
       },
     });
 
-    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
     const inviteUrl = `${frontendUrl}/workspaces/join/${invite.token}`;
     await this.email.sendWorkspaceInvite(dto.email, workspace.name, inviteUrl);
 

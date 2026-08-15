@@ -29,6 +29,11 @@ export class DashboardController {
     enum: ['today', 'week', 'month'],
     required: false,
   })
+  @ApiQuery({
+    name: 'workspaceId',
+    type: 'string',
+    required: false,
+  })
   @ApiResponse({
     status: 200,
     description: 'Overview data for all connected sources',
@@ -36,19 +41,26 @@ export class DashboardController {
   getOverview(
     @CurrentUser('id') userId: string,
     @Query('period') period: 'today' | 'week' | 'month',
+    @Query('workspaceId') workspaceId?: string,
   ) {
-    return this.dashboardService.getOverview(userId, period);
+    return this.dashboardService.getOverview(userId, period, workspaceId);
   }
 
   @Get('web-trend')
   @ApiOperation({ summary: 'Daily web page views for the past N days' })
   @ApiQuery({ name: 'days', type: 'number', required: false })
+  @ApiQuery({ name: 'workspaceId', type: 'string', required: false })
   @ApiResponse({ status: 200, description: 'Array of { date, views }' })
   getWebViewsTrend(
     @CurrentUser('id') userId: string,
     @Query('days') days: string,
+    @Query('workspaceId') workspaceId?: string,
   ) {
-    return this.dashboardService.getWebViewsTrend(userId, parseInt(days) || 14);
+    return this.dashboardService.getWebViewsTrend(
+      userId,
+      parseInt(days) || 14,
+      workspaceId,
+    );
   }
 
   @Get('history/:connectionId')

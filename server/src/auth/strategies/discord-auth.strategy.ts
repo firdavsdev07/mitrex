@@ -14,7 +14,7 @@ export class DiscordAuthStrategy extends PassportStrategy(
       clientSecret: process.env.DISCORD_CLIENT_SECRET || 'placeholder',
       callbackUrl:
         process.env.DISCORD_REDIRECT_URI ||
-        'http://localhost:3000/auth/discord/callback',
+        'http://localhost:5000/auth/discord/callback',
       scope: [Scope.Identify, Scope.Email],
     });
   }

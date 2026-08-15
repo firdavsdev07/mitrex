@@ -57,6 +57,19 @@ export class AdminController {
     return this.queue.getStats();
   }
 
+  @Get('sync-health')
+  @ApiOperation({
+    summary: '6-hourly sync health: last run, stale and failing connections',
+  })
+  @ApiResponse({
+    status: 200,
+    description:
+      'status (ok/degraded/down/idle), lastSyncAt, per-platform breakdown',
+  })
+  getSyncHealth() {
+    return this.adminService.getSyncHealth();
+  }
+
   // ─── Users ──────────────────────────────────────────────────────────────
 
   @Get('users')

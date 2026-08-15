@@ -99,6 +99,26 @@ export class WebsitesService {
     await this.prisma.website.delete({ where: { id } });
   }
 
+  async updateWorkspace(
+    userId: string,
+    id: string,
+    workspaceId: string | null,
+  ) {
+    await this.findOwned(userId, id);
+    if (workspaceId) {
+      const member = await this.prisma.workspaceMember.findUnique({
+        where: { workspaceId_userId: { workspaceId, userId } },
+      });
+      if (!member) {
+        throw new ForbiddenException('You are not a member of this workspace');
+      }
+    }
+    return this.prisma.website.update({
+      where: { id },
+      data: { workspaceId },
+    });
+  }
+
   // ─── Public dashboard havolasi ─────────────────────────────────────────────
 
   async enableShare(userId: string, id: string) {
@@ -144,7 +164,7 @@ export class WebsitesService {
 
   async getScript(userId: string, id: string) {
     const website = await this.findOne(userId, id);
-    const appUrl = process.env.APP_URL || 'http://localhost:3000';
+    const appUrl = process.env.APP_URL || 'http://localhost:5000';
     return {
       script: `<script src="${appUrl}/track.js" data-site="${website.trackingKey}" defer></script>`,
       trackingKey: website.trackingKey,

@@ -55,6 +55,22 @@ export interface PlatformConfig {
   sortOrder: number;
 }
 
+// 6 soatlik sync cron'ining holati. `status` backend'da hisoblanadi:
+// ok — hammasi yangi · degraded — bir qismi eskirgan · down — cron to'xtagan
+// yoki yarmidan ko'pi eskirgan · idle — hali ulanish yo'q.
+export interface SyncHealth {
+  status: 'ok' | 'degraded' | 'down' | 'idle';
+  lastSyncAt: string | null;
+  staleThresholdHours: number;
+  connections: { total: number; stale: number; failing: number };
+  byPlatform: Array<{
+    platform: string;
+    total: number;
+    failing: number;
+    lastSyncAt: string | null;
+  }>;
+}
+
 export const adminApi = {
   getStats: () => apiClient.get<AdminStats>('/admin/stats').then((r) => r.data),
 
@@ -92,4 +108,7 @@ export const adminApi = {
   ) => apiClient.patch(`/admin/platforms/${slug}`, data).then((r) => r.data),
 
   getQueueStats: () => apiClient.get('/admin/queue').then((r) => r.data),
+
+  getSyncHealth: () =>
+    apiClient.get<SyncHealth>('/admin/sync-health').then((r) => r.data),
 };

@@ -30,6 +30,7 @@ import {
   type PlatformHistoryPoint,
 } from '@/lib/api/dashboard';
 import { useAuthStore } from '@/store/auth';
+import { useWorkspaceStore } from '@/store/workspace';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import {
@@ -146,6 +147,7 @@ const DAYS_OPTIONS = [
 
 export default function DashboardPage() {
   const { user } = useAuthStore();
+  const { activeWorkspace } = useWorkspaceStore();
   const [period, setPeriod] = useState<Period>('week');
   const [trendDays, setTrendDays] = useState(14);
   const [data, setData] = useState<DashboardOverview | null>(null);
@@ -157,13 +159,13 @@ export default function DashboardPage() {
   const [syncing, setSyncing] = useState(false);
   const [error, setError] = useState(false);
 
-  const load = useCallback(async (p: Period, days: number) => {
+  const load = useCallback(async (p: Period, days: number, wsId?: string) => {
     setLoading(true);
     setError(false);
     try {
       const [overview, webTrend] = await Promise.all([
-        dashboardApi.overview(p),
-        dashboardApi.webTrend(days),
+        dashboardApi.overview(p, wsId),
+        dashboardApi.webTrend(days, wsId),
       ]);
       setData(overview);
       setTrend(webTrend);
@@ -193,8 +195,8 @@ export default function DashboardPage() {
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect -- qasddan: fetch-on-mount/reset-on-dep-change, asosiy render tugagach ishlaydi
-    load(period, trendDays);
-  }, [period, trendDays, load]);
+    load(period, trendDays, activeWorkspace?.id);
+  }, [period, trendDays, activeWorkspace?.id, load]);
 
   async function handleSync() {
     setSyncing(true);

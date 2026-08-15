@@ -11,6 +11,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { authApi } from '@/lib/api/auth';
 import { loginAndStore } from '@/store/auth';
+import { billingApi } from '@/lib/api/billing';
 
 const schema = z.object({
   name: z.string().min(1, 'Ismingizni kiriting'),
@@ -19,7 +20,7 @@ const schema = z.object({
 });
 type FormData = z.infer<typeof schema>;
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3000';
+const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:5000';
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -37,6 +38,22 @@ export default function RegisterPage() {
     try {
       const res = await authApi.register(data);
       loginAndStore(res.accessToken, res.user);
+
+      const plan = typeof window !== 'undefined' ? new URLSearchParams(window.location.search).get('plan') : null;
+      if (plan && plan !== 'free') {
+        try {
+          const checkoutRes = await billingApi.checkout(plan);
+          if (checkoutRes.checkoutUrl) {
+            window.location.assign(checkoutRes.checkoutUrl);
+            return;
+          }
+        } catch (checkoutErr) {
+          console.error("Auto checkout error:", checkoutErr);
+          router.push('/settings?billing=true');
+          return;
+        }
+      }
+
       router.push('/dashboard');
     } catch (err: unknown) {
       const msg = (err as { response?: { data?: { message?: string } } })

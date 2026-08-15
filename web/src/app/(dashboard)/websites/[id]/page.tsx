@@ -28,7 +28,9 @@ import {
   Check,
   X,
   RefreshCw,
+  Download,
 } from 'lucide-react';
+import { exportApi, triggerDownload } from '@/lib/api/export';
 import {
   websitesApi,
   type AnalyticsOverview,
@@ -188,6 +190,21 @@ export default function WebsiteAnalyticsPage({
   );
   const [shareModal, setShareModal] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [exporting, setExporting] = useState(false);
+
+  async function handleExport() {
+    setExporting(true);
+    try {
+      const exportPeriod = period === 'today' ? 'week' : (period as 'week' | 'month');
+      const blob = await exportApi.exportWebsitePageviews(id, exportPeriod);
+      triggerDownload(blob, `pageviews-${site?.name || id}-${exportPeriod}.csv`);
+    } catch (err) {
+      console.error('Export error:', err);
+      alert("Ma'lumotlarni eksport qilishda xato yuz berdi");
+    } finally {
+      setExporting(false);
+    }
+  }
 
   const load = useCallback(
     async (p: Period) => {
@@ -240,7 +257,7 @@ export default function WebsiteAnalyticsPage({
         retryTimer = setTimeout(connect, 3000);
         return;
       }
-      const base = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3000';
+      const base = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:5000';
       es = new EventSource(
         `${base}/websites/${id}/realtime/stream?token=${encodeURIComponent(token)}`,
       );
@@ -322,6 +339,16 @@ export default function WebsiteAnalyticsPage({
           >
             <RefreshCw className="w-3.5 h-3.5" />
             Yangilash
+          </Button>
+          <Button
+            variant="secondary"
+            size="sm"
+            loading={exporting}
+            onClick={handleExport}
+            className="gap-1.5"
+          >
+            <Download className="w-3.5 h-3.5" />
+            Eksport (CSV)
           </Button>
           <div className="flex items-center gap-0.5 bg-zinc-900 border border-zinc-800 rounded-lg p-0.5">
             {(['today', 'week', 'month'] as Period[]).map((p) => (

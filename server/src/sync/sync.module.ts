@@ -6,7 +6,9 @@ import { TelegramModule } from '../telegram/telegram.module';
 import { DiscordModule } from '../discord/discord.module';
 import { BlueskyModule } from '../bluesky/bluesky.module';
 import { InstagramModule } from '../instagram/instagram.module';
+import { ThreadsModule } from '../threads/threads.module';
 import { RedditModule } from '../reddit/reddit.module';
+import { PinterestModule } from '../pinterest/pinterest.module';
 import { PostsModule } from '../posts/posts.module';
 import { SyncProcessor } from '../queue/processors/sync.processor';
 import { QUEUE_SYNC } from '../queue/queue.constants';
@@ -19,7 +21,9 @@ import { QUEUE_SYNC } from '../queue/queue.constants';
     DiscordModule,
     BlueskyModule,
     InstagramModule,
+    ThreadsModule,
     RedditModule,
+    PinterestModule,
     PostsModule,
   ],
   providers: [SyncService, SyncProcessor],

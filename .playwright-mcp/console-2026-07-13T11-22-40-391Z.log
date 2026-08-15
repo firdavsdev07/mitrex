@@ -1,8 +1,0 @@
-[     769ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://localhost:3001/_next/static/chunks/16jc_next_dist_1otos7v._.js:2477
-[     843ms] [LOG] [HMR] connected @ http://localhost:3001/_next/static/chunks/16jc_next_dist_1otos7v._.js:2477
-[   40344ms] [WARNING] Detected `scroll-behavior: smooth` on the `<html>` element. To disable smooth scrolling during route transitions, add `data-scroll-behavior="smooth"` to your <html> element. Learn more: https://nextjs.org/docs/messages/missing-data-scroll-behavior @ http://localhost:3001/_next/static/chunks/16jc_next_dist_1otos7v._.js:2477
-[   40437ms] [VERBOSE] [DOM] Input elements should have autocomplete attributes (suggested: "current-password"): (More info: https://goo.gl/9p2vKq) %o @ http://localhost:3001/login:0
-[   50474ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3001/_next/static/chunks/16jc_next_dist_1otos7v._.js:2477
-[   50525ms] [LOG] [Fast Refresh] done in 150ms @ http://localhost:3001/_next/static/chunks/16jc_next_dist_1otos7v._.js:2477
-[   50643ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3001/_next/static/chunks/16jc_next_dist_1otos7v._.js:2477
-[   50683ms] [LOG] [Fast Refresh] done in 140ms @ http://localhost:3001/_next/static/chunks/16jc_next_dist_1otos7v._.js:2477

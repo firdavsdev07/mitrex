@@ -11,7 +11,9 @@ export class ConnectionsService {
 
   async findAll(userId: string) {
     const connections = await this.prisma.connection.findMany({
-      where: { userId },
+      where: {
+        OR: [{ userId }, { workspace: { members: { some: { userId } } } }],
+      },
       select: {
         id: true,
         platform: true,
@@ -21,6 +23,7 @@ export class ConnectionsService {
         createdAt: true,
         lastSyncAt: true,
         lastSyncError: true,
+        workspaceId: true,
         stats: {
           orderBy: { date: 'desc' },
           take: 1,
@@ -91,5 +94,30 @@ export class ConnectionsService {
 
     await this.prisma.connection.delete({ where: { id: connectionId } });
     return { disconnected: true, platform: conn.platform };
+  }
+
+  async updateWorkspace(
+    userId: string,
+    id: string,
+    workspaceId: string | null,
+  ) {
+    const connection = await this.prisma.connection.findUnique({
+      where: { id },
+    });
+    if (!connection || connection.userId !== userId) {
+      throw new NotFoundException('Connection not found');
+    }
+    if (workspaceId) {
+      const member = await this.prisma.workspaceMember.findUnique({
+        where: { workspaceId_userId: { workspaceId, userId } },
+      });
+      if (!member) {
+        throw new NotFoundException('Workspace not found or access denied');
+      }
+    }
+    return this.prisma.connection.update({
+      where: { id },
+      data: { workspaceId },
+    });
   }
 }

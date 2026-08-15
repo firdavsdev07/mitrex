@@ -15,6 +15,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
 import { Modal } from '@/components/ui/modal';
+import { useWorkspaceStore } from '@/store/workspace';
 
 export default function WebsitesPage() {
   const [websites, setWebsites] = useState<Website[]>([]);
@@ -23,10 +24,15 @@ export default function WebsitesPage() {
   const [scriptModal, setScriptModal] = useState<Website | null>(null);
   const [script, setScript] = useState('');
   const [error, setError] = useState('');
+  const { activeWorkspace, workspaces } = useWorkspaceStore();
 
   useEffect(() => {
     load();
   }, []);
+
+  const filteredWebsites = websites.filter((site) =>
+    activeWorkspace ? site.workspaceId === activeWorkspace.id : !site.workspaceId
+  );
 
   async function load() {
     setLoading(true);
@@ -89,7 +95,7 @@ export default function WebsitesPage() {
             />
           ))}
         </div>
-      ) : !websites.length ? (
+      ) : !filteredWebsites.length ? (
         <div className="rounded-xl border border-zinc-800 border-dashed bg-zinc-900/30 p-12 text-center">
           <Globe className="w-10 h-10 text-zinc-700 mx-auto mb-4" />
           <p className="text-sm text-zinc-400 mb-1">
@@ -106,7 +112,7 @@ export default function WebsitesPage() {
         </div>
       ) : (
         <div className="flex flex-col gap-3">
-          {websites.map((site) => (
+          {filteredWebsites.map((site) => (
             <Card key={site.id}>
               <CardContent className="p-4">
                 <div className="flex items-center gap-4">
@@ -117,9 +123,33 @@ export default function WebsitesPage() {
                     <p className="text-sm font-medium text-zinc-200">
                       {site.name}
                     </p>
-                    {site.domain && (
-                      <p className="text-xs text-zinc-600">{site.domain}</p>
-                    )}
+                    <div className="flex items-center gap-2 mt-1">
+                      {site.domain && (
+                        <span className="text-xs text-zinc-600">{site.domain}</span>
+                      )}
+                      {site.domain && <span className="text-zinc-800 text-[10px]">•</span>}
+                      <select
+                        value={site.workspaceId ?? 'personal'}
+                        onChange={async (e) => {
+                          const val = e.target.value;
+                          const newWs = val === 'personal' ? null : val;
+                          try {
+                            await websitesApi.updateWorkspace(site.id, newWs);
+                            load();
+                          } catch {
+                            alert("Sayt jamoasini o'zgartirishda xatolik yuz berdi");
+                          }
+                        }}
+                        className="text-[10px] bg-zinc-900 border border-zinc-850 rounded px-1.5 py-0.5 text-zinc-500 outline-none hover:text-zinc-350 cursor-pointer transition-colors max-w-28 truncate font-medium"
+                      >
+                        <option value="personal">Shaxsiy</option>
+                        {workspaces.map((w) => (
+                          <option key={w.id} value={w.id}>
+                            {w.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
                   </div>
                   <div className="flex items-center gap-2">
                     <Button
@@ -182,8 +212,9 @@ function AddWebsiteModal({
 }) {
   const [name, setName] = useState('');
   const [domain, setDomain] = useState('');
-  const [error, setError] = useState('');
+  const [error, setError] = useState<React.ReactNode>('');
   const [loading, setLoading] = useState(false);
+  const { activeWorkspace } = useWorkspaceStore();
 
   async function handleSubmit(e: React.SyntheticEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -197,12 +228,28 @@ function AddWebsiteModal({
       await websitesApi.create({
         name: name.trim(),
         domain: domain.trim() || undefined,
+        workspaceId: activeWorkspace?.id,
       });
       onSuccess();
     } catch (err: unknown) {
-      const msg = (err as { response?: { data?: { message?: string } } })
-        ?.response?.data?.message;
-      setError(msg ?? "Sayt qo'shishda xatolik");
+      const axiosErr = err as { response?: { status?: number; data?: { message?: string } } };
+      if (axiosErr.response?.status === 403) {
+        setError(
+          <span>
+            Tarifingiz chekloviga yetdingiz. Iltimos,{' '}
+            <Link
+              href="/settings?billing=true"
+              className="text-orange-400 underline hover:text-orange-300 font-semibold"
+            >
+              tarifni yangilang
+            </Link>
+            .
+          </span>,
+        );
+      } else {
+        const msg = axiosErr.response?.data?.message;
+        setError(msg ?? "Sayt qo'shishda xatolik");
+      }
     } finally {
       setLoading(false);
     }

@@ -1,5 +1,5 @@
 process.env.JWT_SECRET = process.env.JWT_SECRET || 'e2e-test-jwt-secret';
-process.env.FRONTEND_URL = 'http://localhost:3001';
+process.env.FRONTEND_URL = 'http://localhost:3000';
 
 import { Test } from '@nestjs/testing';
 import { INestApplication, ExecutionContext } from '@nestjs/common';
@@ -149,7 +149,7 @@ describe('Auth — Google OAuth callback (e2e)', () => {
       .expect(302);
 
     expect(res.headers.location).toMatch(
-      /^http:\/\/localhost:3001\/auth\/callback\?token=/,
+      /^http:\/\/localhost:3000\/auth\/callback\?token=/,
     );
 
     const setCookie = res.headers['set-cookie'] as string | string[];
@@ -179,7 +179,7 @@ describe('Auth — Google OAuth callback (e2e)', () => {
       .expect(302);
 
     expect(res.headers.location).toMatch(
-      /^http:\/\/localhost:3001\/auth\/callback\?token=/,
+      /^http:\/\/localhost:3000\/auth\/callback\?token=/,
     );
     expect(usersByEmail.size).toBe(usersBefore);
   });
