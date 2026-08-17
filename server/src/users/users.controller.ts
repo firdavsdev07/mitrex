@@ -29,14 +29,6 @@ import { CurrentUser } from '../common/decorators/current-user.decorator';
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
-  @Get()
-  @ApiOperation({ summary: 'Get current user profile' })
-  @ApiResponse({ status: 200, description: 'User profile' })
-  @ApiResponse({ status: 401, description: 'Unauthorized' })
-  getProfile(@CurrentUser('id') userId: string) {
-    return this.usersService.getProfile(userId);
-  }
-
   @Patch()
   @ApiOperation({ summary: 'Update name or avatar' })
   @ApiResponse({ status: 200, description: 'Updated profile' })

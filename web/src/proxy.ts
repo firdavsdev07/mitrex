@@ -8,8 +8,25 @@ import { NextRequest, NextResponse } from 'next/server';
 // bo'ladi. Role tekshiruvi ham client tomonda qoladi.
 const REFRESH_COOKIE = 'mx_refresh';
 
+// /login va /register — sessiya cookie'si bor foydalanuvchi bu sahifalarni
+// qayta ko'rmasin (masalan yangi tab'da manzilni qo'lda yozib kirsa).
+// Aniq rol tekshiruvi (ADMIN → /admin) middleware'da mumkin emas — access
+// token faqat xotirada, cookie'da rol yo'q — shuning uchun /dashboard'ga
+// yo'naltiradi, xato bo'lsa dashboard layout /auth/me orqali o'zi qayta
+// tekshiradi va kerak bo'lsa /login'ga qaytaradi.
+const AUTH_ONLY_ROUTES = ['/login', '/register'];
+
 export function proxy(request: NextRequest) {
   const hasSession = request.cookies.has(REFRESH_COOKIE);
+  const { pathname } = request.nextUrl;
+
+  if (AUTH_ONLY_ROUTES.some((p) => pathname.startsWith(p))) {
+    if (hasSession) {
+      return NextResponse.redirect(new URL('/dashboard', request.url));
+    }
+    return NextResponse.next();
+  }
+
   if (!hasSession) {
     const loginUrl = new URL('/login', request.url);
     return NextResponse.redirect(loginUrl);
@@ -27,5 +44,7 @@ export const config = {
     '/alerts/:path*',
     '/settings/:path*',
     '/admin/:path*',
+    '/login',
+    '/register',
   ],
 };

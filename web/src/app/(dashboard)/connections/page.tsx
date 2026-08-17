@@ -17,6 +17,7 @@ import {
   PLATFORM_META,
   type Connection,
 } from '@/lib/api/connections';
+import { platformsApi } from '@/lib/api/platforms';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
@@ -126,6 +127,14 @@ function ConnectionsInner() {
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
   const [errorMsg, setErrorMsg] = useState<React.ReactNode | null>(null);
   const [loadError, setLoadError] = useState(false);
+  // Admin panel `enabled`/`comingSoon` orqali qaysi platformalarni ko'rsatishni
+  // boshqaradi (masalan Pinterest hozircha Meta app review kutmoqda) — shu
+  // sabab bo'sh massiv bilan boshlanadi (hech narsa ko'rsatilmaydi), ALL_PLATFORMS
+  // bilan emas: aks holda /platforms hali yuklanmagan bir lahzada admin
+  // o'chirgan platforma ham "ulash mumkin" bo'lib ko'rinib ketardi.
+  const [enabledPlatforms, setEnabledPlatforms] = useState<Set<string>>(
+    new Set(),
+  );
   const { activeWorkspace } = useWorkspaceStore();
 
   const loadConnections = useCallback(async () => {
@@ -181,6 +190,14 @@ function ConnectionsInner() {
       window.history.replaceState({}, '', '/connections');
     }
     loadConnections();
+    platformsApi
+      .list()
+      .then((list) =>
+        setEnabledPlatforms(
+          new Set(list.filter((p) => p.enabled).map((p) => p.slug)),
+        ),
+      )
+      .catch(() => {});
   }, []);
 
   async function handleSync(connectionId: string) {
@@ -234,7 +251,9 @@ function ConnectionsInner() {
     (c) => c.tokenStatus !== 'expired' && c.tokenStatus !== 'expiring_soon',
   );
   const connectedPlatforms = new Set(mine.map((c) => c.platform));
-  const available = ALL_PLATFORMS.filter((p) => !connectedPlatforms.has(p));
+  const available = ALL_PLATFORMS.filter(
+    (p) => !connectedPlatforms.has(p) && enabledPlatforms.has(p),
+  );
 
   const cardProps = {
     onSync: handleSync,

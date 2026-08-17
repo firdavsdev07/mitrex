@@ -69,16 +69,22 @@ export default function Footer() {
           </p>
           <div className="flex items-center gap-4">
             <Link
-              href="#"
-              className="text-xs text-ink-3 hover:text-ink-3 transition-colors"
+              href="/privacy"
+              className="text-xs text-ink-3 hover:text-ink transition-colors"
             >
               Maxfiylik siyosati
             </Link>
             <Link
-              href="#"
-              className="text-xs text-ink-3 hover:text-ink-3 transition-colors"
+              href="/terms"
+              className="text-xs text-ink-3 hover:text-ink transition-colors"
             >
               Foydalanish shartlari
+            </Link>
+            <Link
+              href="/refund"
+              className="text-xs text-ink-3 hover:text-ink transition-colors"
+            >
+              Qaytarish siyosati
             </Link>
           </div>
         </div>

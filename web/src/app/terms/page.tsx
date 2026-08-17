@@ -50,7 +50,11 @@ export default function TermsPage() {
           rejaga o&apos;tganingizda, tanlangan davr uchun to&apos;lov amalga
           oshiriladi. Obunani istalgan vaqtda bekor qilishingiz mumkin — bekor
           qilingan obuna joriy to&apos;langan davr oxirigacha kuchda qoladi.
-          To&apos;lovlar, agar qonun talab qilmasa, qaytarilmaydi.
+          Pulni qaytarish shartlari uchun{' '}
+          <a href="/refund" className="text-accent-ink hover:underline">
+            Qaytarish siyosati
+          </a>
+          ga qarang.
         </p>
       </LegalSection>
 

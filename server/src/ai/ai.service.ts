@@ -12,13 +12,18 @@ import { findOwnedConnection } from '../common/utils/connection-ownership.util';
 import { AiInsightType, Prisma } from '@metrix/prisma-client';
 import { getErrorMessage } from '../common/utils/error.util';
 
-async function getGroq() {
-  const { default: Groq } = await import('groq-sdk');
-  return new Groq({ apiKey: process.env.GROQ_API_KEY });
-}
-async function getGemini() {
-  const { GoogleGenerativeAI } = await import('@google/generative-ai');
-  return new GoogleGenerativeAI(process.env.GEMINI_API_KEY as string);
+async function getAzureOpenAI() {
+  const { OpenAI } = await import('openai');
+  // AZURE_OPENAI_ENDPOINT `.../openai/v1` bilan tugaydi — bu Azure'ning
+  // yangi, versiyasiz (OpenAI SDK bilan to'g'ridan-to'g'ri mos) API
+  // surface'i. Klassik `api-version` query parametrini qo'shish shu yerda
+  // "API version not supported" (400) bilan qulaydi — HAR SAFAR, tekshirib
+  // ko'rilgan.
+  return new OpenAI({
+    apiKey: process.env.AZURE_OPENAI_API_KEY,
+    baseURL: process.env.AZURE_OPENAI_ENDPOINT,
+    defaultHeaders: { 'api-key': process.env.AZURE_OPENAI_API_KEY },
+  });
 }
 
 const SYSTEM = `Sen Metrix — unified analytics dashboard uchun AI tahlilchisan.
@@ -44,16 +49,17 @@ export class AiService {
     maxTokens = 1500,
   ): Promise<{
     text: string;
-    provider: 'GROQ' | 'GEMINI';
+    provider: 'AZURE_OPENAI';
     tokensUsed: number;
   }> {
-    // Groq — 3 ta urinish (tarmoq xatolari uchun)
-    if (process.env.GROQ_API_KEY) {
+    if (process.env.AZURE_OPENAI_API_KEY) {
       for (let attempt = 1; attempt <= 3; attempt++) {
         try {
-          const groq = await getGroq();
-          const res = await groq.chat.completions.create({
-            model: 'llama-3.3-70b-versatile',
+          const client = await getAzureOpenAI();
+          const deploymentName =
+            process.env.AZURE_OPENAI_DEPLOYMENT_NAME || 'gpt-4.1-mini';
+          const res = await client.chat.completions.create({
+            model: deploymentName,
             messages: [
               { role: 'system', content: SYSTEM },
               { role: 'user', content: prompt },
@@ -63,7 +69,9 @@ export class AiService {
           });
           const text = res.choices[0]?.message?.content ?? '';
           const tokensUsed = res.usage?.total_tokens ?? 0;
-          if (text) return { text, provider: 'GROQ', tokensUsed };
+          if (text) {
+            return { text, provider: 'AZURE_OPENAI', tokensUsed };
+          }
         } catch (err: unknown) {
           const code =
             err && typeof err === 'object' && 'code' in err
@@ -76,32 +84,14 @@ export class AiService {
             code === 'ENOTFOUND';
           if (isConnErr && attempt < 3) {
             this.logger.warn(
-              `Groq ulanish xatosi (${attempt}/3), qayta urinilmoqda...`,
+              `Azure OpenAI ulanish xatosi (${attempt}/3), qayta urinilmoqda...`,
             );
             await new Promise((r) => setTimeout(r, 1500 * attempt));
             continue;
           }
-          this.logger.warn(`Groq error: ${message}`);
+          this.logger.error(`Azure OpenAI error: ${message}`);
           break;
         }
-      }
-    }
-
-    // Gemini fallback
-    if (process.env.GEMINI_API_KEY) {
-      try {
-        const genAI = await getGemini();
-        const model = genAI.getGenerativeModel({
-          model: 'gemini-2.0-flash',
-          systemInstruction: SYSTEM,
-          generationConfig: { maxOutputTokens: maxTokens, temperature: 0.6 },
-        });
-        const res = await model.generateContent(prompt);
-        const text = res.response.text() ?? '';
-        const tokensUsed = res.response.usageMetadata?.totalTokenCount ?? 0;
-        if (text) return { text, provider: 'GEMINI', tokensUsed };
-      } catch (err: unknown) {
-        this.logger.error(`Gemini error: ${getErrorMessage(err)}`);
       }
     }
 

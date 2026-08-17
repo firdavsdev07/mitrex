@@ -31,7 +31,7 @@ const NO_REFRESH_RETRY = [
 // Sahifalar — bu yerlarda 401 kelsa (masalan forma yuborilayotganda sessiya
 // allaqachon tugagan bo'lsa) hard-redirect qilinmaydi, aks holda foydalanuvchi
 // hali to'ldirayotgan forma holati (masalan reset-password token) yo'qoladi.
-const PUBLIC_ROUTES = ['/login', '/register', '/forgot-password', '/reset-password'];
+const PUBLIC_ROUTES = ['/login', '/register', '/forgot-password', '/reset-password', '/restore-account'];
 
 let refreshPromise: Promise<string | null> | null = null;
 

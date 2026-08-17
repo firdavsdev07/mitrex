@@ -31,12 +31,8 @@ export class BillingController {
   @ApiOperation({ summary: 'Subscribe or upgrade to a plan' })
   @ApiResponse({ status: 201, description: 'Subscription updated' })
   @ApiResponse({ status: 400, description: 'Invalid plan slug' })
-  checkout(
-    @CurrentUser('id') userId: string,
-    @CurrentUser('email') userEmail: string,
-    @Body() dto: CheckoutDto,
-  ) {
-    return this.billingService.checkout(userId, userEmail, dto.plan);
+  checkout(@CurrentUser('id') userId: string, @Body() dto: CheckoutDto) {
+    return this.billingService.checkout(userId, dto.plan);
   }
 
   @Delete('cancel')
@@ -51,7 +47,7 @@ export class BillingController {
   @Get('invoices')
   @ApiOperation({ summary: 'Get invoice history' })
   @ApiResponse({ status: 200, description: 'List of past invoices' })
-  getInvoices(@CurrentUser('id') userId: string) {
-    return this.billingService.getInvoices(userId);
+  getInvoices() {
+    return this.billingService.getInvoices();
   }
 }

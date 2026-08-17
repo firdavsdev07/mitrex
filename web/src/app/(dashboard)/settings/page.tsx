@@ -22,6 +22,7 @@ import {
   AlertTriangle,
 } from 'lucide-react';
 import { billingApi, type BillingDetailsResponse, type Invoice } from '@/lib/api/billing';
+import { plansApi, type Plan } from '@/lib/api/plans';
 import { exportApi, triggerDownload } from '@/lib/api/export';
 import { apiClient } from '@/lib/api/client';
 import { authApi, type LoginEvent } from '@/lib/api/auth';
@@ -821,10 +822,48 @@ function DangerTab({ onDeleted }: { onDeleted: () => void }) {
   );
 }
 
+// Narx/limit sonlari `/plans`dan keladi (admin panelda o'zgarishi mumkin) —
+// faqat qisqa marketing izohi (tagline) va K-formatlash shu yerda qoladi,
+// chunki bular biznes mantiq emas, faqat taqdimot.
+const PLAN_TAGLINES: Record<string, string> = {
+  free: 'Oddiy kuzatuv',
+  starter: 'Kreatorlar uchun',
+  pro: 'Professional',
+};
+
+function fmtLimit(n: number): string {
+  if (n === -1) return 'Cheksiz';
+  if (n >= 1000) return `${n / 1000}K`;
+  return `${n}`;
+}
+
+function planFeatures(plan: Plan): string[] {
+  const features = [
+    plan.maxWebsites === -1
+      ? 'Cheksiz veb-sayt'
+      : `${plan.maxWebsites} ta veb-sayt`,
+    `${fmtLimit(plan.maxMonthlyViews)} oylik tashrif`,
+    plan.dataRetentionDays === -1
+      ? "Cheksiz ma'lumot saqlash"
+      : plan.dataRetentionDays >= 365
+        ? `${Math.round(plan.dataRetentionDays / 365)} yillik ma'lumot`
+        : `${plan.dataRetentionDays} kunlik saqlash`,
+    plan.maxPlatforms === 0
+      ? "Platformalar yo'q"
+      : plan.maxPlatforms === -1
+        ? 'Barcha platformalar'
+        : `${plan.maxPlatforms} ta platforma`,
+  ];
+  if (plan.hasWeeklyReport) features.push('AI haftalik hisobot');
+  if (plan.hasCustomAlerts) features.push('Custom AI + Alertlar');
+  return features;
+}
+
 function BillingTab() {
   const [data, setData] = useState<BillingDetailsResponse | null>(null);
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [usage, setUsage] = useState<UsageStats | null>(null);
+  const [plans, setPlans] = useState<Plan[]>([]);
   const [loading, setLoading] = useState(true);
   const [checkoutLoading, setCheckoutLoading] = useState<string | null>(null);
   const [cancelLoading, setCancelLoading] = useState(false);
@@ -850,14 +889,16 @@ function BillingTab() {
 
     async function loadData() {
       try {
-        const [res, invRes, usageRes] = await Promise.all([
+        const [res, invRes, usageRes, plansRes] = await Promise.all([
           billingApi.getSubscription(),
           billingApi.getInvoices().catch(() => ({ invoices: [] })),
           apiClient.get<UsageStats>('/users/me/usage').then((r) => r.data).catch(() => null),
+          plansApi.list().catch(() => []),
         ]);
         setData(res);
         setInvoices(invRes.invoices);
         setUsage(usageRes);
+        setPlans(plansRes);
       } catch (err) {
         console.error("Billing ma'lumotlarini yuklashda xato:", err);
       } finally {
@@ -1007,30 +1048,10 @@ function BillingTab() {
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {[
-              {
-                slug: 'free',
-                name: 'Free',
-                price: '$0',
-                desc: 'Oddiy kuzatuv',
-                features: ['1 ta veb-sayt', '5K oylik tashrif', '30 kunlik saqlash', 'Platformalar yo\'q'],
-              },
-              {
-                slug: 'starter',
-                name: 'Starter',
-                price: '$9',
-                desc: 'Kreatorlar uchun',
-                features: ['3 ta veb-sayt', '50K oylik tashrif', '1 yillik ma\'lumot', 'Barcha platformalar', 'AI haftalik hisobot'],
-              },
-              {
-                slug: 'pro',
-                name: 'Pro',
-                price: '$19',
-                desc: 'Professional',
-                features: ['Cheksiz veb-sayt', 'Cheksiz tashrif', 'Cheksiz tarix', 'Barcha platformalar', 'Custom AI + Alertlar', 'API kirish'],
-              },
-            ].map((plan) => {
+            {plans.map((plan) => {
               const isCurrent = currentPlan.slug === plan.slug;
+              const priceNum = Number(plan.price);
+              const features = planFeatures(plan);
               return (
                 <div
                   key={plan.slug}
@@ -1041,14 +1062,16 @@ function BillingTab() {
                   }`}
                 >
                   <h4 className="font-semibold text-ink mb-1">{plan.name}</h4>
-                  <p className="text-xs text-ink-3 mb-3">{plan.desc}</p>
+                  <p className="text-xs text-ink-3 mb-3">
+                    {PLAN_TAGLINES[plan.slug] ?? ''}
+                  </p>
                   <div className="text-2xl font-bold text-ink mb-4">
-                    {plan.price}
+                    ${priceNum % 1 === 0 ? priceNum : priceNum.toFixed(2)}
                     <span className="text-xs text-ink-3 font-normal">/oy</span>
                   </div>
 
                   <ul className="space-y-2 mb-6 flex-1">
-                    {plan.features.map((f, i) => (
+                    {features.map((f, i) => (
                       <li key={i} className="text-xs text-ink-2 flex items-center gap-1.5">
                         <span className="w-1.5 h-1.5 rounded-full bg-accent-quiet" />
                         {f}

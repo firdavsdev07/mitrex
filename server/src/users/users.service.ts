@@ -19,25 +19,6 @@ export class UsersService {
     private readonly email: EmailService,
   ) {}
 
-  async getProfile(userId: string) {
-    const user = await this.prisma.user.findUnique({
-      where: { id: userId },
-      select: {
-        id: true,
-        email: true,
-        name: true,
-        avatar: true,
-        role: true,
-        provider: true,
-        twoFactorEnabled: true,
-        weeklyDigest: true,
-        createdAt: true,
-      },
-    });
-    if (!user) throw new NotFoundException('User not found');
-    return user;
-  }
-
   async updateProfile(userId: string, dto: UpdateUserDto) {
     return this.prisma.user.update({
       where: { id: userId },

@@ -69,6 +69,7 @@ enum AlertChannel {
 enum AiProvider {
   GROQ
   GEMINI
+  AZURE_OPENAI
 }
 
 enum AiInsightType {
@@ -190,9 +191,6 @@ model Plan {
   hasCustomAlerts   Boolean            @default(false)
   isActive          Boolean            @default(true)
   sortOrder         Int                @default(0)
-  // Lemon Squeezy Variant ID (masalan "12345") — bepul (free) planda null.
-  // scripts/lemon-provision-plans.ts orqali to'ldiriladi.
-  lemonVariantId    String?            @unique
   createdAt         DateTime           @default(now())
   updatedAt         DateTime           @updatedAt
   subscriptions     UserSubscription[]
@@ -201,22 +199,17 @@ model Plan {
 }
 
 model UserSubscription {
-  id                  String             @id @default(uuid()) @db.Uuid
-  userId              String             @unique @db.Uuid
-  planId              String             @db.Uuid
-  status              SubscriptionStatus @default(ACTIVE)
-  currentPeriodStart  DateTime           @default(now())
-  currentPeriodEnd    DateTime?
-  canceledAt          DateTime?
-  // Lemon Squeezy orqali obuna bo'lgan userlar uchun to'ldiriladi — checkout
-  // webhook'idan keladi. Free plan yoki admin tomonidan qo'lda berilgan
-  // plan'larda null.
-  lemonCustomerId     String?
-  lemonSubscriptionId String?            @unique
-  createdAt           DateTime           @default(now())
-  updatedAt           DateTime           @updatedAt
-  user                User               @relation(fields: [userId], references: [id], onDelete: Cascade)
-  plan                Plan               @relation(fields: [planId], references: [id])
+  id                 String             @id @default(uuid()) @db.Uuid
+  userId             String             @unique @db.Uuid
+  planId             String             @db.Uuid
+  status             SubscriptionStatus @default(ACTIVE)
+  currentPeriodStart DateTime           @default(now())
+  currentPeriodEnd   DateTime?
+  canceledAt         DateTime?
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
+  user               User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  plan               Plan               @relation(fields: [planId], references: [id])
 
   @@map("user_subscriptions")
 }
